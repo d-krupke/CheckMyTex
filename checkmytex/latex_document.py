@@ -4,38 +4,53 @@ import unittest
 
 import flachtex
 from flachtex import FileFinder
+from flachtex.utils import compute_row_index
 from yalafi.tex2txt import Options, tex2txt
 
 from flachtex.rules import RegexSkipRule, Range, BASIC_SKIP_RULES
 
-def _compute_row_index(content: str)->typing.List[int]:
-    index = [0]
-    i = content.find("\n")
-    while i>=0:
-        index.append(i+1)
-        i = content.find("\n",i+1)
-    return index
 
 class IgnoreRule(RegexSkipRule):
+    """
+    A skip rule for flachtex to remove parts delimited by `%%PAUSE-CHECKING`
+    and `%%CONTINUE-CHECKING`.
+    """
+
     def __init__(self):
-        super().__init__(r"((^\s*%%PAUSE-CHECKING)(?P<skipped_part>.*?)(^\s*%%CONTINUE-CHECKING))")
+        super().__init__(
+            r"((^\s*%%PAUSE-CHECKING)(?P<skipped_part>.*?)(^\s*%%CONTINUE-CHECKING))")
 
     def determine_skip(self, match: re.Match):
-        span_to_be_skipped = Range(match.start("skipped_part"), match.end("skipped_part"))
+        span_to_be_skipped = Range(match.start("skipped_part"),
+                                   match.end("skipped_part"))
         return span_to_be_skipped
 
 
 class Origin:
+    """
+    The origin of a part of the parse latex document.
+    """
+
     class Position:
+        """
+        A position in a text file.
+        """
+
         def __init__(self, pos, row, col):
-            self.pos = pos
-            self.row = row
-            self.col = col
+            self.pos = pos  # position in the file. Starting at zero.
+            self.row = row  # row or line in the file. Starting at zero.
+            self.col = col  # column in the line. Starting at zero.
 
         def __eq__(self, other):
-            return self.pos == other.pos and self.row == other.row and self.col == other.col
+            if not isinstance(other, Origin.Position):
+                raise ValueError("Can only compare positions.")
+            return self.pos == other.pos \
+                   and self.row == other.row \
+                   and self.col == other.col
 
         def __lt__(self, other):
+            if not isinstance(other, Origin.Position):
+                raise ValueError("Can only compare positions.")
             return self.pos < other.pos
 
     def __init__(self, file: str, begin: Position, end: Position):
@@ -45,50 +60,100 @@ class Origin:
         assert begin != end, "This would be empty"
 
     def __repr__(self):
-        return f"{self.file}[{self.begin.pos}:{self.begin.row}:{self.begin.col}-{self.end.pos}:{self.end.row}:{self.end.col}]"
+        return f"{self.file}" \
+               f"[{self.begin.pos}:{self.begin.row}:{self.begin.col}" \
+               f"-{self.end.pos}:{self.end.row}:{self.end.col}]"
 
     def __eq__(self, other):
-        return self.file == other.file and self.begin == other.begin and self.end == other.end
+        if not isinstance(other, Origin):
+            raise ValueError("Can only compare origins.")
+        return self.file == other.file \
+               and self.begin == other.begin \
+               and self.end == other.end
 
 
 class LatexDocument:
-    def __init__(self):
+    """
+    A latex document that provides a coherent source string (using flachtex) and a compiled text string (using yalafi).
+    This tools primarily combines the two tools and provides a unified interface to query the origin of a part in
+    the source or the compiled text.
+    """
+
+    def __init__(self, path: str, detex=True, file_finder=None):
         self._source: flachtex.TraceableString = None
         self._sources_row_indices = {}
         self._files = None
         self._detex = None
         self._detex_charmap = None
         self._detex_line_index = None
+        self._parse(path, detex, file_finder)
 
-    def parse(self, path: str, detex=True, file_finder=None):
-        flat_source, sources = flachtex.expand_file_and_attach_sources(path,
-                                                                       skip_rules=BASIC_SKIP_RULES + [IgnoreRule()],
-                                                                       file_finder=file_finder)
+    def _parse(self, path: str, detex=True, file_finder=None):
+        """
+        Parses and detexes a latex document. Automatically includes all
+        includes files in the path.
+        :param path: Path to the main file of the latex document.
+        :param detex: Set to false if you do not need to detex the document.
+        :param file_finder: A file finder. Can be set explicitly for testing.
+        :return: Returns itself.
+        """
+        expand = flachtex.expand_file_and_attach_sources
+        flat_source, sources = expand(path,
+                                      skip_rules=BASIC_SKIP_RULES + [
+                                          IgnoreRule()],
+                                      file_finder=file_finder)
         self._source = flachtex.remove_comments(flat_source)
         self._files = sources
         if detex:
             opts = Options()
             self._detex, self._detex_charmap = tex2txt(str(self._source), opts)
-            self._detex_line_index = _compute_row_index(self._detex)
+            self._detex_line_index = compute_row_index(self._detex)
+        return self
 
     def files(self) -> typing.Iterable[str]:
+        """
+        A list of all files in the latex document.
+        Sorted by inclusion.
+        :return:
+        """
         for f in self._files.keys():
             yield f
 
-
-
     def get_source(self) -> str:
+        """
+        returns the flattened LaTeX source.
+        :return: Single string of the latex source.
+        """
         return str(self._source)
 
     def get_text(self) -> str:
+        """
+        Returns the compiled text.
+        :return: Compiled text as (unicode) string.
+        """
         if not self._detex:
             raise ValueError("No detex available!")
         return self._detex
 
     def get_file_content(self, path: str) -> str:
+        """
+        Return the content of a file. Does not perform any file reads but
+        returns from cache.
+        :param path: Path to the file.
+        :return: Content of file as string.
+        """
         return self._files[path]["content"]
 
-    def get_origin_of_text(self, begin, end) -> Origin:
+    def get_origin_of_text(self,
+                           begin: typing.Union[int, typing.Tuple[int, int]],
+                           end: typing.Union[int, typing.Tuple[int, int]]) \
+            -> Origin:
+        """
+        Returns the origin of the compiled text (`get_text`).
+        :param begin: (Inclusive) begin either as position or line+column
+        :param end: (Exclusive) end either as position or line+column
+        :return: Origin of the part.
+        """
         if isinstance(begin, tuple):
             begin = self._detex_line_index[begin[0]] + begin[1]
             end = self._detex_line_index[end[0]] + end[1]
@@ -101,10 +166,12 @@ class LatexDocument:
 
     def _create_origin(self, path, begin: int, end: int) -> Origin:
         if path not in self._sources_row_indices:
-            self._sources_row_indices[path] = _compute_row_index(self.get_file_content(path))
+            self._sources_row_indices[path] = compute_row_index(
+                self.get_file_content(path))
         row_index = self._sources_row_indices[path]
         row_begin = 0
-        while row_begin + 1 < len(row_index) and begin >= row_index[row_begin + 1]:
+        while row_begin + 1 < len(row_index) and begin >= row_index[
+            row_begin + 1]:
             row_begin += 1
         # row_begin -= 1
         assert row_begin >= 0
@@ -123,7 +190,14 @@ class LatexDocument:
 
     def get_origin_of_source(self,
                              begin: typing.Union[int, typing.Tuple[int, int]],
-                             end: typing.Union[int, typing.Tuple[int, int]]) -> Origin:
+                             end: typing.Union[
+                                 int, typing.Tuple[int, int]]) -> Origin:
+        """
+        Returns the origin of the flattened source (`get_source`).
+        :param begin: (Inclusive) begin either as position or line+column
+        :param end: (Exclusive) end either as position or line+column
+        :return: Origin of the part.
+        """
         if isinstance(begin, int):
             begin = (0, begin)
             end = (0, end)
@@ -134,92 +208,5 @@ class LatexDocument:
         while origin_begin[0] != origin_end[0]:
             end = (end[0], end[1] - 1)
             origin_end = self._source.get_origin_of_line(end[0], end[1] - 1)
-        return self._create_origin(origin_begin[0], origin_begin[1], origin_end[1])
-
-
-class LatexDocumentTest(unittest.TestCase):
-    def test_1(self):
-        sources = {
-            "/main.tex": "0123\n\tBCD\nXYZ\n"
-        }
-        document = LatexDocument()
-        document.parse("/main.tex", file_finder=FileFinder("/", "/main.tex", sources))
-        self.assertEqual(document.get_source(), sources["/main.tex"])
-        self.assertEqual(document.get_text(), sources["/main.tex"])
-        for i in range(4):
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin("/main.tex", Origin.Position(i, 0, i), Origin.Position(i + 1, 0, i + 1))
-            self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
-        for i in range(5, 8):
-            j = i - 5
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin("/main.tex", Origin.Position(i, 1, j), Origin.Position(i + 1, 1, j + 1))
-            self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
-
-    def test_2(self):
-
-        sources = {
-            "/main.tex": "0123\n\\input{sub.tex}\nXYZ\n",
-            "/sub.tex":"ABC\n"
-        }
-        document = LatexDocument()
-        document.parse("/main.tex", file_finder=FileFinder("/", "/main.tex", sources))
-        for i in range(4):
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin("/main.tex", Origin.Position(i, 0, i), Origin.Position(i + 1, 0, i + 1))
-            self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
-        for i in range(5, 8):
-            j = i - 5
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin("/sub.tex", Origin.Position(j, 0, j), Origin.Position(j + 1, 0, j + 1))
-            self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
-
-    def test_3(self):
-        sources = {
-            "/main.tex": "\\input{sub.tex}\n",
-            "/sub.tex": "\\input{A.tex}\n\\input{B.tex}\n\\input{C.tex}",
-            "/A.tex": "A0\nA1\nA2\n",
-            "/B.tex": "B0\nB1\nB2\n",
-            "/C.tex": "C0\nC1\nC2",
-        }
-        document = LatexDocument()
-        document.parse("/main.tex", file_finder=FileFinder("/", "/main.tex", sources))
-        for f in ["A", "B", "C"]:
-            for i in range(0,3):
-                key = f"{f}{i}"
-                origin = Origin("/"+f+".tex", Origin.Position(3*i, i, 0), Origin.Position(3*i+1, i, 1))
-                p = document.get_text().find(key)
-                self.assertEqual(origin, document.get_origin_of_source(p, p+1))
-                self.assertEqual(origin, document.get_origin_of_text(p, p+1))
-
-    def test_4(self):
-        sources = {
-            "/main.tex": "\\input{sub.tex}\n",
-            "/sub.tex": "\\input{A.tex}\n\\input{B.tex}\n\\input{C.tex}",
-            "/A.tex": "A0\nA1\nA2\n",
-            "/B.tex": "\nB1\nB2\n",
-            "/C.tex": "C0\nC1\nC2",
-        }
-        document = LatexDocument()
-        document.parse("/main.tex", file_finder=FileFinder("/", "/main.tex", sources))
-        for f in ["A", "B", "C"]:
-            for i in range(0,3):
-                key = f"{f}{i}"
-                if key=="B0":
-                    continue
-                if f=="B":
-                    origin = Origin("/" + f + ".tex", Origin.Position(3 * i-2, i, 0), Origin.Position(3 * i + 1-2, i, 1))
-                else:
-                    origin = Origin("/"+f+".tex", Origin.Position(3*i, i, 0), Origin.Position(3*i+1, i, 1))
-                p = document.get_text().find(key)
-                self.assertEqual(origin, document.get_origin_of_source(p, p+1))
-                self.assertEqual(origin, document.get_origin_of_text(p, p+1))
-
+        return self._create_origin(origin_begin[0], origin_begin[1],
+                                   origin_end[1])

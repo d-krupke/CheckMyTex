@@ -8,6 +8,9 @@ from .problem import Problem
 
 
 class ChkTex(Checker):
+    """
+    A checker module for chktex.
+    """
     _format_str = "{input=\"%f\"," \
                   " row=%l," \
                   " col=%c," \
