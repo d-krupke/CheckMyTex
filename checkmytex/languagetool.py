@@ -10,7 +10,7 @@ from .problem import Problem
 class Languagetool(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         result, err, ex = self._run(
-            f"languagetool --json -l en-US "
+            f"{shutil.which('languagetool')} --json -l en-US "
             f"--disable "
             f"MORFOLOGIK_RULE_EN_US,"
             f"WHITESPACE_RULE,"
@@ -39,3 +39,13 @@ class Languagetool(Checker):
 
     def needs_detex(self):
         return True
+
+    def installation_guide(self) -> str:
+        return "You can probably install install languagetool directly" \
+               " with your package manager.\n" \
+               " e.g. brew install languagetool\n" \
+               "      apt-get install languagetool\n" \
+               "      pacman -S languagetool\n" \
+               "...\n" \
+               "Otherwise, you can install it by hand:" \
+               " https://github.com/languagetool-org/languagetool"

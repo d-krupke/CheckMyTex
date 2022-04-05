@@ -7,12 +7,12 @@ def readme():
 
 
 setup(name='CheckMyTex',
-      version='0.0.2',
+      version='0.1.0',
       description='A simple tool for checking complex LaTeX documents, e.g., dissertations.',
       long_description=readme(),
       long_description_content_type="text/markdown",
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 4 - Beta',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
       ],

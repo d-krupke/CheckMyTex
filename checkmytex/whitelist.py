@@ -20,12 +20,15 @@ class Whitelist:
         self._on_add = on_add
         self._path = path
         self._rules = set()
+        self._skip_files = []
         if self._path and os.path.exists(path):
             self.load(path)
 
     def __contains__(self, item: Problem):
         if not isinstance(item, Problem):
             raise ValueError("Can only check for problems")
+        if item.origin.file in self._skip_files:
+            return True
         return item.short_id.strip() in self._shortkeys or item.rule in self._rules
 
     def load(self, path: str) -> None:
@@ -63,6 +66,14 @@ class Whitelist:
         :return: None
         """
         self._shortkeys.add(problem.short_id.strip())
+
+    def skip_file(self, file: str) -> None:
+        """
+        Skip all problem in this file.
+        :param file: Path to the file.
+        :return: None
+        """
+        self._skip_files.append(file)
 
     def add(self, problem: Problem, comment: str = None) -> None:
         """

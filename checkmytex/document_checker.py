@@ -33,6 +33,9 @@ class DocumentChecker:
             self.checker.append(checker)
         else:
             print(str(checker), "is not available.")
+            guide = checker.installation_guide()
+            if guide:
+                print(guide)
 
     def find_problems(self,
                       latex_document: LatexDocument,

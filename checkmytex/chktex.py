@@ -67,3 +67,6 @@ class ChkTex(Checker):
 
     def needs_detex(self):
         return False
+
+    def installation_guide(self) -> str:
+        return "chktex should come with most latex distributions."

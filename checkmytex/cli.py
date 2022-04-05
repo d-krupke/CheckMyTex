@@ -1,4 +1,5 @@
 import argparse
+import os.path
 import typing
 import webbrowser
 
@@ -33,21 +34,25 @@ def print_line(line: str, line_number: int, problems: typing.List[Problem]):
     print(f"\x1b[0;30;47m{line_number}:\x1b[0m", highlighted_line)
 
 
-def handle_problem(problem: Problem, whitelist: Whitelist, editor: Editor):
+def handle_problem(problem: Problem, whitelist: Whitelist, editor: Editor,
+                   file_line_offsets: dict):
     print_problem(problem)
     while True:
         if problem.look_up_url:
             option = input(
-                "[s]kip,[S]kip all,[I]gnore rule,[w]hitelist,[e]dit,[l]ook up:")
+                "[s]kip,[S]kip all,[n]ext file,[I]gnore rule,[w]hitelist,[e]dit,[l]ook up:")
         else:
             option = input(
-                "[s]kip,[S]kip all,[I]gnore rule,[w]hitelist,[e]dit:")
+                "[s]kip,[S]kip all,[n]ext file,[I]gnore rule,[w]hitelist,[e]dit:")
         if option == "w":
             whitelist.add(problem)
             return
         if option == "e":
-            editor.open(file=problem.origin.file,
-                        line=problem.origin.begin.row)
+            f = problem.origin.file
+            line = problem.origin.begin.row
+            offset = editor.open(file=f,
+                                 line=line + file_line_offsets.get(f, 0))
+            file_line_offsets[f] = file_line_offsets.get(f, 0) + offset
             return
         if option == "S":
             whitelist.add_temporary(problem)
@@ -58,6 +63,9 @@ def handle_problem(problem: Problem, whitelist: Whitelist, editor: Editor):
             webbrowser.open(problem.look_up_url)
         if option == 'I':
             whitelist.add_rule_temporary(problem.rule)
+            return
+        if option == "n":
+            whitelist.skip_file(problem.origin.file)
             return
 
 
@@ -91,6 +99,7 @@ class InteractiveCli:
         editor = Editor()
         whitelist = Whitelist(whitelist_path)
         latex_document = LatexDocument(main_file)
+        file_line_offsets = {}
         for f, problems in DocumentChecker().find_problems(latex_document,
                                                            whitelist):
             print_file_head(f)
@@ -111,7 +120,8 @@ class InteractiveCli:
                         if just_print:
                             print_problem(p)
                         else:
-                            handle_problem(p, whitelist, editor)
+                            handle_problem(p, whitelist, editor,
+                                           file_line_offsets)
 
 
 def main():
@@ -125,6 +135,11 @@ def main():
     if not args.path:
         parser.print_help()
         exit(1)
-    InteractiveCli(args.path[0], whitelist_path=args.w if args.w else None,
+    if args.w:
+        whitelist = args.w
+    else:
+        path = os.path.dirname(args.path[0])
+        whitelist = os.path.join(path, ".whitelist.txt")
+        print("Saving whitelist to", whitelist)
+    InteractiveCli(args.path[0], whitelist_path=whitelist,
                    just_print=args.print)
-

@@ -19,7 +19,8 @@ class Checker(abc.ABC):
         with subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
                               stdout=subprocess.PIPE) as proc:
             if input:
-                out, err = proc.communicate(str(input).replace("\t", " ").encode())
+                out, err = proc.communicate(
+                    str(input).replace("\t", " ").encode())
             else:
                 out, err = proc.communicate()
             return out.decode() if out else None, err.decode() if err else None, proc.wait()
@@ -29,3 +30,6 @@ class Checker(abc.ABC):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def installation_guide(self) -> str:
+        return "No installation guide available yet."

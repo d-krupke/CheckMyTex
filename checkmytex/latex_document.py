@@ -164,6 +164,18 @@ class LatexDocument:
             e += 1
         return self.get_origin_of_source(b, e)
 
+    def get_source_context(self, origin: Origin, n: int = 20) -> str:
+        """
+        Returns the surrounding source. Can be better suited to whitelist
+        some problems.
+        :param origin: The origin of the problem
+        :param n: +-n characters
+        :return: The source context of the problem's origin.
+        """
+        text = self.get_file_content(origin.file)
+        return text[max(0, origin.begin.pos - n): min(len(text),
+                                                      origin.end.pos + n)]
+
     def _create_origin(self, path, begin: int, end: int) -> Origin:
         if path not in self._sources_row_indices:
             self._sources_row_indices[path] = compute_row_index(
