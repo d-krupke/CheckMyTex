@@ -9,6 +9,7 @@ from .problem import Problem
 
 class Languagetool(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
+        print("Running Langugagetool...")
         result, err, ex = self._run(
             f"{shutil.which('languagetool')} --json -l en-US "
             f"--disable "

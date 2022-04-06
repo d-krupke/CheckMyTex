@@ -159,9 +159,7 @@ class LatexDocument:
             end = self._detex_line_index[end[0]] + end[1]
         end -= 1
         b = self._detex_charmap[begin] - 1
-        e = self._detex_charmap[end] - 1
-        if b == e:
-            e += 1
+        e = self._detex_charmap[end]
         return self.get_origin_of_source(b, e)
 
     def get_source_context(self, origin: Origin, n: int = 20) -> str:

@@ -15,8 +15,10 @@ class Editor:
     }
     _default_pattern = "{e} {f}"
 
-    def __init__(self, editor=None, pattern=None):
+    def __init__(self, editor=None, pattern=None, remember_offsets=True):
         self.editor = editor if editor else os.environ.get("EDITOR")
+        self.offsets = {}
+        self.remember_offsets = remember_offsets
         if pattern:
             self.editor_pattern = pattern
         else:
@@ -24,11 +26,17 @@ class Editor:
                 self.editor.split("/")[-1],
                 self._default_pattern)
 
+    def _number_of_lines(self, f):
+        with open(f, "r") as f:
+           return len(f.readlines())
+
     def open(self, file, line) -> int:
-        with open(file, "r") as f:
-            l1 = len(f.readlines())
-        cmd = self.editor_pattern.format(e=self.editor, f=file, l=line + 1)
+        l1 = self._number_of_lines(file)
+        offset = self.offsets.get(file, 0) if self.remember_offsets else 0
+        cmd = self.editor_pattern.format(e=self.editor, f=file,
+                                         l=line + 1 + offset)
         subprocess.call(cmd, shell=True)
-        with open(file, "r") as f:
-            l2 = len(f.readlines())
-        return l2 - l1
+        l2 = self._number_of_lines(file)
+        offset = l2 - l1
+        self.offsets[file] = offset
+        return offset

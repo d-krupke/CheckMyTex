@@ -5,76 +5,15 @@ import webbrowser
 
 from .document_checker import DocumentChecker
 from .editor import Editor
+from .highlighted_output import print_line, print_problem, print_file_head
 from .latex_document import LatexDocument
 from .problem import Problem
+from .prompt import ProblemHandlerPrompt
 from .whitelist import Whitelist
 
 
-def print_line(line: str, line_number: int, problems: typing.List[Problem]):
-    highlighted_line = []
-    highlighting = False
-    j = 0
-    for i, c in enumerate(line):
-        if problems and (
-                problems[j].origin.begin.row < line_number or problems[
-            j].origin.begin.col == i):
-            if not highlighting:
-                highlighting = True
-                highlighted_line.append("\033[91m\033[4m")
-        highlighted_line.append(c)
-        if problems and problems[j].origin.end.row == line_number and problems[
-            j].origin.end.col == i:
-            if highlighting:
-                highlighting = False
-                highlighted_line.append("\033[0m")
-                j = min(len(problems) - 1, j + 1)
-    if highlighting:
-        highlighted_line.append("\033[0m")
-    highlighted_line = "".join(highlighted_line).replace("\n", "")
-    print(f"\x1b[0;30;47m{line_number}:\x1b[0m", highlighted_line)
-
-
-def handle_problem(problem: Problem, whitelist: Whitelist, editor: Editor,
-                   file_line_offsets: dict):
-    print_problem(problem)
-    while True:
-        if problem.look_up_url:
-            option = input(
-                "[s]kip,[S]kip all,[n]ext file,[I]gnore rule,[w]hitelist,[e]dit,[l]ook up:")
-        else:
-            option = input(
-                "[s]kip,[S]kip all,[n]ext file,[I]gnore rule,[w]hitelist,[e]dit:")
-        if option == "w":
-            whitelist.add(problem)
-            return
-        if option == "e":
-            f = problem.origin.file
-            line = problem.origin.begin.row
-            offset = editor.open(file=f,
-                                 line=line + file_line_offsets.get(f, 0))
-            file_line_offsets[f] = file_line_offsets.get(f, 0) + offset
-            return
-        if option == "S":
-            whitelist.add_temporary(problem)
-            return
-        if option == "s":
-            return
-        if problem.look_up_url and option == "l":
-            webbrowser.open(problem.look_up_url)
-        if option == 'I':
-            whitelist.add_rule_temporary(problem.rule)
-            return
-        if option == "n":
-            whitelist.skip_file(problem.origin.file)
-            return
-
-
-def print_problem(problem: Problem):
-    print(f" >>>  \033[93m{problem.message}\033[0m")
-
-
-def get_relevant_row_indices(problems: typing.Iterable[Problem]) -> typing.Set[
-    int]:
+def get_relevant_row_indices(problems: typing.Iterable[Problem]) \
+        -> typing.Set[int]:
     relevant_rows = set()
     for p in problems:
         for i in range(0, 3):
@@ -87,41 +26,50 @@ def get_relevant_row_indices(problems: typing.Iterable[Problem]) -> typing.Set[
     return relevant_rows
 
 
-def print_file_head(f: str):
-    print(f"\x1b[0;30;47m{'=' * len(f)}\x1b[0m")
-    print(f"\033[95m{f}\033[0m")
-    print(f"\x1b[0;30;47m{'=' * len(f)}\x1b[0m")
-
-
 class InteractiveCli:
-    def __init__(self, main_file: str, whitelist_path: str = None,
+    def _process_file(self, f, problems):
+        print_file_head(f)
+        if not problems:
+            print("No problems found.")
+            return
+        else:
+            if len(problems) > 1:
+                print(f"{len(problems)} problems found.")
+            else:
+                print("1 problem found.")
+        relevant_rows = get_relevant_row_indices(problems)
+        last_printed_row = -1
+        for i, l in enumerate(
+                self.latex_document.get_file_content(f).split("\n")):
+            if i not in relevant_rows:
+                if last_printed_row == i - 1:
+                    print(" ...")
+                continue
+            last_printed_row = i
+            line_problems = [p for p in problems if
+                             p.origin.begin.row <= i <= p.origin.end.row]
+            print_line(l, i, line_problems)
+            for p in line_problems:
+                if p.origin.end.row == i and p not in self.whitelist:
+                    if self.just_print:
+                        print_problem(p)
+                    else:
+                        self.problem_handler(p)
+
+    def __init__(self,
+                 main_file: str,
+                 whitelist_path: str = None,
                  just_print: bool = False):
-        editor = Editor()
-        whitelist = Whitelist(whitelist_path)
-        latex_document = LatexDocument(main_file)
-        file_line_offsets = {}
-        for f, problems in DocumentChecker().find_problems(latex_document,
-                                                           whitelist):
-            print_file_head(f)
-            relevant_rows = get_relevant_row_indices(problems)
-            last_printed_row = -1
-            for i, l in enumerate(
-                    latex_document.get_file_content(f).split("\n")):
-                if i not in relevant_rows:
-                    if last_printed_row == i - 1:
-                        print(" ...")
-                    continue
-                last_printed_row = i
-                line_problems = [p for p in problems if
-                                 p.origin.begin.row <= i <= p.origin.end.row]
-                print_line(l, i, line_problems)
-                for p in line_problems:
-                    if p.origin.end.row == i and p not in whitelist:
-                        if just_print:
-                            print_problem(p)
-                        else:
-                            handle_problem(p, whitelist, editor,
-                                           file_line_offsets)
+        self.just_print = just_print
+        self.editor = Editor()
+        self.whitelist = Whitelist(whitelist_path)
+        print("Parsing LaTeX project...")
+        self.latex_document = LatexDocument(main_file)
+        self.problem_handler = ProblemHandlerPrompt(self.whitelist,
+                                                    self.editor)
+        for f, problems in DocumentChecker().find_problems(self.latex_document,
+                                                           self.whitelist):
+            self._process_file(f, problems)
 
 
 def main():

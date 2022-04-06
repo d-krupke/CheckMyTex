@@ -55,6 +55,7 @@ class ChkTex(Checker):
                        message=f"{message_type}: {message}", rule=f"{message_type}: {message}")
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
+        print("Running chktex...")
         result, err, exitcode = self._run(f"chktex -f '{self._format_str}'", document.get_source())
         results = result.split("\n")
         for result in results:
