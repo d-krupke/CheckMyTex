@@ -1,6 +1,7 @@
 import typing
 
-from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell
+from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
+    Proselint
 from checkmytex.latex_document import LatexDocument
 from checkmytex.problem import Problem
 from checkmytex.whitelist import Whitelist
@@ -21,6 +22,7 @@ class DocumentChecker:
             self.add_checker(CheckSpell())
             self.add_checker(Languagetool())
             self.add_checker(SiUnitx())
+            self.add_checker(Proselint())
 
     def add_checker(self, checker: Checker) -> None:
         """

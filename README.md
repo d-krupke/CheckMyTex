@@ -20,7 +20,7 @@ The reason for sticking to a CLI are simple:
 1. Thanks to colored output, the highlighting works just as nice in CLI as in HTML. No need to switch to your browser.
 2. The CLI can use your favourite editor (currently, only (n)vim and nano have full support) without switching context.
 
-## What does CheckMyTEx currently check for you?
+## What does CheckMyTex currently check for you?
 
 * Spelling errors using [pyspellchecker](https://pypi.org/project/pyspellchecker/)
 * Grammar errors using [languagetool](https://languagetool.org/)
