@@ -2,20 +2,27 @@ import json
 import shutil
 import typing
 
-from .abstract_checker import Checker
-from .latex_document import LatexDocument
-from .problem import Problem
+from checkmytex.checker.abstract_checker import Checker
+from checkmytex.latex_document import LatexDocument
+from checkmytex.problem import Problem
 
 
 class Languagetool(Checker):
+    def __init__(self, ):
+        self._lang = "en-US"
+        self.disable_rules = ["MORFOLOGIK_RULE_EN_US",
+                              # disable spell checking because it is very slow.
+                              "WHITESPACE_RULE",
+                              # The whitespaces will be off due to detexing.
+                              "COMMA_PARENTHESIS_WHITESPACE"
+                              # Also not reliable in detexed text.
+                              ]
+
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         print("Running Langugagetool...")
         result, err, ex = self._run(
-            f"{shutil.which('languagetool')} --json -l en-US "
-            f"--disable "
-            f"MORFOLOGIK_RULE_EN_US,"
-            f"WHITESPACE_RULE,"
-            f"COMMA_PARENTHESIS_WHITESPACE",
+            f"{shutil.which('languagetool')} --json -l {self._lang} "
+            f"--disable {','.join(self.disable_rules)}",
             input=document.get_text())
         data = json.loads(result)
         for problem in data["matches"]:

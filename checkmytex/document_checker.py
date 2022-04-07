@@ -1,11 +1,8 @@
 import typing
 
-from checkmytex.abstract_checker import Checker
-from checkmytex.chktex import ChkTex
-from checkmytex.languagetool import Languagetool
+from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell
 from checkmytex.latex_document import LatexDocument
 from checkmytex.problem import Problem
-from checkmytex.spellcheck import CheckSpell
 from checkmytex.whitelist import Whitelist
 
 
@@ -13,6 +10,7 @@ class DocumentChecker:
     """
     Simple class to return the files and its problems of a latex document.
     """
+
     def __init__(self, checker=None):
         self.checker = []
         if checker:
@@ -22,6 +20,7 @@ class DocumentChecker:
             self.add_checker(ChkTex())
             self.add_checker(CheckSpell())
             self.add_checker(Languagetool())
+            self.add_checker(SiUnitx())
 
     def add_checker(self, checker: Checker) -> None:
         """

@@ -2,8 +2,8 @@ import abc
 import subprocess
 import typing
 
-from .latex_document import LatexDocument
-from .problem import Problem
+from checkmytex.latex_document import LatexDocument
+from checkmytex.problem import Problem
 
 
 class Checker(abc.ABC):

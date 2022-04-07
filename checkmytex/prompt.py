@@ -64,6 +64,7 @@ class ProblemHandlerPrompt:
         prompt.add_option("w", "[w]hitelist", self._whitelist_problem)
         prompt.add_option("I", "[I]gnore all", self._ignore_all)
         prompt.add_option("n", "[n]ext file", self._next_file)
+        prompt.add_option("x", "e[x]it", lambda p: exit(0))
         prompt.add_option("e", "[e]dit", self._edit)
         if problem.look_up_url:
             prompt.add_option("l", "[l]ook up", self._look_up)

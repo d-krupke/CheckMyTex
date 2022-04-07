@@ -3,9 +3,9 @@ import typing
 import urllib.parse
 
 from spellchecker import SpellChecker
-from .abstract_checker import Checker
-from .latex_document import LatexDocument
-from .problem import Problem
+from checkmytex.checker.abstract_checker import Checker
+from checkmytex.latex_document import LatexDocument
+from checkmytex.problem import Problem
 
 
 class CheckSpell(Checker):
