@@ -25,7 +25,7 @@ The reason for sticking to a CLI are simple:
 * Spelling errors using [pyspellchecker](https://pypi.org/project/pyspellchecker/)
 * Grammar errors using [languagetool](https://languagetool.org/)
 * LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
-* Raw numbers instead of siunitx ([simple regex](./checkmytex/checker/siunitx), showing you how easy new modules can be added)
+* Raw numbers instead of siunitx ([simple regex](./checkmytex/checker/siunitx.py), showing you how easy new modules can be added)
 
 The sources are detexed before applying grammar or spelling checking using [YaLafi](https://github.com/matze-dd/YaLafi).
 
