@@ -41,7 +41,7 @@ class DocumentChecker:
     def find_problems(self,
                       latex_document: LatexDocument,
                       whitelist: Whitelist = None) \
-            -> typing.Iterable[typing.Tuple[str, typing.List[Problem]]]:
+            -> typing.Iterable[Problem]:
         """
         Finds problems of the document. Returns an iterator of file names and sorted problems.
         :param latex_document: The latex document to check.
@@ -49,11 +49,17 @@ class DocumentChecker:
         :return: Iterator over file name and sorted problems within this file.
         """
         whitelist = whitelist if whitelist else Whitelist()
-        problems = [p for c in self.checker for p in c.check(latex_document)]
+        for c in self.checker:
+            for p in c.check(latex_document):
+                if p not in whitelist:
+                    yield p
+
+    def sort_problems_by_file(self, latex_document, problems) \
+            -> typing.Iterable[typing.Tuple[str, typing.List[Problem]]]:
         problems_of_files = {f: [] for f in latex_document.files()}
         for p in problems:
             problems_of_files[p.origin.file].append(p)
         for f in latex_document.files():
-            problems = [p for p in problems_of_files[f] if p not in whitelist]
+            problems = [p for p in problems_of_files[f]]
             problems.sort(key=lambda p: (p.origin.begin, p.origin.end))
             yield f, problems

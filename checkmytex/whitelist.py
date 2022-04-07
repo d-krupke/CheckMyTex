@@ -1,5 +1,6 @@
 import re
 import os
+import typing
 
 from .problem import Problem
 
@@ -59,6 +60,12 @@ class Whitelist:
             for key, comment in self._whitelist.items():
                 f.write(f"{key} # {comment}\n")
 
+    def filter(self, problems: typing.Iterable[Problem]) \
+            -> typing.Iterable[Problem]:
+        for p in problems:
+            if p not in self:
+                yield p
+
     def add_temporary(self, problem: Problem) -> None:
         """
         Ignore a problem temporarily (without saving).
@@ -84,7 +91,8 @@ class Whitelist:
         :return: None
         """
         self._shortkeys.add(problem.short_id.strip())
-        self._whitelist[problem.short_id.strip()] = comment if comment else problem.long_id
+        self._whitelist[
+            problem.short_id.strip()] = comment if comment else problem.long_id
         if self._on_add:
             self._on_add(problem)
         if self._path:
@@ -100,4 +108,5 @@ class Whitelist:
 
     def _save_problem(self, problem, comment):
         with open(self._path, "a") as f:
-            f.write(f"{problem.short_id} # {comment if comment else problem.long_id}\n")
+            f.write(
+                f"{problem.short_id} # {comment if comment else problem.long_id}\n")

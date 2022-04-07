@@ -8,7 +8,7 @@ from checkmytex.problem import Problem
 
 class SiUnitx(Checker):
     def __init__(self):
-        expr = r"(^|[}])[^{\d]*(?P<number>\d+[,.\d]+)\s*($|[^}\s])"
+        expr = r"(^|[}])[^{=\d]*(?P<number>\d+[,.\d\s]+)\s*($|[^}\s])"
         self.regex = re.compile(expr)
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:

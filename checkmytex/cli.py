@@ -5,7 +5,8 @@ import webbrowser
 
 from .document_checker import DocumentChecker
 from .editor import Editor
-from .highlighted_output import print_line, print_problem, print_file_head
+from .highlighted_output import print_line, print_problem, print_file_head, \
+    highlight
 from .latex_document import LatexDocument
 from .problem import Problem
 from .prompt import ProblemHandlerPrompt
@@ -46,8 +47,9 @@ class InteractiveCli:
                     print(" ...")
                 continue
             last_printed_row = i
-            line_problems = [p for p in problems if
-                             p.origin.begin.row <= i <= p.origin.end.row]
+            line_problems = [p for p in problems
+                             if p.origin.begin.row <= i <= p.origin.end.row
+                             and p not in self.whitelist]
             print_line(l, i, line_problems)
             for p in line_problems:
                 if p.origin.end.row == i and p not in self.whitelist:
@@ -67,9 +69,13 @@ class InteractiveCli:
         self.latex_document = LatexDocument(main_file)
         self.problem_handler = ProblemHandlerPrompt(self.whitelist,
                                                     self.editor)
-        for f, problems in DocumentChecker().find_problems(self.latex_document,
-                                                           self.whitelist):
-            self._process_file(f, problems)
+        doc_checker = DocumentChecker()
+        problems = list(doc_checker.find_problems(self.latex_document,
+                                                  self.whitelist))
+        print(highlight(f"Found {len(problems)} problems in the document."))
+        for f, ps in doc_checker.sort_problems_by_file(self.latex_document,
+                                                       problems):
+            self._process_file(f, list(self.whitelist.filter(ps)))
 
 
 def main():
