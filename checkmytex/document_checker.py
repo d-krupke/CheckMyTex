@@ -2,7 +2,7 @@ import re
 import typing
 
 from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
-    Proselint, Cleveref
+    Proselint, Cleveref, UniformNpHard
 from checkmytex.latex_document import LatexDocument
 from checkmytex.problem import Problem
 from checkmytex.whitelist import Whitelist
@@ -25,6 +25,7 @@ class DocumentChecker:
             self.add_checker(SiUnitx())
             self.add_checker(Proselint())
             self.add_checker(Cleveref())
+            self.add_checker(UniformNpHard())
 
     def add_checker(self, checker: Checker) -> None:
         """

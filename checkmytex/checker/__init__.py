@@ -5,3 +5,4 @@ from .spellcheck import CheckSpell
 from .abstract_checker import Checker
 from .proselint import Proselint
 from .cleveref import Cleveref
+from .nphard import UniformNpHard
