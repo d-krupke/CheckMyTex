@@ -34,13 +34,18 @@ class Languagetool(Checker):
             origin = document.get_origin_of_text(problem["offset"],
                                                  problem["offset"] +
                                                  problem["length"])
+            # using source context because the detexed context is too unstable with math
+            context = document.get_source_context(origin)
+            # the rule 'a/an' results in many false positives before math or commands.
             if self._is_an_before_math(problem, origin, document):
+                continue
+            # the upper case sentence start rule has an issue with "ABR.\ bla"
+            if self._is_uppercase_letter_after_backslash(problem, origin, document):
                 continue
             yield Problem(origin=origin,
                           context=problem["context"]["text"],
                           message=problem["message"],
-                          long_id=problem["message"]
-                                  + problem["context"]["text"],
+                          long_id=problem["message"] + context,
                           rule=problem["rule"]["id"],
                           tool="languagetool",
                           look_up_url=look_up_url)
@@ -55,6 +60,17 @@ class Languagetool(Checker):
         source = document.get_source()
         context = source[origin.end.spos: max(len(source), origin.end.spos + 10)].strip()
         if context and context[0] in ("\\", "$"):
+            return True
+        return False
+
+    def _is_uppercase_letter_after_backslash(self, problem, origin: Origin,
+                                             document: LatexDocument) -> bool:
+        if "sentence does not start with an uppercase letter" not in problem["message"]:
+            return False
+        source = document.get_source()
+        context = source[max(0, origin.begin.spos-10): origin.begin.spos].strip()
+        print("skip", problem)
+        if context and context[-1] == "\\":
             return True
         return False
 

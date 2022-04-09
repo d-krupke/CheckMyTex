@@ -37,6 +37,6 @@ class Editor:
                                          l=line + 1 + offset)
         subprocess.call(cmd, shell=True)
         l2 = self._number_of_lines(file)
-        offset = l2 - l1
+        offset += l2 - l1
         self.offsets[file] = offset
         return offset

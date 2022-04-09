@@ -7,14 +7,14 @@ from checkmytex.checker.abstract_checker import Checker
 from checkmytex.problem import Problem
 
 _proselint_config = {
-    "max_errors": 1000,
+    "max_errors": 5000,
     "checks": {
         "airlinese.misc": True,
         "annotations.misc": True,
         "archaism.misc": True,
         "cliches.hell": True,
         "cliches.misc": True,
-        "consistency.spacing": True,
+        "consistency.spacing": False,  # LaTeX does not care about spacing.
         "consistency.spelling": True,
         "corporate_speak.misc": True,
         "cursing.filth": True,

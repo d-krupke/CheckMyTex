@@ -99,8 +99,10 @@ class Whitelist:
         :return: None
         """
         self._shortkeys.add(problem.short_id.strip())
-        self._whitelist[
-            problem.short_id.strip()] = comment if comment else problem.long_id
+        key = problem.short_id.strip()
+        comment = comment if comment else \
+            f"{problem.tool}: {problem.message} - \"{problem.context}\""
+        self._whitelist[key] = comment
         if self._on_add:
             self._on_add(problem)
         if self._path:

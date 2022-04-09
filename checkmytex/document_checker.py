@@ -58,16 +58,16 @@ class DocumentChecker:
                 if p not in whitelist:
                     yield p
 
-    def _ignore_refs(self, latex_document: LatexDocument, whitelist: Whitelist):
-        expr = r"\\[Cc]?ref\{(?P<ref>[^\}]+)\}"
+    def _ignore_refs(self, latex_document: LatexDocument, whitelist: Whitelist) -> None:
+        expr = r"\\(([Cc]?ref)|(fullcite)|(refch))\{(?P<ref>[^\}]+)\}"
         for match in re.finditer(expr, latex_document.get_source()):
             whitelist.skip_range(match.start("ref"), match.end("ref"))
 
-    def _ignore_includegraphics(self, latex_document: LatexDocument, whitelist: Whitelist):
+    def _ignore_includegraphics(self, latex_document: LatexDocument,
+                                whitelist: Whitelist) -> None:
         expr = r"\\includegraphics(\[[^\]]*\])?\{(?P<path>[^\}]+)\}"
         for match in re.finditer(expr, latex_document.get_source()):
             whitelist.skip_range(match.start("path"), match.end("path"))
-
 
     def sort_problems_by_file(self, latex_document, problems) \
             -> typing.Iterable[typing.Tuple[str, typing.List[Problem]]]:

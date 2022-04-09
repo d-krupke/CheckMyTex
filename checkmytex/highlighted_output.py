@@ -40,7 +40,7 @@ def print_line(line: str, line_number: int,
 
 
 def print_problem(problem: Problem):
-    print(f" >>>  \033[93m{problem.message}\033[0m")
+    print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool})")
 
 
 def print_file_head(f: str):
