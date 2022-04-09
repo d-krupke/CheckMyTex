@@ -83,7 +83,7 @@ class LatexDocument:
     the source or the compiled text.
     """
 
-    def __init__(self, path: str, detex=True, file_finder=None):
+    def __init__(self, path: str, detex=True, file_finder=None, yalafi_opts=None):
         self._source: flachtex.TraceableString = None
         self._sources_row_indices = {}
         self._files = None
@@ -91,6 +91,7 @@ class LatexDocument:
         self._detex_charmap = None
         self._detex_line_index = None
         self._source_line_index = None
+        self._yalafi_opts = yalafi_opts if yalafi_opts else Options()
         self._parse(path, detex, file_finder)
 
     def _parse(self, path: str, detex=True, file_finder=None):
@@ -111,7 +112,7 @@ class LatexDocument:
         self._source_line_index = compute_row_index(str(self._source))
         self._files = sources
         if detex:
-            opts = Options()
+            opts = self._yalafi_opts
             self._detex, self._detex_charmap = tex2txt(str(self._source), opts)
             self._detex_line_index = compute_row_index(self._detex)
         return self

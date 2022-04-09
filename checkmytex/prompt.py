@@ -18,9 +18,9 @@ class OptionPrompt:
         self._options[key] = func
 
     def __call__(self, *args, **kwargs):
-        option = None
         finished = False
         while not finished:
+            option = None
             while option not in self._options:
                 option = input(f"{self._front}{','.join(self._texts)}{self._end}")
             finished = self._options[option](*args, **kwargs)

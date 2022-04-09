@@ -72,9 +72,20 @@ class InteractiveCli:
         doc_checker = DocumentChecker()
         problems = list(doc_checker.find_problems(self.latex_document,
                                                   self.whitelist))
+        problems_of_files = {f: ps for f, ps in
+                             doc_checker.sort_problems_by_file(self.latex_document,
+                                                               problems)}
+        # Print overview
         print(highlight(f"Found {len(problems)} problems in the document."))
-        for f, ps in doc_checker.sort_problems_by_file(self.latex_document,
-                                                       problems):
+        for f, ps in problems_of_files.items():
+            if len(ps) == 0:
+                print(f, "no problems")
+            elif len(ps) == 1:
+                print(f, highlight("1 problem"))
+            else:
+                print(f, highlight(f"{len(ps)} problems"))
+        # Go through all files
+        for f, ps in problems_of_files.items():
             self._process_file(f, list(self.whitelist.filter(ps)))
 
 
