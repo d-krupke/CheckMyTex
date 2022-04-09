@@ -65,11 +65,10 @@ class Languagetool(Checker):
 
     def _is_uppercase_letter_after_backslash(self, problem, origin: Origin,
                                              document: LatexDocument) -> bool:
-        if "sentence does not start with an uppercase letter" not in problem["message"]:
+        if problem["rule"]["id"] != "UPPERCASE_SENTENCE_START":
             return False
         source = document.get_source()
         context = source[max(0, origin.begin.spos-10): origin.begin.spos].strip()
-        print("skip", problem)
         if context and context[-1] == "\\":
             return True
         return False
