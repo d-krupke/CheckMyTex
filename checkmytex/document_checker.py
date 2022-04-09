@@ -1,7 +1,8 @@
+import re
 import typing
 
 from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
-    Proselint
+    Proselint, Cleveref
 from checkmytex.latex_document import LatexDocument
 from checkmytex.problem import Problem
 from checkmytex.whitelist import Whitelist
@@ -23,6 +24,7 @@ class DocumentChecker:
             self.add_checker(Languagetool())
             self.add_checker(SiUnitx())
             self.add_checker(Proselint())
+            self.add_checker(Cleveref())
 
     def add_checker(self, checker: Checker) -> None:
         """
@@ -49,10 +51,23 @@ class DocumentChecker:
         :return: Iterator over file name and sorted problems within this file.
         """
         whitelist = whitelist if whitelist else Whitelist()
+        self._ignore_refs(latex_document, whitelist)
+        self._ignore_includegraphics(latex_document, whitelist)
         for c in self.checker:
             for p in c.check(latex_document):
                 if p not in whitelist:
                     yield p
+
+    def _ignore_refs(self, latex_document: LatexDocument, whitelist: Whitelist):
+        expr = r"\\[Cc]?ref\{(?P<ref>[^\}]+)\}"
+        for match in re.finditer(expr, latex_document.get_source()):
+            whitelist.skip_range(match.start("ref"), match.end("ref"))
+
+    def _ignore_includegraphics(self, latex_document: LatexDocument, whitelist: Whitelist):
+        expr = r"\\includegraphics(\[[^\]]*\])?\{(?P<path>[^\}]+)\}"
+        for match in re.finditer(expr, latex_document.get_source()):
+            whitelist.skip_range(match.start("path"), match.end("path"))
+
 
     def sort_problems_by_file(self, latex_document, problems) \
             -> typing.Iterable[typing.Tuple[str, typing.List[Problem]]]:

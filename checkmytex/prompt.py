@@ -19,9 +19,11 @@ class OptionPrompt:
 
     def __call__(self, *args, **kwargs):
         option = None
-        while option not in self._options:
-            option = input(f"{self._front}{','.join(self._texts)}{self._end}")
-        return self._options[option](*args, **kwargs)
+        finished = False
+        while not finished:
+            while option not in self._options:
+                option = input(f"{self._front}{','.join(self._texts)}{self._end}")
+            finished = self._options[option](*args, **kwargs)
 
 
 class ProblemHandlerPrompt:

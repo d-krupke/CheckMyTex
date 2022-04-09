@@ -1,9 +1,10 @@
 import json
+import re
 import shutil
 import typing
 
 from checkmytex.checker.abstract_checker import Checker
-from checkmytex.latex_document import LatexDocument
+from checkmytex.latex_document import LatexDocument, Origin
 from checkmytex.problem import Problem
 
 
@@ -33,6 +34,8 @@ class Languagetool(Checker):
             origin = document.get_origin_of_text(problem["offset"],
                                                  problem["offset"] +
                                                  problem["length"])
+            if self._is_an_before_math(problem, origin, document):
+                continue
             yield Problem(origin=origin,
                           context=problem["context"]["text"],
                           message=problem["message"],
@@ -41,6 +44,19 @@ class Languagetool(Checker):
                           rule=problem["rule"]["id"],
                           tool="languagetool",
                           look_up_url=look_up_url)
+
+    def _is_an_before_math(self, problem, origin: Origin,
+                           document: LatexDocument) -> bool:
+        """
+        'A' before math or a command will frequently lead to false positives.
+        """
+        if problem["rule"]["id"] != "EN_A_VS_AN":
+            return False
+        source = document.get_source()
+        context = source[origin.end.spos: max(len(source), origin.end.spos + 10)].strip()
+        if context and context[0] in ("\\", "$"):
+            return True
+        return False
 
     def is_available(self) -> bool:
         return bool(shutil.which("languagetool"))

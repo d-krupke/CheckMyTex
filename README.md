@@ -27,6 +27,7 @@ The reason for sticking to a CLI are simple:
 * LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
 * Raw numbers instead of siunitx ([simple regex](./checkmytex/checker/siunitx.py), showing you how easy new modules can be added)
 * Additional advise from [proselint](https://github.com/amperser/proselint)
+* (Correct) usage of cleveref.
 
 The sources are detexed before applying grammar or spelling checking using [YaLafi](https://github.com/matze-dd/YaLafi).
 
@@ -80,3 +81,7 @@ drastically increase the runtime.
 ## Development Status
 
 This tool is still under development but already usable. Just expect some imperfections. Ideas are welcome.
+
+### TODOs
+
+* Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling the corresponding rules?

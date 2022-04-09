@@ -36,10 +36,14 @@ class Origin:
         A position in a text file.
         """
 
-        def __init__(self, pos, row, col):
+        def __init__(self, pos: int, row: int, col: int,
+                     spos: typing.Optional[int] = None,
+                     tpos: typing.Optional[int] = None):
             self.pos = pos  # position in the file. Starting at zero.
             self.row = row  # row or line in the file. Starting at zero.
             self.col = col  # column in the line. Starting at zero.
+            self.spos = spos  # position in the source string
+            self.tpos = tpos  # position in the text string
 
         def __eq__(self, other):
             if not isinstance(other, Origin.Position):
@@ -86,6 +90,7 @@ class LatexDocument:
         self._detex = None
         self._detex_charmap = None
         self._detex_line_index = None
+        self._source_line_index = None
         self._parse(path, detex, file_finder)
 
     def _parse(self, path: str, detex=True, file_finder=None):
@@ -103,6 +108,7 @@ class LatexDocument:
                                           IgnoreRule()],
                                       file_finder=file_finder)
         self._source = flachtex.remove_comments(flat_source)
+        self._source_line_index = compute_row_index(str(self._source))
         self._files = sources
         if detex:
             opts = Options()
@@ -160,7 +166,10 @@ class LatexDocument:
         end -= 1
         b = self._detex_charmap[begin] - 1
         e = self._detex_charmap[end]
-        return self.get_origin_of_source(b, e)
+        origin = self.get_origin_of_source(b, e)
+        origin.begin.tpos = begin
+        origin.end.tpos = end
+        return origin
 
     def get_source_context(self, origin: Origin, n: int = 20) -> str:
         """
@@ -208,15 +217,17 @@ class LatexDocument:
         :param end: (Exclusive) end either as position or line+column
         :return: Origin of the part.
         """
-        if isinstance(begin, int):
-            begin = (0, begin)
-            end = (0, end)
+        if isinstance(begin, tuple):
+            begin = self._source_line_index[begin[0]] + begin[1]
+            end = self._source_line_index[end[0]] + end[1]
         assert begin < end
-        origin_begin = self._source.get_origin_of_line(begin[0], begin[1])
-        origin_end = self._source.get_origin_of_line(end[0], end[1])
+        origin_begin = self._source.get_origin(begin)
+        origin_end = self._source.get_origin(end)
         # if not same file, reduce range. Worst case: begin=end-1
         while origin_begin[0] != origin_end[0]:
-            end = (end[0], end[1] - 1)
-            origin_end = self._source.get_origin_of_line(end[0], end[1] - 1)
-        return self._create_origin(origin_begin[0], origin_begin[1],
-                                   origin_end[1])
+            end -= 1
+            origin_end = self._source.get_origin(end)
+        origin = self._create_origin(origin_begin[0], origin_begin[1], origin_end[1])
+        origin.begin.spos = begin
+        origin.end.spos = end
+        return origin

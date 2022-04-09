@@ -19,3 +19,8 @@ class Problem:
 
     def __repr__(self):
         return f"Problem[{self.tool}:{self.short_id}: {self.message} :{self.origin}]"
+
+    def to_json(self) -> dict:
+        return {"id": self.short_id, "tool": self.tool, "message": self.message,
+                "context": self.context, "rule": self.rule, "origin": self.origin,
+                "url": self.look_up_url}
