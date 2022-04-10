@@ -1,7 +1,6 @@
 import argparse
 import os.path
 import typing
-import webbrowser
 
 from .document_checker import DocumentChecker
 from .editor import Editor
@@ -26,17 +25,6 @@ def get_relevant_row_indices(problems: typing.Iterable[Problem]) \
             relevant_rows.add(i)
     return relevant_rows
 
-
-class ProblemCounter:
-    def __init__(self, n: int):
-        self.i = 1
-        self.n = n
-
-    def __str__(self):
-        return f"[{self.i}/{self.n}"
-
-    def next(self, s=1):
-        self.i += s
 
 
 class InteractiveCli:
@@ -66,7 +54,7 @@ class InteractiveCli:
             for p in line_problems:
                 if p.origin.end.row == i and p not in self.whitelist:
                     if self.just_print:
-                        print_problem(p, info=str(self.pc))
+                        print_problem(p)
                     else:
                         self.problem_handler(p)
 
@@ -98,10 +86,8 @@ class InteractiveCli:
             else:
                 print(f, highlight(f"{len(ps)} problems"))
         # Go through all files
-        self.pc = ProblemCounter(len(problems))
         for f, ps in problems_of_files.items():
             remaining_ps = list(self.whitelist.filter(ps))
-            self.pc.next(len(ps)-len(remaining_ps))
             self._process_file(f, remaining_ps)
 
 

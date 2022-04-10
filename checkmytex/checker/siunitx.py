@@ -36,7 +36,7 @@ class SiUnitx(Checker):
             origin = document.get_origin_of_source(match.start("number"),
                                                    match.end("number"))
             message = "Use siunitx to get nice and uniform numbers " \
-                      "('\\num{} at least for >=10 000)" \
+                      "(\\num{} at least for >=10 000)" \
                       " and units (\\SI{}{} for all sizes)."
 
             context = document.get_source_context(origin)
