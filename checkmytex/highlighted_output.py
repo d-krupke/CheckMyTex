@@ -1,6 +1,6 @@
 import typing
 
-from checkmytex.problem import Problem
+from checkmytex.checker.problem import Problem
 
 
 def highlight(s: str):

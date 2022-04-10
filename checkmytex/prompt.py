@@ -3,7 +3,7 @@ import webbrowser
 from checkmytex.latex_document import LatexDocument
 from checkmytex.editor import Editor
 from checkmytex.highlighted_output import print_problem, print_line
-from checkmytex.problem import Problem
+from checkmytex.checker.problem import Problem
 from checkmytex.whitelist import Whitelist
 
 

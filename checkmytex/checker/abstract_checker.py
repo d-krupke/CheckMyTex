@@ -3,7 +3,7 @@ import subprocess
 import typing
 
 from checkmytex.latex_document import LatexDocument
-from checkmytex.problem import Problem
+from .problem import Problem
 
 
 class Checker(abc.ABC):

@@ -2,7 +2,7 @@ import re
 import os
 import typing
 
-from .problem import Problem
+from checkmytex.checker.problem import Problem
 
 
 class Whitelist:

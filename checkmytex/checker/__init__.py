@@ -1,3 +1,4 @@
+from .problem import Problem
 from .chktex import ChkTex
 from .languagetool import Languagetool
 from .siunitx import SiUnitx

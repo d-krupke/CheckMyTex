@@ -1,11 +1,63 @@
 import re
+import shutil
 import typing
 import urllib.parse
 
 from spellchecker import SpellChecker
-from checkmytex.checker.abstract_checker import Checker
-from checkmytex.latex_document import LatexDocument
-from checkmytex.problem import Problem
+from .abstract_checker import Checker
+from checkmytex.latex_document import LatexDocument, Origin
+from .problem import Problem
+
+
+class AspellChecker(Checker):
+    def _get_words(self, document: LatexDocument) -> typing.Dict[
+        str, typing.List[Origin]]:
+        word_occurrences = dict()
+        word_regex = re.compile(r"(^|[\s(-])(?P<word>[^\s-]+)")
+        text = document.get_text()
+        is_word = re.compile(r'[A-Z]?[a-z]+-?[A-Z]?[a-z]+', re.UNICODE)
+        for match in word_regex.finditer(text):
+            word = match.group("word").strip()
+            if word[-1] in ":,.!?)":
+                word = word[:-1]
+            if not is_word.fullmatch(word):
+                continue
+            begin = match.start("word")
+            origin = document.get_origin_of_text(begin, begin + len(word))
+            if word not in word_occurrences:
+                word_occurrences[word] = []
+            word_occurrences[word].append(origin)
+        return word_occurrences
+
+    def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
+        print("Running spellchecking...")
+        words = self._get_words(document)
+        bin = shutil.which("aspell")
+        word_list = '\n'.join(words.keys())
+        out, err, code = self._run(f"{bin}  -a --lang=en_US", input=word_list)
+        regex = re.compile(r"^\s*&\s*(?P<word>\w+)[0-9\s]*:(?P<sugg>.*)$", re.MULTILINE)
+        for match in regex.finditer(out):
+            word = match.group("word").strip()
+            sugg = match.group("sugg").strip().split(",")
+            sugg = ", ".join(sugg[:min(5, len(sugg))])
+            occ = words[word]
+            message = f"Check spelling of word '{word}'. Suggestions: {sugg}. Occurrences in text: {len(occ)}"
+            for origin in occ:
+                yield Problem(origin=origin,
+                              message=message,
+                              long_id=f"SPELL-{word}",
+                              tool="aspell",
+                              context=document.get_source_context(origin),
+                              rule="SPELLING",
+                              look_up_url=f"https://www.google.com/search?q={urllib.parse.quote(word)}")
+
+    def is_available(self) -> bool:
+        bin = shutil.which("aspell")
+        if not bin:
+            return False
+        out, err, code = self._run(f"{bin} dicts")
+        if "en_US" in out.split("\n"):
+            return True
 
 
 class CheckSpell(Checker):

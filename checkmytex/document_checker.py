@@ -4,8 +4,9 @@ import typing
 from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
     Proselint, Cleveref, UniformNpHard
 from checkmytex.latex_document import LatexDocument
-from checkmytex.problem import Problem
+from checkmytex.checker.problem import Problem
 from checkmytex.whitelist import Whitelist
+from .checker.spellcheck import AspellChecker
 
 
 class DocumentChecker:
@@ -19,8 +20,12 @@ class DocumentChecker:
             for c in checker:
                 self.add_checker(c)
         else:
-            self.add_checker(ChkTex())
-            self.add_checker(CheckSpell())
+            aspell = AspellChecker()
+            if aspell.is_available():
+                self.add_checker(aspell)
+            else:
+                print("Aspell not available. Using pyspellchecker.")
+                self.add_checker(CheckSpell())
             self.add_checker(Languagetool())
             self.add_checker(SiUnitx())
             self.add_checker(Proselint())

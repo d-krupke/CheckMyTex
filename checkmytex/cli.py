@@ -7,7 +7,7 @@ from .editor import Editor
 from .highlighted_output import print_line, print_problem, print_file_head, \
     highlight
 from .latex_document import LatexDocument
-from .problem import Problem
+from checkmytex.checker.problem import Problem
 from .prompt import ProblemHandlerPrompt
 from .whitelist import Whitelist
 

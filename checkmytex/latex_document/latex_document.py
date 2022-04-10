@@ -1,16 +1,16 @@
 import re
 import typing
-import unittest
 
 import flachtex
-from flachtex import FileFinder
 from flachtex.utils import compute_row_index
 from yalafi.tex2txt import Options, tex2txt
 
 from flachtex.rules import RegexSkipRule, Range, BASIC_SKIP_RULES
 
+from .origin import Origin
 
-class IgnoreRule(RegexSkipRule):
+
+class _IgnoreRule(RegexSkipRule):
     """
     A skip rule for flachtex to remove parts delimited by `%%PAUSE-CHECKING`
     and `%%CONTINUE-CHECKING`.
@@ -24,56 +24,6 @@ class IgnoreRule(RegexSkipRule):
         span_to_be_skipped = Range(match.start("skipped_part"),
                                    match.end("skipped_part"))
         return span_to_be_skipped
-
-
-class Origin:
-    """
-    The origin of a part of the parse latex document.
-    """
-
-    class Position:
-        """
-        A position in a text file.
-        """
-
-        def __init__(self, pos: int, row: int, col: int,
-                     spos: typing.Optional[int] = None,
-                     tpos: typing.Optional[int] = None):
-            self.pos = pos  # position in the file. Starting at zero.
-            self.row = row  # row or line in the file. Starting at zero.
-            self.col = col  # column in the line. Starting at zero.
-            self.spos = spos  # position in the source string
-            self.tpos = tpos  # position in the text string
-
-        def __eq__(self, other):
-            if not isinstance(other, Origin.Position):
-                raise ValueError("Can only compare positions.")
-            return self.pos == other.pos \
-                   and self.row == other.row \
-                   and self.col == other.col
-
-        def __lt__(self, other):
-            if not isinstance(other, Origin.Position):
-                raise ValueError("Can only compare positions.")
-            return self.pos < other.pos
-
-    def __init__(self, file: str, begin: Position, end: Position):
-        self.file: str = file
-        self.begin: Origin.Position = begin
-        self.end: Origin.Position = end
-        assert begin != end, "This would be empty"
-
-    def __repr__(self):
-        return f"{self.file}" \
-               f"[{self.begin.pos}:{self.begin.row}:{self.begin.col}" \
-               f"-{self.end.pos}:{self.end.row}:{self.end.col}]"
-
-    def __eq__(self, other):
-        if not isinstance(other, Origin):
-            raise ValueError("Can only compare origins.")
-        return self.file == other.file \
-               and self.begin == other.begin \
-               and self.end == other.end
 
 
 class LatexDocument:
@@ -106,7 +56,7 @@ class LatexDocument:
         expand = flachtex.expand_file_and_attach_sources
         flat_source, sources = expand(path,
                                       skip_rules=BASIC_SKIP_RULES + [
-                                          IgnoreRule()],
+                                          _IgnoreRule()],
                                       file_finder=file_finder)
         self._source = flachtex.remove_comments(flat_source)
         self._source_line_index = compute_row_index(str(self._source))
@@ -233,10 +183,10 @@ class LatexDocument:
         origin.end.spos = end
         return origin
 
-    def find_in_text(self, pattern: str):
+    def find_in_text(self, pattern: str) -> typing.Iterable[Origin]:
         for match in re.finditer(pattern, self.get_text()):
             yield self.get_origin_of_text(match.start(), match.end())
 
-    def find_in_source(self, pattern: str):
+    def find_in_source(self, pattern: str) -> typing.Iterable[Origin]:
         for match in re.finditer(pattern, self.get_source()):
             yield self.get_origin_of_source(match.start(), match.end())

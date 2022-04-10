@@ -1,6 +1,6 @@
 import hashlib
 
-from .latex_document import Origin
+from checkmytex.latex_document import Origin
 
 
 class Problem:

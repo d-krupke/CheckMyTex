@@ -1,11 +1,10 @@
 import json
-import re
 import shutil
 import typing
 
-from checkmytex.checker.abstract_checker import Checker
 from checkmytex.latex_document import LatexDocument, Origin
-from checkmytex.problem import Problem
+from .problem import Problem
+from .abstract_checker import Checker
 
 
 class Languagetool(Checker):

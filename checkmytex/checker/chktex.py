@@ -2,9 +2,9 @@ import re
 import shutil
 import typing
 
-from checkmytex.checker.abstract_checker import Checker
 from checkmytex.latex_document import LatexDocument
-from checkmytex.problem import Problem
+from .abstract_checker import Checker
+from .problem import Problem
 
 
 class ChkTex(Checker):
