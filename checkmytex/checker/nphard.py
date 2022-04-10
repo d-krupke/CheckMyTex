@@ -14,12 +14,20 @@ class UniformNpHard(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         print("Checking for uniform NP-hardness usage...")
-        expr = r"((^)|(\s))(?P<np>(\$?[Nn][Pp]\$?)|(\$?\\((math)|(text))cal\{[Nn][Pp]\}\$?))-(([Hh]ard)|([Cc]omplete))"
+        expr = r"((^)|(\s))" \
+               r"(?P<np>(\$?\\?[Nn][Pp]\$?)" \
+               r"|(\$?\\((math)|(text))cal\{[Nn][Pp]\}\$?))" \
+               r"-(([Hh]ard)|([Cc]omplete))"
         variants_np = set()
         for match in re.finditer(expr, document.get_source()):
-            variants_np.add(match.group("np").strip())
+            cmd = match.group("np").strip()
+            if "\\NP" in cmd:  # $\NP$ and \NP can be mixed with no problem
+                variants_np.add("\\NP")
+                continue  # do not create a warning for usage of \\NP
+            variants_np.add(cmd)
             if len(variants_np) <= 1:
                 continue
+
             origin = document.get_origin_of_source(match.start(), match.end())
             context = document.get_source_context(origin)
             message = "Non-uniform 'NP'. Maybe use the 'complexity'-package?"

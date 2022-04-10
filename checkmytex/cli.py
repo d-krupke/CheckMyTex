@@ -27,6 +27,18 @@ def get_relevant_row_indices(problems: typing.Iterable[Problem]) \
     return relevant_rows
 
 
+class ProblemCounter:
+    def __init__(self, n: int):
+        self.i = 1
+        self.n = n
+
+    def __str__(self):
+        return f"[{self.i}/{self.n}"
+
+    def next(self, s=1):
+        self.i += s
+
+
 class InteractiveCli:
     def _process_file(self, f, problems):
         print_file_head(f)
@@ -54,7 +66,7 @@ class InteractiveCli:
             for p in line_problems:
                 if p.origin.end.row == i and p not in self.whitelist:
                     if self.just_print:
-                        print_problem(p)
+                        print_problem(p, info=str(self.pc))
                     else:
                         self.problem_handler(p)
 
@@ -67,7 +79,8 @@ class InteractiveCli:
         self.whitelist = Whitelist(whitelist_path)
         print("Parsing LaTeX project...")
         self.latex_document = LatexDocument(main_file)
-        self.problem_handler = ProblemHandlerPrompt(self.whitelist,
+        self.problem_handler = ProblemHandlerPrompt(self.latex_document,
+                                                    self.whitelist,
                                                     self.editor)
         doc_checker = DocumentChecker()
         problems = list(doc_checker.find_problems(self.latex_document,
@@ -85,8 +98,11 @@ class InteractiveCli:
             else:
                 print(f, highlight(f"{len(ps)} problems"))
         # Go through all files
+        self.pc = ProblemCounter(len(problems))
         for f, ps in problems_of_files.items():
-            self._process_file(f, list(self.whitelist.filter(ps)))
+            remaining_ps = list(self.whitelist.filter(ps))
+            self.pc.next(len(ps)-len(remaining_ps))
+            self._process_file(f, remaining_ps)
 
 
 def main():

@@ -1,13 +1,15 @@
 import hashlib
 
+from .latex_document import Origin
+
 
 class Problem:
     """
     A container for a problem.
     """
 
-    def __init__(self, origin, message, context, long_id: str, tool: str,
-                 rule: str, look_up_url=None):
+    def __init__(self, origin: Origin, message: str, context: str, long_id: str,
+                 tool: str, rule: str, look_up_url=None):
         self.short_id = str(hashlib.md5((tool + long_id).encode()).hexdigest())
         self.long_id = long_id
         self.tool = tool

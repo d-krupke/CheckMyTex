@@ -39,8 +39,11 @@ def print_line(line: str, line_number: int,
     print(f"\x1b[0;30;47m{line_number}:\x1b[0m", highlighted_line)
 
 
-def print_problem(problem: Problem):
-    print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool})")
+def print_problem(problem: Problem, info: str = ""):
+    if info:
+        print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool}) {info}")
+    else:
+        print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool})")
 
 
 def print_file_head(f: str):

@@ -15,8 +15,9 @@ class Languagetool(Checker):
                               # disable spell checking because it is very slow.
                               "WHITESPACE_RULE",
                               # The whitespaces will be off due to detexing.
-                              "COMMA_PARENTHESIS_WHITESPACE"
+                              "COMMA_PARENTHESIS_WHITESPACE",
                               # Also not reliable in detexed text.
+                              "THE_SUPERLATIVE",  # not true in computer science and math where we can have, e.g., multiple equivalent extremal solutions.
                               ]
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:

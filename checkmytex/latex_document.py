@@ -232,3 +232,11 @@ class LatexDocument:
         origin.begin.spos = begin
         origin.end.spos = end
         return origin
+
+    def find_in_text(self, pattern: str):
+        for match in re.finditer(pattern, self.get_text()):
+            yield self.get_origin_of_text(match.start(), match.end())
+
+    def find_in_source(self, pattern: str):
+        for match in re.finditer(pattern, self.get_source()):
+            yield self.get_origin_of_source(match.start(), match.end())

@@ -56,7 +56,7 @@ checkmytex main.tex
 CheckMyTex will now guide you through your document and show you all problems, skipping over good parts.
 For each problem, you will be asked what to do
 ```
-[s]kip,[S]kip all,[w]hitelist,[I]gnore all,[n]ext file,[e]dit,[l]ook up:
+[s]kip,[S]kip all,[w]hitelist,[I]gnore all,[n]ext file,[e]dit,[l]ook up,[f]ind,[?]:
 ```
 * *skip* will skip this concrete problem, but ask you again next time you run CheckMyTex.
 * *Skip all* will skip this problem and all identical problems, but ask you again on the next run of CheckMyTex.
@@ -65,6 +65,8 @@ For each problem, you will be asked what to do
 * *next file* will jump to the next file.
 * *edit* will open you `$EDITOR` at the location of the problem. It tries to keep track of line changes without reprocessing the document.
 * *look up* will google the problem for you (if available). E.g., you can check for rare technical terms.
+* *find* allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
+* *?* provides further information of the problem. Primarily for debugging and fine-tuning.
 
 This all works with nice coloring, which I cannot directly show in this markdown file.
 
