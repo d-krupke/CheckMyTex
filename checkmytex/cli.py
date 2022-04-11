@@ -3,9 +3,8 @@ import os.path
 import typing
 
 from .document_checker import DocumentChecker
-from .editor import Editor
-from .highlighted_output import print_line, print_problem, print_file_head, \
-    highlight
+from checkmytex.utils.editor import Editor
+from .highlighted_output import print_line, print_problem, highlight, log, print_header
 from .latex_document import LatexDocument
 from checkmytex.checker.problem import Problem
 from .prompt import ProblemHandlerPrompt
@@ -26,18 +25,18 @@ def get_relevant_row_indices(problems: typing.Iterable[Problem]) \
     return relevant_rows
 
 
-
 class InteractiveCli:
-    def _process_file(self, f, problems):
-        print_file_head(f)
-        if not problems:
-            print("No problems found.")
-            return
+    def _print_no_problems(self, n):
+        if n == 0:
+            log("No problems found.")
+        elif n == 1:
+            log("1 problem found.")
         else:
-            if len(problems) > 1:
-                print(f"{len(problems)} problems found.")
-            else:
-                print("1 problem found.")
+            log(f"{n} problems found.")
+
+    def _process_file(self, f, problems):
+        print_header(f)
+        self._print_no_problems(len(problems))
         relevant_rows = get_relevant_row_indices(problems)
         last_printed_row = -1
         for i, l in enumerate(
@@ -65,7 +64,7 @@ class InteractiveCli:
         self.just_print = just_print
         self.editor = Editor()
         self.whitelist = Whitelist(whitelist_path)
-        print("Parsing LaTeX project...")
+        log("Parsing LaTeX project...")
         self.latex_document = LatexDocument(main_file)
         self.problem_handler = ProblemHandlerPrompt(self.latex_document,
                                                     self.whitelist,
@@ -74,17 +73,19 @@ class InteractiveCli:
         problems = list(doc_checker.find_problems(self.latex_document,
                                                   self.whitelist))
         problems_of_files = {f: ps for f, ps in
-                             doc_checker.sort_problems_by_file(self.latex_document,
-                                                               problems)}
+                             doc_checker.sort_problems_by_file(
+                                 self.latex_document,
+                                 problems)}
         # Print overview
+        print_header("Overview")
         print(highlight(f"Found {len(problems)} problems in the document."))
         for f, ps in problems_of_files.items():
             if len(ps) == 0:
-                print(f, "no problems")
+                print(f + ":", "no problems.")
             elif len(ps) == 1:
-                print(f, highlight("1 problem"))
+                print(f + ":", highlight("1 problem."))
             else:
-                print(f, highlight(f"{len(ps)} problems"))
+                print(f + ":", highlight(f"{len(ps)} problems."))
         # Go through all files
         for f, ps in problems_of_files.items():
             remaining_ps = list(self.whitelist.filter(ps))
@@ -107,6 +108,6 @@ def main():
     else:
         path = os.path.dirname(args.path[0])
         whitelist = os.path.join(path, ".whitelist.txt")
-        print("Saving whitelist to", whitelist)
+        log(f"Saving whitelist to {whitelist}")
     InteractiveCli(args.path[0], whitelist_path=whitelist,
                    just_print=args.print)

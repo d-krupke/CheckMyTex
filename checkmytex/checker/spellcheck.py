@@ -7,6 +7,7 @@ from spellchecker import SpellChecker
 from .abstract_checker import Checker
 from checkmytex.latex_document import LatexDocument, Origin
 from .problem import Problem
+from ..highlighted_output import log
 
 
 class AspellChecker(Checker):
@@ -30,7 +31,7 @@ class AspellChecker(Checker):
         return word_occurrences
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        print("Running spellchecking...")
+        log("Running spellchecking...")
         words = self._get_words(document)
         bin = shutil.which("aspell")
         word_list = '\n'.join(words.keys())
@@ -66,7 +67,7 @@ class CheckSpell(Checker):
         # self._word_finder = re.compile(r"")
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        print("Running spellchecking...")
+        log("Running spellchecking...")
         word_regex = re.compile(r"(^|[\s(])(?P<word>[^\s]+)")
         text = document.get_text()
         is_word = re.compile(r'[A-Z]?[a-z]+-?[A-Z]?[a-z]+', re.UNICODE)

@@ -1,42 +1,24 @@
 import webbrowser
 
 from checkmytex.latex_document import LatexDocument
-from checkmytex.editor import Editor
-from checkmytex.highlighted_output import print_problem, print_line
+from checkmytex.utils.editor import Editor
+from checkmytex.highlighted_output import print_problem, print_line, log
 from checkmytex.checker.problem import Problem
+from checkmytex.utils.choice import OptionPrompt
 from checkmytex.whitelist import Whitelist
-
-
-class OptionPrompt:
-    def __init__(self, front="", end=":"):
-        self._options = {}
-        self._front = front
-        self._end = end
-        self._texts = []
-
-    def add_option(self, key, text, func):
-        self._texts.append(text)
-        self._options[key] = func
-
-    def __call__(self, *args, **kwargs):
-        finished = False
-        while not finished:
-            option = None
-            while option not in self._options:
-                option = input(f"{self._front}{','.join(self._texts)}{self._end}")
-            finished = self._options[option](*args, **kwargs)
 
 
 def print_detail(pre, text, post):
     print(
-        "\033[94m" + pre.replace('\n', ' ') +
-        "\033[4m" + text.replace('\n', ' ') +
-        "\033[0m\033[94m" + post.replace('\n', ' ') + "\033[0m")
+        pre.replace('\n', ' ') +
+        "\033[4m" + text.replace('\n', '\\n') +
+        "\033[0m" + post.replace('\n', '\\n'))
 
 
 class ProblemHandlerPrompt:
 
-    def __init__(self, document: LatexDocument, whitelist: Whitelist, editor: Editor):
+    def __init__(self, document: LatexDocument, whitelist: Whitelist,
+                 editor: Editor):
         self.document = document
         self.whitelist = whitelist
         self.editor = editor
@@ -68,7 +50,7 @@ class ProblemHandlerPrompt:
         return False
 
     def _print_details(self, problem: Problem):
-        print("\033[94mMessage:", problem.message)
+        print("Message:", problem.message)
         print("Tool:", problem.tool)
         print("Rule:", problem.rule)
         print("Context:", problem.context.replace("\n", " "))
@@ -85,40 +67,51 @@ class ProblemHandlerPrompt:
             b = max(0, o.begin.spos - n)
             e = min(len(source), o.end.spos + n)
             print_detail("Source: " + source[b:o.begin.spos],
-                         source[o.begin.spos: o.end.spos], source[o.end.spos: e])
-        print("Position:", problem.origin, "\033[0m")
+                         source[o.begin.spos: o.end.spos],
+                         source[o.end.spos: e])
+        print("Position:", problem.origin)
         return False
 
     def find(self, problem: Problem):
-        print("Use this find-utility to compare with other occurrences.")
+        log("Use this find-utility to compare with other occurrences.")
         pattern = input("Find pattern (regex):")
         if pattern:
-            print("Searching in text...")
+            log("Searching in text...")
             for origin in self.document.find_in_text(pattern):
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.document.get_file_content(origin.file).split("\n")
+                    source = self.document.get_file_content(origin.file).split(
+                        "\n")
                     print_line(source[l], l, [])
-            print("Searching in source...")
+            log("Searching in source...")
             for origin in self.document.find_in_source(pattern):
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.document.get_file_content(origin.file).split("\n")
+                    source = self.document.get_file_content(origin.file).split(
+                        "\n")
                     print_line(source[l], l, [])
         return False
 
     def __call__(self, problem: Problem):
         print_problem(problem)
         prompt = OptionPrompt()
-        prompt.add_option("s", "[s]kip", lambda p: True)
-        prompt.add_option("S", "[S]kip all", self._skip_all)
-        prompt.add_option("w", "[w]hitelist", self._whitelist_problem)
-        prompt.add_option("I", "[I]gnore all", self._ignore_all)
-        prompt.add_option("n", "[n]ext file", self._next_file)
-        prompt.add_option("x", "e[x]it", lambda p: exit(0))
-        prompt.add_option("e", "[e]dit", self._edit)
-        prompt.add_option("f", "[f]ind", self.find)
-        prompt.add_option("?", "[?]", self._print_details)
+        prompt.add_option("s", "[s]kip", lambda p: True,
+                          help="Skip to the next problem.")
+        prompt.add_option("S", "[S]kip all", self._skip_all,
+                          help="Skip all similar problems.")
+        prompt.add_option("w", "[w]hitelist", self._whitelist_problem,
+                          help="Mark as false positive.")
+        prompt.add_option("I", "[I]gnore all", self._ignore_all,
+                          help="Skip over all problems of this rule.")
+        prompt.add_option("n", "[n]ext file", self._next_file,
+                          help="Skip to next file.")
+        prompt.add_option("x", None, lambda p: exit(0), help="Exit.")
+        prompt.add_option("e", "[e]dit", self._edit,
+                          help='Open editor ($EDITOR) to fix this problem.')
+        prompt.add_option("f", "[f]ind", self.find,
+                          help="Quickly search the documents text and source.")
+        prompt.add_option("?", None, self._print_details,
+                          help="Print details.")
         if problem.look_up_url:
             prompt.add_option("l", "[l]ook up", self._look_up)
         prompt(problem)

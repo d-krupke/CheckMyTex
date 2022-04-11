@@ -4,6 +4,7 @@ import typing
 from checkmytex.latex_document import LatexDocument
 from .abstract_checker import Checker
 from .problem import Problem
+from ..highlighted_output import log
 
 
 class UniformNpHard(Checker):
@@ -13,7 +14,7 @@ class UniformNpHard(Checker):
     """
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        print("Checking for uniform NP-hardness usage...")
+        log("Checking for uniform NP-hardness usage...")
         expr = r"((^)|(\s))" \
                r"(?P<np>(\$?\\?[Nn][Pp]\$?)" \
                r"|(\$?\\((math)|(text))cal\{[Nn][Pp]\}\$?))" \

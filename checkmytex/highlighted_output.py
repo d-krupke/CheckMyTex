@@ -2,9 +2,26 @@ import typing
 
 from checkmytex.checker.problem import Problem
 
+class ColorCodes:
+    BOLD = '\033[1m'
+    FAIL = "\033[91m\033[4m"
+    LOG = "\033[94m"
+    HEADER = "\033[95m"
+    ENDC = "\033[0m"
+    BLACK_ON_WHITE = "\033[0;30;47m"
+    WARNING = "\033[93m"
+
+def log(text: str):
+    print(f"{ColorCodes.LOG}{text}{ColorCodes.ENDC}")
+
+def print_header(text: str):
+    l = "="*len(text)
+    print(f"{ColorCodes.HEADER}|={l}=|{ColorCodes.ENDC}")
+    print(f"{ColorCodes.HEADER}| {text} |{ColorCodes.ENDC}")
+    print(f"{ColorCodes.HEADER}|={l}=|{ColorCodes.ENDC}")
 
 def highlight(s: str):
-    return f"\033[91m\033[4m{s}\x1b[0m"
+    return f"{ColorCodes.FAIL}{s}{ColorCodes.ENDC}"
 
 
 def add_highlights(line: str,
@@ -36,17 +53,15 @@ def print_line(line: str, line_number: int,
         return a, b
 
     highlighted_line = add_highlights(line, (span(p) for p in problems))
-    print(f"\x1b[0;30;47m{line_number}:\x1b[0m", highlighted_line)
+    print(f"{ColorCodes.BLACK_ON_WHITE}{line_number}:{ColorCodes.ENDC}",
+          highlighted_line)
 
 
 def print_problem(problem: Problem, info: str = ""):
     if info:
-        print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool}) {info}")
+        print(f" >>> {ColorCodes.WARNING}{problem.message}{ColorCodes.ENDC}"
+              f" ({problem.tool}) {info}")
     else:
-        print(f" >>> \033[93m{problem.message}\033[0m ({problem.tool})")
-
-
-def print_file_head(f: str):
-    print(f"\x1b[0;30;47m{'=' * len(f)}\x1b[0m")
-    print(f"\033[95m{f}\033[0m")
-    print(f"\x1b[0;30;47m{'=' * len(f)}\x1b[0m")
+        print(
+            f" >>> {ColorCodes.WARNING}{problem.message}{ColorCodes.ENDC}"
+            f" ({problem.tool})")
