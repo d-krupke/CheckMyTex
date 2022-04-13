@@ -28,8 +28,11 @@ class InteractiveCli:
                                                   self.whitelist))
         self.analyzed_document = AnalyzedDocument(self.latex_document, problems,
                                                   lambda p: self.whitelist.add(p))
-
-        problem_handler = InteractiveProblemHandler(self.analyzed_document, self.editor)
+        if self.just_print:
+            problem_handler = lambda p: None
+        else:
+            problem_handler = InteractiveProblemHandler(self.analyzed_document,
+                                                        self.editor)
         OverviewPrinter().print(self.analyzed_document)
         fp = FilePrinter(self.analyzed_document, problem_handler)
         # Go through all files
