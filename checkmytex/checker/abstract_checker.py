@@ -7,6 +7,9 @@ from .problem import Problem
 
 
 class Checker(abc.ABC):
+    def __init__(self, log=print):
+        self.log = log
+
     @abc.abstractmethod
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         pass

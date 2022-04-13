@@ -4,12 +4,11 @@ import typing
 from checkmytex.latex_document import LatexDocument
 from .abstract_checker import Checker
 from .problem import Problem
-from ..highlighted_output import log
 
 
 class Cleveref(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        log("Checking for cleveref usage...")
+        self.log("Checking for cleveref usage...")
         # \ref instead of smarter \cref
         for match in re.finditer(r"\\ref\{[^\}]+\}", document.get_source()):
             origin = document.get_origin_of_source(match.start(), match.end())

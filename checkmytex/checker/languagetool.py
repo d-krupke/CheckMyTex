@@ -5,7 +5,6 @@ import typing
 from checkmytex.latex_document import LatexDocument, Origin
 from .problem import Problem
 from .abstract_checker import Checker
-from ..highlighted_output import log
 
 
 class Languagetool(Checker):
@@ -21,7 +20,7 @@ class Languagetool(Checker):
                               ]
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        log("Running Langugagetool...")
+        self.log("Running Langugagetool...")
         result, err, ex = self._run(
             f"{shutil.which('languagetool')} --json -l {self._lang} "
             f"--disable {','.join(self.disable_rules)}",

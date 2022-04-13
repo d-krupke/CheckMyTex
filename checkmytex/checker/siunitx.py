@@ -4,7 +4,6 @@ import re
 from checkmytex.latex_document import LatexDocument
 from .abstract_checker import Checker
 from .problem import Problem
-from ..highlighted_output import log
 
 
 class SiUnitx(Checker):
@@ -25,7 +24,7 @@ class SiUnitx(Checker):
         return False
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        log("Running SiUnitx-check...")
+        self.log("Running SiUnitx-check...")
         source = document.get_source()
         for match in self.regex.finditer(source):
             num = match.group("number").strip()

@@ -45,16 +45,6 @@ def add_highlights(line: str,
     return highlighted_line
 
 
-def print_line(line: str, line_number: int,
-               problems: typing.Iterable[Problem]):
-    def span(p):
-        a = p.origin.begin.col if p.origin.begin.row == line_number else 0
-        b = p.origin.end.col if p.origin.end.row == line_number else len(line)
-        return a, b
-
-    highlighted_line = add_highlights(line, (span(p) for p in problems))
-    print(f"{ColorCodes.BLACK_ON_WHITE}{line_number}:{ColorCodes.ENDC}",
-          highlighted_line)
 
 
 def print_problem(problem: Problem, info: str = ""):

@@ -14,23 +14,27 @@ class DocumentChecker:
     Simple class to return the files and its problems of a latex document.
     """
 
-    def __init__(self, checker=None):
+    def __init__(self, checker=None, log=print):
         self.checker = []
         if checker:
             for c in checker:
                 self.add_checker(c)
         else:
+            log("Using default modules.")
             aspell = AspellChecker()
             if aspell.is_available():
                 self.add_checker(aspell)
             else:
                 print("Aspell not available. Using pyspellchecker.")
                 self.add_checker(CheckSpell())
+            self.add_checker(ChkTex())
             self.add_checker(Languagetool())
             self.add_checker(SiUnitx())
             self.add_checker(Proselint())
             self.add_checker(Cleveref())
             self.add_checker(UniformNpHard())
+            for checker in self.checker:
+                checker.log = log
 
     def add_checker(self, checker: Checker) -> None:
         """
@@ -74,13 +78,3 @@ class DocumentChecker:
         expr = r"\\includegraphics(\[[^\]]*\])?\{(?P<path>[^\}]+)\}"
         for match in re.finditer(expr, latex_document.get_source()):
             whitelist.skip_range(match.start("path"), match.end("path"))
-
-    def sort_problems_by_file(self, latex_document, problems) \
-            -> typing.Iterable[typing.Tuple[str, typing.List[Problem]]]:
-        problems_of_files = {f: [] for f in latex_document.files()}
-        for p in problems:
-            problems_of_files[p.origin.file].append(p)
-        for f in latex_document.files():
-            problems = [p for p in problems_of_files[f]]
-            problems.sort(key=lambda p: (p.origin.begin, p.origin.end))
-            yield f, problems

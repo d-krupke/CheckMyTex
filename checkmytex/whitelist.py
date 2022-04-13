@@ -71,24 +71,8 @@ class Whitelist:
             if p not in self:
                 yield p
 
-    def add_temporary(self, problem: Problem) -> None:
-        """
-        Ignore a problem temporarily (without saving).
-        :param problem: The problem to be temporarily ignored.
-        :return: None
-        """
-        self._shortkeys.add(problem.short_id.strip())
-
     def skip_range(self, begin: int, end: int) -> None:
         self._ranges.append((begin, end))
-
-    def skip_file(self, file: str) -> None:
-        """
-        Skip all problem in this file.
-        :param file: Path to the file.
-        :return: None
-        """
-        self._skip_files.append(file)
 
     def add(self, problem: Problem, comment: str = None) -> None:
         """
@@ -108,13 +92,7 @@ class Whitelist:
         if self._path:
             self._save_problem(problem, comment)
 
-    def add_rule_temporary(self, rule: str) -> None:
-        """
-        Ignores all problems of a specific rule for the rest of the analysis.
-        :param rule: The rule to be ignored (can be found in Problem.rule)
-        :return: None
-        """
-        self._rules.add(rule)
+
 
     def _save_problem(self, problem, comment):
         with open(self._path, "a") as f:

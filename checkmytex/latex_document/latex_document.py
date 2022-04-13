@@ -28,9 +28,10 @@ class _IgnoreRule(RegexSkipRule):
 
 class LatexDocument:
     """
-    A latex document that provides a coherent source string (using flachtex) and a compiled text string (using yalafi).
-    This tools primarily combines the two tools and provides a unified interface to query the origin of a part in
-    the source or the compiled text.
+    A latex document that provides a coherent source string (using flachtex) and a
+    compiled text string (using yalafi). This tools primarily combines the two tools
+    and provides a unified interface to query the origin of a part in the source or
+    the compiled text.
     """
 
     def __init__(self, path: str, detex=True, file_finder=None, yalafi_opts=None):

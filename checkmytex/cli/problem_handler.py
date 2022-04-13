@@ -1,11 +1,13 @@
 import webbrowser
 
-from checkmytex.latex_document import LatexDocument
-from checkmytex.utils.editor import Editor
-from checkmytex.highlighted_output import print_problem, print_line, log
-from checkmytex.checker.problem import Problem
-from checkmytex.utils.choice import OptionPrompt
-from checkmytex.whitelist import Whitelist
+from checkmytex.analyzed_document import AnalyzedDocument
+from checkmytex.checker import Problem
+from .highlighted_output import log
+from checkmytex.utils import Editor, OptionPrompt
+
+
+def print_simple_line(i, l):
+    print(f"{i}: {l}")
 
 
 def print_detail(pre, text, post):
@@ -15,24 +17,22 @@ def print_detail(pre, text, post):
         "\033[0m" + post.replace('\n', '\\n'))
 
 
-class ProblemHandlerPrompt:
-
-    def __init__(self, document: LatexDocument, whitelist: Whitelist,
-                 editor: Editor):
-        self.document = document
-        self.whitelist = whitelist
+class InteractiveProblemHandler:
+    def __init__(self, document: AnalyzedDocument, editor: Editor):
+        self.analyzed_document = document
         self.editor = editor
+        self._skip_file = None
 
     def _skip_all(self, problem):
-        self.whitelist.add_temporary(problem)
+        self.analyzed_document.remove_similar(problem)
         return True
 
     def _whitelist_problem(self, p):
-        self.whitelist.add(p)
+        self.analyzed_document.mark_as_false_positive(p)
         return True
 
     def _ignore_all(self, p):
-        self.whitelist.add_rule_temporary(p.rule)
+        self.analyzed_document.remove_with_rule(p.rule)
         return True
 
     def _edit(self, problem):
@@ -42,7 +42,7 @@ class ProblemHandlerPrompt:
         return True
 
     def _next_file(self, problem):
-        self.whitelist.skip_file(problem.origin.file)
+        self._skip_file = problem.origin.file
         return True
 
     def _look_up(self, problem):
@@ -57,13 +57,13 @@ class ProblemHandlerPrompt:
         o = problem.origin
         n = 40
         if None not in (o.begin.tpos, o.end.tpos):
-            text = self.document.get_text()
+            text = self.analyzed_document.document.get_text()
             b = max(0, o.begin.tpos - n)
             e = min(len(text), o.end.tpos + n)
             print_detail("Text: " + text[b:o.begin.tpos],
                          text[o.begin.tpos: o.end.tpos], text[o.end.tpos: e])
         if None not in (o.begin.spos, o.end.spos):
-            source = self.document.get_source()
+            source = self.analyzed_document.document.get_source()
             b = max(0, o.begin.spos - n)
             e = min(len(source), o.end.spos + n)
             print_detail("Source: " + source[b:o.begin.spos],
@@ -77,23 +77,24 @@ class ProblemHandlerPrompt:
         pattern = input("Find pattern (regex):")
         if pattern:
             log("Searching in text...")
-            for origin in self.document.find_in_text(pattern):
+            for origin in self.analyzed_document.document.find_in_text(pattern):
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.document.get_file_content(origin.file).split(
+                    source = self.analyzed_document.get_file_content(origin.file).split(
                         "\n")
-                    print_line(source[l], l, [])
+                    print_simple_line(l, source[l])
             log("Searching in source...")
-            for origin in self.document.find_in_source(pattern):
+            for origin in self.analyzed_document.document.find_in_source(pattern):
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.document.get_file_content(origin.file).split(
+                    source = self.analyzed_document.get_file_content(origin.file).split(
                         "\n")
-                    print_line(source[l], l, [])
+                    print_simple_line(l, source[l])
         return False
 
     def __call__(self, problem: Problem):
-        print_problem(problem)
+        if problem.origin.file == self._skip_file:
+            return
         prompt = OptionPrompt()
         prompt.add_option("s", "[s]kip", lambda p: True,
                           help="Skip to the next problem.")
@@ -106,6 +107,8 @@ class ProblemHandlerPrompt:
         prompt.add_option("n", "[n]ext file", self._next_file,
                           help="Skip to next file.")
         prompt.add_option("x", None, lambda p: exit(0), help="Exit.")
+        prompt.add_option("exit", None, lambda p: exit(0))
+        prompt.add_option("q", None, lambda p: exit(0))
         prompt.add_option("e", "[e]dit", self._edit,
                           help='Open editor ($EDITOR) to fix this problem.')
         prompt.add_option("f", "[f]ind", self.find,

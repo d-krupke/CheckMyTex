@@ -5,7 +5,6 @@ import proselint.tools
 from checkmytex.latex_document import LatexDocument
 from .abstract_checker import Checker
 from .problem import Problem
-from ..highlighted_output import log
 
 _proselint_config = {
     "max_errors": 5000,
@@ -97,7 +96,7 @@ _proselint_config = {
 class Proselint(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        log("Running proselint...")
+        self.log("Running proselint...")
         text = document.get_text()
         suggestions = proselint.tools.lint(text, config=_proselint_config)
         for suggestion in suggestions:

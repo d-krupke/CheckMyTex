@@ -22,7 +22,7 @@ The reason for sticking to a CLI are simple:
 
 ## What does CheckMyTex currently check for you?
 
-* Spelling errors using [pyspellchecker](https://pypi.org/project/pyspellchecker/)
+* Spelling errors using aspell or [pyspellchecker](https://pypi.org/project/pyspellchecker/)
 * Grammar errors using [languagetool](https://languagetool.org/)
 * LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
 * Raw numbers instead of siunitx ([simple regex](./checkmytex/checker/siunitx.py), showing you how easy new modules can be added)

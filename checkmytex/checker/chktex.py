@@ -5,7 +5,6 @@ import typing
 from checkmytex.latex_document import LatexDocument
 from .abstract_checker import Checker
 from .problem import Problem
-from ..highlighted_output import log
 
 
 class ChkTex(Checker):
@@ -56,7 +55,7 @@ class ChkTex(Checker):
                        message=f"{message_type}: {message}", rule=f"{message_type}: {message}")
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        log("Running chktex...")
+        self.log("Running chktex...")
         result, err, exitcode = self._run(f"chktex -f '{self._format_str}'", document.get_source())
         results = result.split("\n")
         for result in results:
