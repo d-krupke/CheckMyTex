@@ -20,22 +20,14 @@ class Whitelist:
         self._whitelist = {}
         self._on_add = on_add
         self._path = path
-        self._rules = set()
-        self._skip_files = []
-        self._ranges = []
         if self._path and os.path.exists(path):
             self.load(path)
 
     def __contains__(self, item: Problem):
         if not isinstance(item, Problem):
             raise ValueError("Can only check for problems")
-        if item.origin.file in self._skip_files:
-            return True
         o = item.origin
-        if None not in (o.begin.spos, o.end.spos):
-            if any(r[0] <= o.begin.spos <= o.end.spos <= r[1] for r in self._ranges):
-                return True
-        return item.short_id.strip() in self._shortkeys or item.rule in self._rules
+        return item.short_id.strip() in self._shortkeys
 
     def load(self, path: str) -> None:
         """
@@ -70,9 +62,6 @@ class Whitelist:
         for p in problems:
             if p not in self:
                 yield p
-
-    def skip_range(self, begin: int, end: int) -> None:
-        self._ranges.append((begin, end))
 
     def add(self, problem: Problem, comment: str = None) -> None:
         """

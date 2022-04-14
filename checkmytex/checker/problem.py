@@ -22,6 +22,12 @@ class Problem:
     def __repr__(self):
         return f"Problem[{self.tool}:{self.short_id}: {self.message} :{self.origin}]"
 
+    def __eq__(self, other):
+        return other.short_id == self.short_id
+
+    def __hash__(self):
+        return hash(self.short_id)
+
     def to_json(self) -> dict:
         return {"id": self.short_id, "tool": self.tool, "message": self.message,
                 "context": self.context, "rule": self.rule, "origin": self.origin,
