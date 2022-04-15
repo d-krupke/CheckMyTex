@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='CheckMyTex',
-      version='0.6.2',
+      version='0.7.0',
       description='A simple tool for checking complex LaTeX documents, e.g., dissertations.',
       long_description=readme(),
       long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setup(name='CheckMyTex',
       author='Dominik Krupke',
       author_email='krupke@ibr.cs.tu-bs.de',
       license='MIT',
-      packages=['checkmytex', 'checkmytex.checker',
+      packages=['checkmytex', 'checkmytex.finding',
                 'checkmytex.latex_document', "checkmytex.utils", "checkmytex.cli"],
       install_requires=["pyspellchecker", "flachtex>=0.1.3", "yalafi",
                         "proselint"],

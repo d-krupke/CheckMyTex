@@ -6,12 +6,12 @@ from checkmytex.cli.file_printer import FilePrinter
 from checkmytex.cli.overview import OverviewPrinter
 from checkmytex.cli.problem_handler import InteractiveProblemHandler
 from checkmytex.document_checker import DocumentChecker
-from checkmytex.rules import IgnoreIncludegraphics, IgnoreRefs, \
-    IgnoreRepeatedWords
+from checkmytex.filtering.filter import IgnoreIncludegraphics, IgnoreRefs, \
+    IgnoreRepeatedWords, IgnoreLikelyAuthorNames, IgnoreWordsFromBibliography
 from checkmytex.utils.editor import Editor
 from checkmytex.cli.highlighted_output import log
 from checkmytex.latex_document import LatexDocument
-from checkmytex.whitelist import Whitelist
+from checkmytex.filtering.whitelist import Whitelist
 
 
 class InteractiveCli:
@@ -27,11 +27,13 @@ class InteractiveCli:
         self.latex_document = LatexDocument(main_file)
         doc_checker = DocumentChecker(log=log)
         doc_checker.setup_default()
-        doc_checker.add_rule(IgnoreIncludegraphics())
-        doc_checker.add_rule(IgnoreRefs())
-        doc_checker.add_rule(IgnoreRepeatedWords(["problem", "problems"]))
-        problems = list(doc_checker.find_problems(self.latex_document,
-                                                  self.whitelist))
+        doc_checker.add_filter(self.whitelist)
+        doc_checker.add_filter(IgnoreIncludegraphics())
+        doc_checker.add_filter(IgnoreRefs())
+        doc_checker.add_filter(IgnoreRepeatedWords(["problem", "problems"]))
+        doc_checker.add_filter(IgnoreLikelyAuthorNames())
+        doc_checker.add_filter(IgnoreWordsFromBibliography())
+        problems = list(doc_checker.find_problems(self.latex_document))
         self.analyzed_document = AnalyzedDocument(self.latex_document,
                                                   problems,
                                                   lambda p: self.whitelist.add(

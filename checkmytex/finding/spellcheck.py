@@ -8,12 +8,6 @@ from .abstract_checker import Checker
 from checkmytex.latex_document import LatexDocument, Origin
 from .problem import Problem
 
-def find_names(document: LatexDocument):
-    text = re.sub("\s+", " ", document.get_text())
-    regex = r"(?P<names>(([A-Z][^\s\[]+)(\sand\s)?)+)(\set al\.?)?\s?\[0\]"
-    for match in re.finditer(regex, text):
-        print("NAMES:", match.group("names").replace("\n", " "))
-
 
 class AspellChecker(Checker):
     def _get_words(self, document: LatexDocument) -> typing.Dict[

@@ -115,9 +115,8 @@ class LatexDocument:
         if isinstance(begin, tuple):
             begin = self._detex_line_index[begin[0]] + begin[1]
             end = self._detex_line_index[end[0]] + end[1]
-        end -= 1
         b = self._detex_charmap[begin] - 1
-        e = self._detex_charmap[end]
+        e = self._detex_charmap[end-1]
         origin = self.get_origin_of_source(b, e)
         origin.begin.tpos = begin
         origin.end.tpos = end

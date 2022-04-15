@@ -25,7 +25,7 @@ The reason for sticking to a CLI are simple:
 * Spelling errors using aspell or [pyspellchecker](https://pypi.org/project/pyspellchecker/)
 * Grammar errors using [languagetool](https://languagetool.org/)
 * LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
-* Raw numbers instead of siunitx ([simple regex](./checkmytex/checker/siunitx.py), showing you how easy new modules can be added)
+* Raw numbers instead of siunitx ([simple regex](checkmytex/finding/siunitx.py), showing you how easy new modules can be added)
 * Additional advise from [proselint](https://github.com/amperser/proselint)
 * (Correct) usage of cleveref.
 

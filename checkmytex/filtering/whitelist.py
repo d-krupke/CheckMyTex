@@ -2,10 +2,12 @@ import re
 import os
 import typing
 
-from checkmytex.checker.problem import Problem
+from checkmytex.latex_document import LatexDocument
+from checkmytex.filtering.filter import Filter
+from checkmytex.finding.problem import Problem
 
 
-class Whitelist:
+class Whitelist(Filter):
     """
     Managing the whitelist, skipped problems, and ignored rules.
     """
@@ -56,6 +58,9 @@ class Whitelist:
         with open(path, "w") as f:
             for key, comment in self._whitelist.items():
                 f.write(f"{key} # {comment}\n")
+
+    def prepare(self, document: LatexDocument):
+        pass
 
     def filter(self, problems: typing.Iterable[Problem]) \
             -> typing.Iterable[Problem]:

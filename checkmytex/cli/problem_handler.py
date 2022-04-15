@@ -1,7 +1,7 @@
 import webbrowser
 
 from checkmytex.analyzed_document import AnalyzedDocument
-from checkmytex.checker import Problem
+from checkmytex.finding import Problem
 from .highlighted_output import log
 from checkmytex.utils import Editor, OptionPrompt
 

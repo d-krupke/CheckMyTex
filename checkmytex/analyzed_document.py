@@ -1,7 +1,7 @@
 import typing
 
 from checkmytex.latex_document import LatexDocument
-from checkmytex.checker.problem import Problem
+from checkmytex.finding.problem import Problem
 
 
 class AnalyzedDocument:
@@ -14,7 +14,8 @@ class AnalyzedDocument:
         self._on_false_positive = on_false_positive
 
     def mark_as_false_positive(self, problem: Problem):
-        self.problems.remove(problem)
+        while problem in self.problems:
+            self.problems.remove(problem)
         self._on_false_positive(problem)
 
     def remove_if(self, func: typing.Callable[[Problem], bool]) -> int:
@@ -26,14 +27,16 @@ class AnalyzedDocument:
     def remove_similar(self, problem: Problem) -> int:
         return self.remove_if(lambda p: problem.long_id == p.long_id)
 
-    def remove_with_rule(self, rule: str, tool: typing.Optional[str] = None) -> int:
+    def remove_with_rule(self, rule: str,
+                         tool: typing.Optional[str] = None) -> int:
         if tool:
             return self.remove_if(lambda p: p.rule == rule and p.tool == tool)
         else:
             return self.remove_if(lambda p: p.rule == rule)
 
     def get_problems(self, file: typing.Optional[str] = None,
-                     line: typing.Optional[int] = None) -> typing.List[Problem]:
+                     line: typing.Optional[int] = None) \
+            -> typing.List[Problem]:
         if file:
             problems = [p for p in self.problems if p.origin.file == file]
             if line:

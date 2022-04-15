@@ -1,7 +1,7 @@
 import typing
 
 from checkmytex.analyzed_document import AnalyzedDocument
-from checkmytex.checker import Problem
+from checkmytex.finding import Problem
 from checkmytex.cli.highlighted_output import print_header, add_highlights, ColorCodes, \
     log
 

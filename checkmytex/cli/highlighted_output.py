@@ -1,6 +1,6 @@
 import typing
 
-from checkmytex.checker.problem import Problem
+from checkmytex.finding.problem import Problem
 
 class ColorCodes:
     BOLD = '\033[1m'

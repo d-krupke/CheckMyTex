@@ -1,13 +1,11 @@
-import re
 import typing
 
-from .checker import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
+from .finding import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
     Proselint, Cleveref, UniformNpHard
 from checkmytex.latex_document import LatexDocument
-from checkmytex.checker.problem import Problem
-from checkmytex.whitelist import Whitelist
-from .checker.spellcheck import AspellChecker
-from .rules import Rule
+from checkmytex.finding.problem import Problem
+from .finding.spellcheck import AspellChecker
+from checkmytex.filtering.filter import Filter
 
 
 class DocumentChecker:
@@ -15,7 +13,7 @@ class DocumentChecker:
     Simple class to return the files and its problems of a latex document.
     """
 
-    def __init__(self,  log=print):
+    def __init__(self, log=print):
         self.log = log
         self.checker = []
         self.rules = []
@@ -51,7 +49,7 @@ class DocumentChecker:
             if guide:
                 print(guide)
 
-    def add_rule(self, rule: Rule) -> None:
+    def add_filter(self, rule: Filter) -> None:
         self.rules.append(rule)
 
     def _filter(self, problems: typing.Iterable[Problem]):
@@ -60,8 +58,7 @@ class DocumentChecker:
         return problems
 
     def find_problems(self,
-                      latex_document: LatexDocument,
-                      whitelist: Whitelist = None) \
+                      latex_document: LatexDocument) \
             -> typing.Iterable[Problem]:
         """
         Finds problems of the document. Returns an iterator of file names and
@@ -71,16 +68,13 @@ class DocumentChecker:
         :return: Iterator over file name and sorted problems within this file.
         """
         for rule in self.rules:
-            rule.prepare(latex_document, whitelist._path)
-        return self._filter(self._find_problems(latex_document, whitelist))
+            rule.prepare(latex_document)
+        return self._filter(self._find_problems(latex_document))
 
     def _find_problems(self,
-                       latex_document: LatexDocument,
-                       whitelist: Whitelist = None) \
+                       latex_document: LatexDocument) \
             -> typing.Iterable[Problem]:
 
-        whitelist = whitelist if whitelist else Whitelist()
         for c in self.checker:
             for p in c.check(latex_document):
-                if p not in whitelist:
-                    yield p
+                yield p
