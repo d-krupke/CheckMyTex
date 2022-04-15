@@ -154,7 +154,7 @@ class FilterAlign(Filter):
         #  analyze which parts of the source are align-environments using a regular expression
         expr = r"\\begin\{align\}.*?\\end\{align\}"
         source = document.get_source()
-        for match in re.finditer(expr, source, re.MULTILINE):
+        for match in re.finditer(expr, source, re.MULTILINE|re.DOTALL):
             self._ranges.append((match.start(), match.end()))
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
