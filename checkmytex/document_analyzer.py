@@ -71,8 +71,10 @@ class DocumentAnalyzer:
         """
         for rule in self.rules:
             rule.prepare(latex_document)
-        return AnalyzedDocument(latex_document, self._filter(
+        problems = list(self._filter(
             self._find_problems(latex_document)))
+        problems.sort(key=lambda p: p.origin)
+        return AnalyzedDocument(latex_document,problems )
 
     def _find_problems(self,
                        latex_document: LatexDocument) \
