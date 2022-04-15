@@ -32,6 +32,9 @@ class Origin:
                 raise ValueError("Can only compare positions.")
             return self.pos < other.pos
 
+    def __lt__(self, other):
+        return (self.begin, self.end) < (other.begin, other.end)
+
     def __init__(self, file: str, begin: Position, end: Position):
         self.file: str = file
         self.begin: Origin.Position = begin
