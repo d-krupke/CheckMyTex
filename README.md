@@ -72,7 +72,9 @@ For each problem, you will be asked what to do
 * *find* allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
 * *?* provides further information of the problem. Primarily for debugging and fine-tuning.
 
-This all works with nice coloring, which I cannot directly show in this markdown file.
+This all works with nice coloring, as shown below.
+![cli](./.cli_example.jpeg)
+Note the false positives in the author names will now be detected and no longer shown.
 
 Whitelisted problems are by default saved in `.whitelist.txt` (document root) and are human-readable.
 You can copy it to use also for other documents or change the path using the `-w` argument with a path when calling
