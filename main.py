@@ -1,4 +1,4 @@
-from checkmytex.cli.cli import main
+from checkmytex.main import main
 
 if __name__ == '__main__':
     main()

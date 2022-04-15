@@ -7,16 +7,20 @@ from checkmytex.finding.problem import Problem
 class AnalyzedDocument:
     def __init__(self,
                  document: LatexDocument,
-                 problems: typing.Iterable[Problem],
-                 on_false_positive: typing.Callable[[Problem], None]):
+                 problems: typing.Iterable[Problem]):
         self.document = document
         self.problems = list(problems)
+        self._on_false_positive = None
+
+    def set_on_false_positive_cb(self, on_false_positive: typing.Callable[
+        [Problem], None]):
         self._on_false_positive = on_false_positive
 
     def mark_as_false_positive(self, problem: Problem):
         while problem in self.problems:
             self.problems.remove(problem)
-        self._on_false_positive(problem)
+        if self._on_false_positive:
+            self._on_false_positive(problem)
 
     def remove_if(self, func: typing.Callable[[Problem], bool]) -> int:
         to_remove = [p for p in self.problems if func(p)]

@@ -1,5 +1,6 @@
 import typing
 
+from .analyzed_document import AnalyzedDocument
 from .finding import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
     Proselint, Cleveref, UniformNpHard
 from checkmytex.latex_document import LatexDocument
@@ -8,7 +9,7 @@ from .finding.spellcheck import AspellChecker
 from checkmytex.filtering.filter import Filter
 
 
-class DocumentChecker:
+class DocumentAnalyzer:
     """
     Simple class to return the files and its problems of a latex document.
     """
@@ -24,7 +25,7 @@ class DocumentChecker:
         if aspell.is_available():
             self.add_checker(aspell)
         else:
-            print("Aspell not available. Using pyspellchecker.")
+            self.log("Aspell not available. Using pyspellchecker.")
             self.add_checker(CheckSpell())
         self.add_checker(ChkTex())
         self.add_checker(Languagetool())
@@ -41,13 +42,14 @@ class DocumentChecker:
         :param checker: The checker to be added.
         :return: None
         """
+        checker.log = self.log
         if checker.is_available():
             self.checker.append(checker)
         else:
-            print(str(checker), "is not available.")
+            self.log(str(checker), "is not available.")
             guide = checker.installation_guide()
             if guide:
-                print(guide)
+                self.log(guide)
 
     def add_filter(self, rule: Filter) -> None:
         self.rules.append(rule)
@@ -57,9 +59,9 @@ class DocumentChecker:
             problems = rule.filter(problems)
         return problems
 
-    def find_problems(self,
-                      latex_document: LatexDocument) \
-            -> typing.Iterable[Problem]:
+    def analyze(self,
+                latex_document: LatexDocument) \
+            -> AnalyzedDocument:
         """
         Finds problems of the document. Returns an iterator of file names and
          sorted problems.
@@ -69,7 +71,8 @@ class DocumentChecker:
         """
         for rule in self.rules:
             rule.prepare(latex_document)
-        return self._filter(self._find_problems(latex_document))
+        return AnalyzedDocument(latex_document, self._filter(
+            self._find_problems(latex_document)))
 
     def _find_problems(self,
                        latex_document: LatexDocument) \

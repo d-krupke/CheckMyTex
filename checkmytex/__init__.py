@@ -1,4 +1,3 @@
-from .document_checker import DocumentChecker
-from checkmytex.finding.chktex import ChkTex
+from .document_analyzer import DocumentAnalyzer
+from .analyzed_document import AnalyzedDocument
 from .latex_document import LatexDocument
-from checkmytex.finding.languagetool import Languagetool
