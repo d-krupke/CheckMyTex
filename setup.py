@@ -22,7 +22,7 @@ setup(name='CheckMyTex',
       author_email='krupke@ibr.cs.tu-bs.de',
       license='MIT',
       packages=['checkmytex', 'checkmytex.finding',
-                'checkmytex.latex_document', "checkmytex.utils", "checkmytex.cli"],
+                'checkmytex.latex_document', "checkmytex.utils", "checkmytex.cli", "checkmytex.filtering"],
       install_requires=["pyspellchecker", "flachtex>=0.1.3", "yalafi",
                         "proselint"],
       entry_points={
