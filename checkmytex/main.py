@@ -3,6 +3,7 @@ import os.path
 
 from checkmytex.cli.cli import InteractiveCli
 from checkmytex.cli.highlighted_output import log
+from checkmytex.filtering.filter import IgnoreSpellingWithMath
 from checkmytex.latex_document import LatexDocument
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import IgnoreIncludegraphics, IgnoreRefs, \
@@ -40,6 +41,7 @@ def main():
     engine.add_filter(IgnoreRepeatedWords(["problem", "problems"]))
     engine.add_filter(IgnoreLikelyAuthorNames())
     engine.add_filter(IgnoreWordsFromBibliography())
+    engine.add_filter(IgnoreSpellingWithMath())
     analyzed_document = engine.analyze(latex_document)
 
     InteractiveCli(analyzed_document, whitelist, just_print=args.print)

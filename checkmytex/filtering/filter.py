@@ -75,3 +75,21 @@ class IgnoreRepeatedWords(Filter):
                     continue
             yield p
 
+class IgnoreSpellingWithMath(Filter):
+    def __init__(self):
+        self.document = None
+
+    def prepare(self, document: LatexDocument):
+        self.document = document
+
+
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[
+        Problem]:
+        for p in problems:
+            if p.rule == "SPELLING":
+                b = p.origin.begin.spos
+                e = p.origin.end.spos
+                source_of_word = self.document.get_source()[b:e]
+                if "\\" in source_of_word or "$" in source_of_word:
+                    continue
+            yield p

@@ -133,6 +133,7 @@ By default, CheckMyTex comes with the following filtering rules:
 * Spelling errors of author names before a `\cite`
 * Problems in the whitelist.
 * Ignore words used repeatedly in adjacent sentences (currently only the word "problem").
+* Words with `\` or `$` in them. They are usually terms and not proper words.
 
 Let us extend these rules: imagine you don't want any errors within an align-environment shown.
 
