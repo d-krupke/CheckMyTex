@@ -22,17 +22,17 @@ class FilePrinter:
         self._analyzed_document = analyzed_document
 
     def _enumerate_relevant_lines(self, lines, problems):
-        for i, l in enumerate(lines):
+        for i, line_content in enumerate(lines):
             if self._shorten is None:
-                yield i, l
+                yield i, line_content
 
-            def in_range(p):
-                b = p.origin.begin.row - self._shorten
-                e = p.origin.end.row + self._shorten
-                return b <= i < e
+            def in_range(problem):
+                begin = problem.origin.begin.row - self._shorten
+                end = problem.origin.end.row + self._shorten
+                return begin <= i < end
 
             if any(in_range(p) for p in problems):
-                yield i, l
+                yield i, line_content
 
     def _print_line(self, file_name, line_number, line):
         problems = self._analyzed_document.get_problems(file_name, line_number)

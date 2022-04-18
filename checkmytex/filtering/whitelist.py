@@ -54,17 +54,17 @@ class Whitelist(Filter):
         :param path: Path to write.
         :return: None
         """
-        with open(path, "w") as f:
+        with open(path, "w") as file:
             for key, comment in self._whitelist.items():
-                f.write(f"{key} # {comment}\n")
+                file.write(f"{key} # {comment}\n")
 
     def prepare(self, document: LatexDocument):
         pass
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p not in self:
-                yield p
+        for problem in problems:
+            if problem not in self:
+                yield problem
 
     def add(self, problem: Problem, comment: str = None) -> None:
         """
@@ -88,5 +88,7 @@ class Whitelist(Filter):
             self._save_problem(problem, comment)
 
     def _save_problem(self, problem, comment):
-        with open(self._path, "a") as f:
-            f.write(f"{problem.short_id} # {comment if comment else problem.long_id}\n")
+        with open(self._path, "a") as file:
+            file.write(
+                f"{problem.short_id} # {comment if comment else problem.long_id}\n"
+            )
