@@ -23,18 +23,17 @@ class Editor:
             self.editor_pattern = pattern
         else:
             self.editor_pattern = self._patterns.get(
-                self.editor.split("/")[-1],
-                self._default_pattern)
+                self.editor.split("/")[-1], self._default_pattern
+            )
 
     def _number_of_lines(self, f):
         with open(f, "r") as f:
-           return len(f.readlines())
+            return len(f.readlines())
 
     def open(self, file, line) -> int:
         l1 = self._number_of_lines(file)
         offset = self.offsets.get(file, 0) if self.remember_offsets else 0
-        cmd = self.editor_pattern.format(e=self.editor, f=file,
-                                         l=line + 1 + offset)
+        cmd = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
         subprocess.call(cmd, shell=True)
         l2 = self._number_of_lines(file)
         offset += l2 - l1

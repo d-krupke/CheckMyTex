@@ -1,11 +1,14 @@
+"""
+The LatexDocument provides easy access to the latex document to be fed to
+a checker and to trace the checker's report back to the original document.
+"""
 import re
 import typing
 
 import flachtex
+from flachtex.rules import BASIC_SKIP_RULES, Range, RegexSkipRule
 from flachtex.utils import compute_row_index
 from yalafi.tex2txt import Options, tex2txt
-
-from flachtex.rules import RegexSkipRule, Range, BASIC_SKIP_RULES
 
 from .origin import Origin
 
@@ -18,11 +21,15 @@ class _IgnoreRule(RegexSkipRule):
 
     def __init__(self):
         super().__init__(
-            r"((^\s*%%PAUSE-CHECKING)(?P<skipped_part>.*?)(^\s*%%CONTINUE-CHECKING))")
+            r"((^\s*%%PAUSE-CHECKING)"
+            r"(?P<skipped_part>.*?)"
+            r"(^\s*%%CONTINUE-CHECKING))"
+        )
 
     def determine_skip(self, match: re.Match):
-        span_to_be_skipped = Range(match.start("skipped_part"),
-                                   match.end("skipped_part"))
+        span_to_be_skipped = Range(
+            match.start("skipped_part"), match.end("skipped_part")
+        )
         return span_to_be_skipped
 
 
@@ -36,7 +43,7 @@ class LatexDocument:
 
     def __init__(self, path: str, detex=True, file_finder=None, yalafi_opts=None):
         self._source: flachtex.TraceableString = None
-        self._sources_row_indices = {}
+        self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
         self._files = None
         self._detex = None
         self._detex_charmap = None
@@ -55,10 +62,9 @@ class LatexDocument:
         :return: Returns itself.
         """
         expand = flachtex.expand_file_and_attach_sources
-        flat_source, sources = expand(path,
-                                      skip_rules=BASIC_SKIP_RULES + [
-                                          _IgnoreRule()],
-                                      file_finder=file_finder)
+        flat_source, sources = expand(
+            path, skip_rules=BASIC_SKIP_RULES + [_IgnoreRule()], file_finder=file_finder
+        )
         self._source = flachtex.remove_comments(flat_source)
         self._source_line_index = compute_row_index(str(self._source))
         self._files = sources
@@ -102,10 +108,11 @@ class LatexDocument:
         """
         return self._files[path]["content"]
 
-    def get_origin_of_text(self,
-                           begin: typing.Union[int, typing.Tuple[int, int]],
-                           end: typing.Union[int, typing.Tuple[int, int]]) \
-            -> Origin:
+    def get_origin_of_text(
+        self,
+        begin: typing.Union[int, typing.Tuple[int, int]],
+        end: typing.Union[int, typing.Tuple[int, int]],
+    ) -> Origin:
         """
         Returns the origin of the compiled text (`get_text`).
         :param begin: (Inclusive) begin either as position or line+column
@@ -116,7 +123,7 @@ class LatexDocument:
             begin = self._detex_line_index[begin[0]] + begin[1]
             end = self._detex_line_index[end[0]] + end[1]
         b = self._detex_charmap[begin] - 1
-        e = self._detex_charmap[end-1]
+        e = self._detex_charmap[end - 1]
         origin = self.get_origin_of_source(b, e)
         origin.begin.tpos = begin
         origin.end.tpos = end
@@ -131,17 +138,18 @@ class LatexDocument:
         :return: The source context of the problem's origin.
         """
         text = self.get_file_content(origin.file)
-        return text[max(0, origin.begin.pos - n): min(len(text),
-                                                      origin.end.pos + n)]
+        begin = max(0, origin.begin.pos - n)
+        end = min(len(text), origin.end.pos + n)
+        return text[begin:end]
 
     def _create_origin(self, path, begin: int, end: int) -> Origin:
         if path not in self._sources_row_indices:
             self._sources_row_indices[path] = compute_row_index(
-                self.get_file_content(path))
+                self.get_file_content(path)
+            )
         row_index = self._sources_row_indices[path]
         row_begin = 0
-        while row_begin + 1 < len(row_index) and begin >= row_index[
-            row_begin + 1]:
+        while row_begin + 1 < len(row_index) and begin >= row_index[row_begin + 1]:
             row_begin += 1
         # row_begin -= 1
         assert row_begin >= 0
@@ -154,14 +162,17 @@ class LatexDocument:
         assert row_end >= row_begin
         col_end = end - row_index[row_end]
         assert col_end >= 0
-        return Origin(file=path,
-                      begin=Origin.Position(begin, row_begin, col_begin),
-                      end=Origin.Position(end, row_end, col_end))
+        return Origin(
+            file=path,
+            begin=Origin.Position(begin, row_begin, col_begin),
+            end=Origin.Position(end, row_end, col_end),
+        )
 
-    def get_origin_of_source(self,
-                             begin: typing.Union[int, typing.Tuple[int, int]],
-                             end: typing.Union[
-                                 int, typing.Tuple[int, int]]) -> Origin:
+    def get_origin_of_source(
+        self,
+        begin: typing.Union[int, typing.Tuple[int, int]],
+        end: typing.Union[int, typing.Tuple[int, int]],
+    ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).
         :param begin: (Inclusive) begin either as position or line+column

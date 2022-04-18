@@ -8,27 +8,29 @@ fit my workflow. CheckMyTex builds upon YaLafi, but provides a simple CLI with s
 with hopefully any document.
 
 Primary concepts are
-* not just listing problems but also their exact locations,
-* working on the whole document, not just individual files (because otherwise, you forget to check some files)
-* simple extension of further checking modules,
-* ability to whitelist found problems and share this whitelist,
-* edit the errors directly (in Vim with automatic jump to line), and
-* having a single, simple command that you can easily run before every commit.
+
+- not just listing problems but also their exact locations,
+- working on the whole document, not just individual files (because otherwise, you forget to check some files)
+- simple extension of further checking modules,
+- ability to whitelist found problems and share this whitelist,
+- edit the errors directly (in Vim with automatic jump to line), and
+- having a single, simple command that you can easily run before every commit.
 
 This tool does not have a fancy HTML-output (like the other tools), even though I first designed it that way.
 The reason for sticking to a CLI are simple:
+
 1. Thanks to colored output, the highlighting works just as nice in CLI as in HTML. No need to switch to your browser.
 2. The CLI can use your favourite editor (currently, only (n)vim and nano have full support) without switching context.
 
 ## What does CheckMyTex currently check for you?
 
-* Spelling errors using aspell or [pyspellchecker](https://pypi.org/project/pyspellchecker/)
-* Grammar errors using [languagetool](https://languagetool.org/)
-* LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
-* Raw numbers instead of siunitx ([simple regex](checkmytex/finding/siunitx.py), showing you how easy new modules can be added)
-* Additional advise from [proselint](https://github.com/amperser/proselint)
-* (Correct) usage of cleveref.
-* Uniform writing style of NP-hard/complete (this is probably a problem only within my community, but it doesn't harm you)
+- Spelling errors using aspell or [pyspellchecker](https://pypi.org/project/pyspellchecker/)
+- Grammar errors using [languagetool](https://languagetool.org/)
+- LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
+- Raw numbers instead of siunitx ([simple regex](checkmytex/finding/siunitx.py), showing you how easy new modules can be added)
+- Additional advise from [proselint](https://github.com/amperser/proselint)
+- (Correct) usage of cleveref.
+- Uniform writing style of NP-hard/complete (this is probably a problem only within my community, but it doesn't harm you)
 
 I found this set of tools to be sufficient to find most problems in text and LaTeX-source, and I am constantly
 surprised on how well it works.
@@ -41,15 +43,15 @@ with bad LaTeX that I try to detect automatically.
 ## Install
 
 You can install CheckMyTex using pip
+
 ```
 pip install checkmytex
 ```
 
 You additionally need to install [languagetool](https://languagetool.org/) and a LaTeX-distribution (which should
-contain ChkTeX). 
+contain ChkTeX).
 
 **Currently, this tool will only work on Unix!**
-
 
 ## Usage
 
@@ -59,18 +61,20 @@ checkmytex main.tex
 
 CheckMyTex will now guide you through your document and show you all problems, skipping over good parts.
 For each problem, you will be asked what to do
+
 ```
 [s]kip,[S]kip all,[w]hitelist,[I]gnore all,[n]ext file,[e]dit,[l]ook up,[f]ind,[?]:
 ```
-* *skip* will skip this concrete problem, but ask you again next time you run CheckMyTex.
-* *Skip all* will skip this problem and all identical problems, but ask you again on the next run of CheckMyTex.
-* *whitelist* will whitelist the problem and never ask you about it again (for this document).
-* *Ignore* will ignore all problems that belong to the same rule, but ask you again next time you run CheckMyTex.
-* *next file* will jump to the next file.
-* *edit* will open you `$EDITOR` at the location of the problem. It tries to keep track of line changes without reprocessing the document.
-* *look up* will google the problem for you (if available). E.g., you can check for rare technical terms.
-* *find* allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
-* *?* provides further information of the problem. Primarily for debugging and fine-tuning.
+
+- _skip_ will skip this concrete problem, but ask you again next time you run CheckMyTex.
+- _Skip all_ will skip this problem and all identical problems, but ask you again on the next run of CheckMyTex.
+- _whitelist_ will whitelist the problem and never ask you about it again (for this document).
+- _Ignore_ will ignore all problems that belong to the same rule, but ask you again next time you run CheckMyTex.
+- _next file_ will jump to the next file.
+- _edit_ will open you `$EDITOR` at the location of the problem. It tries to keep track of line changes without reprocessing the document.
+- _look up_ will google the problem for you (if available). E.g., you can check for rare technical terms.
+- _find_ allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
+- _?_ provides further information of the problem. Primarily for debugging and fine-tuning.
 
 This all works with nice coloring, as shown below.
 ![cli](./.cli_example.jpeg)
@@ -91,9 +95,11 @@ drastically increase the runtime.
 ### Finding problems in the LaTeX document
 
 CheckMyTex already comes with a set of very useful tools and rules to find potential problems.
+
 ```python
 from checkmytex.finding import Languagetool, AspellChecker, CheckSpell, UniformNpHard, Cleveref, Proselint, SiUnitx
 ```
+
 You can also easily create your own rule. For example, a common antipattern in my community is to exclude many lines
 of text by defining a `\old{..}`-command.
 Let us quickly write a rule that detects this behavior, using a simple regular expression.
@@ -118,6 +124,7 @@ class NoOld(Checker):
             yield Problem(origin, "Please do not use \\old{! (it confuses highlighting)",
                           context= context,long_id=long_id, tool="CustomNoOld", rule="NO_OLD")
 ```
+
 This is all!
 Now you can add this rule to the `DocumentAnalyzer` with `add_checker`.
 You may want to copy the main.py and build yourself a custom version that directly includes this rule.
@@ -129,13 +136,14 @@ The current default already tries to detect if a spelling error is actually an a
 it. You can easily write such a filter yourself.
 
 By default, CheckMyTex comes with the following filtering rules:
-* Spelling errors in `\includegraphics`-paths.
-* Spelling errors in labels.
-* Spelling errors of words used in the bibliography. This also removes a lot of author names from the problem list.
-* Spelling errors of author names before a `\cite`
-* Problems in the whitelist.
-* Ignore words used repeatedly in adjacent sentences (currently only the word "problem").
-* Words with `\` or `$` in them. They are usually terms and not proper words.
+
+- Spelling errors in `\includegraphics`-paths.
+- Spelling errors in labels.
+- Spelling errors of words used in the bibliography. This also removes a lot of author names from the problem list.
+- Spelling errors of author names before a `\cite`
+- Problems in the whitelist.
+- Ignore words used repeatedly in adjacent sentences (currently only the word "problem").
+- Words with `\` or `$` in them. They are usually terms and not proper words.
 
 Let us extend these rules: imagine you don't want any errors within an align-environment shown.
 
@@ -173,5 +181,5 @@ This tool is still under development but already usable. Just expect some imperf
 
 ### TODOs
 
-* Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling the corresponding rules?
-* More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/main.py).
+- Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling the corresponding rules?
+- More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/__main__.py).

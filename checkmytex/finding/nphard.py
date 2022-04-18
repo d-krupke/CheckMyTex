@@ -2,6 +2,7 @@ import re
 import typing
 
 from checkmytex.latex_document import LatexDocument
+
 from .abstract_checker import Checker
 from .problem import Problem
 
@@ -14,10 +15,12 @@ class UniformNpHard(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Checking for uniform NP-hardness usage...")
-        expr = r"((^)|(\s))" \
-               r"(?P<np>(\$?\\?[Nn][Pp]\$?)" \
-               r"|(\$?\\((math)|(text))cal\{[Nn][Pp]\}\$?))" \
-               r"-(([Hh]ard)|([Cc]omplete))"
+        expr = (
+            r"((^)|(\s))"
+            r"(?P<np>(\$?\\?[Nn][Pp]\$?)"
+            r"|(\$?\\((math)|(text))cal\{[Nn][Pp]\}\$?))"
+            r"-(([Hh]ard)|([Cc]omplete))"
+        )
         variants_np = set()
         for match in re.finditer(expr, document.get_source()):
             cmd = match.group("np").strip()
@@ -31,10 +34,16 @@ class UniformNpHard(Checker):
             origin = document.get_origin_of_source(match.start(), match.end())
             context = document.get_source_context(origin)
             message = "Non-uniform 'NP'. Maybe use the 'complexity'-package?"
-            rule = 'UNIFORM-NP'
-            yield Problem(origin, context=context, message=message,
-                          long_id=rule + "|" + context, tool="UniformNP", rule=rule,
-                          look_up_url="https://ctan.org/pkg/complexity")
+            rule = "UNIFORM-NP"
+            yield Problem(
+                origin,
+                context=context,
+                message=message,
+                long_id=rule + "|" + context,
+                tool="UniformNP",
+                rule=rule,
+                look_up_url="https://ctan.org/pkg/complexity",
+            )
 
     def is_available(self) -> bool:
         return True

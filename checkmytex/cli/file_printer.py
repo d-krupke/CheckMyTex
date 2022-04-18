@@ -1,14 +1,22 @@
 import typing
 
 from checkmytex.analyzed_document import AnalyzedDocument
+from checkmytex.cli.highlighted_output import (
+    ColorCodes,
+    add_highlights,
+    log,
+    print_header,
+)
 from checkmytex.finding import Problem
-from checkmytex.cli.highlighted_output import print_header, add_highlights, ColorCodes, \
-    log
+
 
 class FilePrinter:
-    def __init__(self, analyzed_document: AnalyzedDocument,
-                 problem_handler,
-                 shorten: typing.Optional[int] = 3):
+    def __init__(
+        self,
+        analyzed_document: AnalyzedDocument,
+        problem_handler,
+        shorten: typing.Optional[int] = 3,
+    ):
         self._shorten = shorten
         self._problem_handler = problem_handler
         self._analyzed_document = analyzed_document
@@ -35,8 +43,10 @@ class FilePrinter:
             return a, b
 
         highlighted_line = add_highlights(line, (span(p) for p in problems))
-        print(f"{ColorCodes.BLACK_ON_WHITE}{line_number}:{ColorCodes.ENDC}",
-              highlighted_line)
+        print(
+            f"{ColorCodes.BLACK_ON_WHITE}{line_number}:{ColorCodes.ENDC}",
+            highlighted_line,
+        )
 
     def _print_problem(self, p: Problem):
         print(f" >>> {ColorCodes.WARNING}{p.message}{ColorCodes.ENDC} ({p.tool})")
@@ -47,7 +57,6 @@ class FilePrinter:
         for p in line_problems:
             self._print_problem(p)
             self._problem_handler(p)
-            #raise NotImplementedError()  # TODO interaction
 
     def print(self, f: str):
         source = self._analyzed_document.get_file_content(f)

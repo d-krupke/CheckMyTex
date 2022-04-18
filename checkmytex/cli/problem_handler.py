@@ -2,8 +2,9 @@ import webbrowser
 
 from checkmytex.analyzed_document import AnalyzedDocument
 from checkmytex.finding import Problem
-from .highlighted_output import log
 from checkmytex.utils import Editor, OptionPrompt
+
+from .highlighted_output import log
 
 
 def print_simple_line(i, l):
@@ -12,9 +13,12 @@ def print_simple_line(i, l):
 
 def print_detail(pre, text, post):
     print(
-        pre.replace('\n', ' ') +
-        "\033[4m" + text.replace('\n', '\\n') +
-        "\033[0m" + post.replace('\n', '\\n'))
+        pre.replace("\n", " ")
+        + "\033[4m"
+        + text.replace("\n", "\\n")
+        + "\033[0m"
+        + post.replace("\n", "\\n")
+    )
 
 
 class InteractiveProblemHandler:
@@ -60,15 +64,20 @@ class InteractiveProblemHandler:
             text = self.analyzed_document.document.get_text()
             b = max(0, o.begin.tpos - n)
             e = min(len(text), o.end.tpos + n)
-            print_detail("Text: " + text[b:o.begin.tpos],
-                         text[o.begin.tpos: o.end.tpos], text[o.end.tpos: e])
+            print_detail(
+                "Text: " + text[b : o.begin.tpos],
+                text[o.begin.tpos : o.end.tpos],
+                text[o.end.tpos : e],
+            )
         if None not in (o.begin.spos, o.end.spos):
             source = self.analyzed_document.document.get_source()
             b = max(0, o.begin.spos - n)
             e = min(len(source), o.end.spos + n)
-            print_detail("Source: " + source[b:o.begin.spos],
-                         source[o.begin.spos: o.end.spos],
-                         source[o.end.spos: e])
+            print_detail(
+                "Source: " + source[b : o.begin.spos],
+                source[o.begin.spos : o.end.spos],
+                source[o.end.spos : e],
+            )
         print("Position:", problem.origin)
         return False
 
@@ -81,14 +90,16 @@ class InteractiveProblemHandler:
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
                     source = self.analyzed_document.get_file_content(origin.file).split(
-                        "\n")
+                        "\n"
+                    )
                     print_simple_line(l, source[l])
             log("Searching in source...")
             for origin in self.analyzed_document.document.find_in_source(pattern):
                 print(origin)
                 for l in range(origin.begin.row, origin.end.row + 1):
                     source = self.analyzed_document.get_file_content(origin.file).split(
-                        "\n")
+                        "\n"
+                    )
                     print_simple_line(l, source[l])
         return False
 
@@ -96,25 +107,40 @@ class InteractiveProblemHandler:
         if problem.origin.file == self._skip_file:
             return
         prompt = OptionPrompt()
-        prompt.add_option("s", "[s]kip", lambda p: True,
-                          help="Skip to the next problem.")
-        prompt.add_option("S", "[S]kip all", self._skip_all,
-                          help="Skip all similar problems.")
-        prompt.add_option("w", "[w]hitelist", self._whitelist_problem,
-                          help="Mark as false positive.")
-        prompt.add_option("I", "[I]gnore all", self._ignore_all,
-                          help="Skip over all problems of this rule.")
-        prompt.add_option("n", "[n]ext file", self._next_file,
-                          help="Skip to next file.")
-        prompt.add_option("x", None, lambda p: exit(0), help="Exit.")
+        prompt.add_option(
+            "s", "[s]kip", lambda p: True, help_="Skip to the next problem."
+        )
+        prompt.add_option(
+            "S", "[S]kip all", self._skip_all, help_="Skip all similar problems."
+        )
+        prompt.add_option(
+            "w", "[w]hitelist", self._whitelist_problem, help_="Mark as false positive."
+        )
+        prompt.add_option(
+            "I",
+            "[I]gnore all",
+            self._ignore_all,
+            help_="Skip over all problems of this rule.",
+        )
+        prompt.add_option(
+            "n", "[n]ext file", self._next_file, help_="Skip to next file."
+        )
+        prompt.add_option("x", None, lambda p: exit(0), help_="Exit.")
         prompt.add_option("exit", None, lambda p: exit(0))
         prompt.add_option("q", None, lambda p: exit(0))
-        prompt.add_option("e", "[e]dit", self._edit,
-                          help='Open editor ($EDITOR) to fix this problem.')
-        prompt.add_option("f", "[f]ind", self.find,
-                          help="Quickly search the documents text and source.")
-        prompt.add_option("?", None, self._print_details,
-                          help="Print details.")
+        prompt.add_option(
+            "e",
+            "[e]dit",
+            self._edit,
+            help_="Open editor ($EDITOR) to fix this problem.",
+        )
+        prompt.add_option(
+            "f",
+            "[f]ind",
+            self.find,
+            help_="Quickly search the documents text and source.",
+        )
+        prompt.add_option("?", None, self._print_details, help_="Print details.")
         if problem.look_up_url:
             prompt.add_option("l", "[l]ook up", self._look_up)
         prompt(problem)

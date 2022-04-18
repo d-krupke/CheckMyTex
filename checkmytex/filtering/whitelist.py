@@ -1,10 +1,10 @@
-import re
 import os
+import re
 import typing
 
-from checkmytex.latex_document import LatexDocument
 from checkmytex.filtering.filter import Filter
 from checkmytex.finding.problem import Problem
+from checkmytex.latex_document import LatexDocument
 
 
 class Whitelist(Filter):
@@ -62,8 +62,7 @@ class Whitelist(Filter):
     def prepare(self, document: LatexDocument):
         pass
 
-    def filter(self, problems: typing.Iterable[Problem]) \
-            -> typing.Iterable[Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
             if p not in self:
                 yield p
@@ -78,17 +77,17 @@ class Whitelist(Filter):
         """
         self._shortkeys.add(problem.short_id.strip())
         key = problem.short_id.strip()
-        comment = comment if comment else \
-            f"{problem.tool}: {problem.message} - \"{problem.context}\""
+        comment = (
+            comment
+            if comment
+            else f'{problem.tool}: {problem.message} - "{problem.context}"'
+        )
         self._whitelist[key] = comment
         if self._on_add:
             self._on_add(problem)
         if self._path:
             self._save_problem(problem, comment)
 
-
-
     def _save_problem(self, problem, comment):
         with open(self._path, "a") as f:
-            f.write(
-                f"{problem.short_id} # {comment if comment else problem.long_id}\n")
+            f.write(f"{problem.short_id} # {comment if comment else problem.long_id}\n")

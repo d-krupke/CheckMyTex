@@ -1,3 +1,6 @@
+import typing
+
+
 class OptionPrompt:
     """
     A simple helper for getting an input from multiple options.
@@ -11,14 +14,32 @@ class OptionPrompt:
         self._help = {}
         self._help_options = ("h", "help")
 
-    def add_option(self, key, text, func, help=None):
+    def add_option(
+        self,
+        key: str,
+        text: str,
+        func: typing.Callable,
+        help_: typing.Optional[str] = None,
+    ) -> None:
+        """
+        Adds an option.
+        :param key: The key to choose the option, e.g. 'x'.
+        :param text: The text to print in the prompt, e.g., 'e[x]it'.
+        :param func: The function to call on selection.
+        :param help_: The text to show in help.
+        :return: No return.
+        """
         if text:
             self._texts.append(text)
-        if help:
-            self._help[key] = help
+        if help_:
+            self._help[key] = help_
         self._options[key] = func
 
-    def help(self):
+    def print_help(self):
+        """
+        Prints help.
+        :return: None
+        """
         for k, h in self._help.items():
             print(f"[{k}] {h}")
 
@@ -26,7 +47,7 @@ class OptionPrompt:
         return option in self._options or option in self._help_options
 
     def _input(self):
-        text = ','.join(self._texts)
+        text = ",".join(self._texts)
         return input(f"{self._front}{text}{self._end}")
 
     def __call__(self, *args, **kwargs):
@@ -36,6 +57,6 @@ class OptionPrompt:
             while not self._is_valid_option(option):
                 option = self._input()
             if self._help and option in self._help_options:
-                self.help()
+                self.print_help()
             else:
                 finished = self._options[option](*args, **kwargs)

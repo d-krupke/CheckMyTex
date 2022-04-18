@@ -1,11 +1,10 @@
 import abc
 import os
-import typing
 import re
+import typing
 
-from checkmytex.latex_document import LatexDocument
 from checkmytex.finding import Problem
-
+from checkmytex.latex_document import LatexDocument
 
 
 class Filter(abc.ABC):
@@ -14,8 +13,7 @@ class Filter(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def filter(self, problems: typing.Iterable[Problem]) \
-            -> typing.Iterable[Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         pass
 
 
@@ -29,8 +27,7 @@ class IgnoreIncludegraphics(Filter):
             r = (match.start("path"), match.end("path"))
             self._ranges.append(r)
 
-    def filter(self, problems: typing.Iterable[Problem]) \
-            -> typing.Iterable[Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
             b = p.origin.begin.spos
             e = p.origin.end.spos
@@ -48,8 +45,7 @@ class IgnoreRefs(Filter):
             r = (match.start("ref"), match.end("ref"))
             self._ranges.append(r)
 
-    def filter(self, problems: typing.Iterable[Problem]) \
-            -> typing.Iterable[Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
             b = p.origin.begin.spos
             e = p.origin.end.spos
@@ -65,15 +61,15 @@ class IgnoreRepeatedWords(Filter):
     def prepare(self, document: LatexDocument):
         self.document = document
 
-    def filter(self, problems: typing.Iterable[Problem]) \
-            -> typing.Iterable[Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
             if p.rule == "EN_REPEATEDWORDS_PROBLEM":
                 text = self.document.get_file_content(p.origin.file)
-                t = text[p.origin.begin.pos: p.origin.end.pos]
+                t = text[p.origin.begin.pos : p.origin.end.pos]
                 if t.strip().lower() in self.words:
                     continue
             yield p
+
 
 class IgnoreSpellingWithMath(Filter):
     def __init__(self):
@@ -82,9 +78,7 @@ class IgnoreSpellingWithMath(Filter):
     def prepare(self, document: LatexDocument):
         self.document = document
 
-
-    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[
-        Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
             if p.rule == "SPELLING":
                 b = p.origin.begin.spos

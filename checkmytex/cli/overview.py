@@ -1,9 +1,8 @@
 from checkmytex.analyzed_document import AnalyzedDocument
-from checkmytex.cli.highlighted_output import print_header, highlight
+from checkmytex.cli.highlighted_output import highlight, print_header
 
 
 class OverviewPrinter:
-
     def print(self, document: AnalyzedDocument):
         # Print overview
         print_header("Overview")

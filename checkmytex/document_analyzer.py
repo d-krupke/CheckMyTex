@@ -1,12 +1,21 @@
 import typing
 
-from .analyzed_document import AnalyzedDocument
-from .finding import Checker, Languagetool, SiUnitx, ChkTex, CheckSpell, \
-    Proselint, Cleveref, UniformNpHard
-from checkmytex.latex_document import LatexDocument
-from checkmytex.finding.problem import Problem
-from .finding.spellcheck import AspellChecker
 from checkmytex.filtering.filter import Filter
+from checkmytex.finding.problem import Problem
+from checkmytex.latex_document import LatexDocument
+
+from .analyzed_document import AnalyzedDocument
+from .finding import (
+    Checker,
+    CheckSpell,
+    ChkTex,
+    Cleveref,
+    Languagetool,
+    Proselint,
+    SiUnitx,
+    UniformNpHard,
+)
+from .finding.spellcheck import AspellChecker
 
 
 class DocumentAnalyzer:
@@ -59,9 +68,7 @@ class DocumentAnalyzer:
             problems = rule.filter(problems)
         return problems
 
-    def analyze(self,
-                latex_document: LatexDocument) \
-            -> AnalyzedDocument:
+    def analyze(self, latex_document: LatexDocument) -> AnalyzedDocument:
         """
         Finds problems of the document. Returns an iterator of file names and
          sorted problems.
@@ -71,14 +78,11 @@ class DocumentAnalyzer:
         """
         for rule in self.rules:
             rule.prepare(latex_document)
-        problems = list(self._filter(
-            self._find_problems(latex_document)))
+        problems = list(self._filter(self._find_problems(latex_document)))
         problems.sort(key=lambda p: p.origin)
-        return AnalyzedDocument(latex_document,problems )
+        return AnalyzedDocument(latex_document, problems)
 
-    def _find_problems(self,
-                       latex_document: LatexDocument) \
-            -> typing.Iterable[Problem]:
+    def _find_problems(self, latex_document: LatexDocument) -> typing.Iterable[Problem]:
 
         for c in self.checker:
             for p in c.check(latex_document):

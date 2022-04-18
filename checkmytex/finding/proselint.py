@@ -3,6 +3,7 @@ import typing
 import proselint.tools
 
 from checkmytex.latex_document import LatexDocument
+
 from .abstract_checker import Checker
 from .problem import Problem
 
@@ -88,13 +89,12 @@ _proselint_config = {
         "typography.symbols": True,
         "uncomparables.misc": True,
         "weasel_words.misc": True,
-        "weasel_words.very": True
-    }
+        "weasel_words.very": True,
+    },
 }
 
 
 class Proselint(Checker):
-
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Running proselint...")
         text = document.get_text()
@@ -102,16 +102,20 @@ class Proselint(Checker):
         for suggestion in suggestions:
             rule = suggestion[0]
             message = suggestion[1]
-            origin = document.get_origin_of_text(suggestion[4],
-                                                 suggestion[4] + suggestion[6])
+            origin = document.get_origin_of_text(
+                suggestion[4], suggestion[4] + suggestion[6]
+            )
             context = document.get_source_context(origin)
             severity = suggestion[7]
             replacements = suggestion[8]
-            yield Problem(origin,
-                          f"{severity}: {message} Suggestion: {replacements}",
-                          context=context,
-                          long_id=f"{rule}: {context}",
-                          rule=rule, tool="Proselint")
+            yield Problem(
+                origin,
+                f"{severity}: {message} Suggestion: {replacements}",
+                context=context,
+                long_id=f"{rule}: {context}",
+                rule=rule,
+                tool="Proselint",
+            )
 
     def is_available(self) -> bool:
         return True
