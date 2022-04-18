@@ -1,3 +1,6 @@
+"""
+A main file to execute CheckMyTex with CLI.
+"""
 from checkmytex.cli import InteractiveCli, log, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (

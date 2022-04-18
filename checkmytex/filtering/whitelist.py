@@ -18,17 +18,16 @@ class Whitelist(Filter):
         appended, use `load` instead.
         :param on_add: Callback [Problem]->None that is called on newly whitelisted problems.
         """
-        self._shortkeys = set()
-        self._whitelist = {}
+        self._shortkeys: typing.Set[str] = set()
+        self._whitelist: typing.Dict[str, str] = {}
         self._on_add = on_add
         self._path = path
-        if self._path and os.path.exists(path):
+        if path and os.path.exists(path):
             self.load(path)
 
     def __contains__(self, item: Problem):
         if not isinstance(item, Problem):
             raise ValueError("Can only check for problems")
-        o = item.origin
         return item.short_id.strip() in self._shortkeys
 
     def load(self, path: str) -> None:
@@ -37,9 +36,9 @@ class Whitelist(Filter):
         :param path: Path to the whitelist file.
         :return: None
         """
-        regex = re.compile("^(?P<key>\w+)\s*#?(?P<comment>(.*$)|($))")
-        with open(path, "r") as f:
-            for line in f.readlines():
+        regex = re.compile(r"^(?P<key>\w+)\s*#?(?P<comment>(.*$)|($))")
+        with open(path, "r") as file:
+            for line in file.readlines():
                 match = regex.fullmatch(line.strip())
                 if match:
                     key = match.group("key").strip()

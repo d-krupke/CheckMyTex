@@ -8,11 +8,11 @@ class OverviewPrinter:
         print_header("Overview")
         all_problems = document.get_problems()
         print(highlight(f"Found {len(all_problems)} problems in the document."))
-        for f in document.list_files():
-            problems = document.get_problems(f)
+        for file_path in document.list_files():
+            problems = document.get_problems(file_path)
             if len(problems) == 0:
-                print(f + ":", "no problems.")
+                print(file_path + ":", "no problems.")
             elif len(problems) == 1:
-                print(f + ":", highlight("1 problem."))
+                print(file_path + ":", highlight("1 problem."))
             else:
-                print(f + ":", highlight(f"{len(problems)} problems."))
+                print(file_path + ":", highlight(f"{len(problems)} problems."))

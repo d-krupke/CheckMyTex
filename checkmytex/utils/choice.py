@@ -17,7 +17,7 @@ class OptionPrompt:
     def add_option(
         self,
         key: str,
-        text: str,
+        text: typing.Optional[str],
         func: typing.Callable,
         help_: typing.Optional[str] = None,
     ) -> None:

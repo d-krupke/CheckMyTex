@@ -33,6 +33,32 @@ class _IgnoreRule(RegexSkipRule):
         return span_to_be_skipped
 
 
+class Detex:
+    """
+    Container for the detexed text.
+    """
+
+    def __init__(self, source: str, yalafi_opts: dict):
+        yalafi_opts = yalafi_opts if yalafi_opts else Options()
+        self.text, self._charmap = tex2txt(str(source), yalafi_opts)
+        self._line_index = compute_row_index(self.text)
+
+    def text_pos(self, line: int, column: int) -> int:
+        """
+        :param line: Line in source
+        :param column: Column in line
+        :return: The position in `self.text`.
+        """
+        return self._line_index[line] + column
+
+    def source_pos(self, text_pos: int) -> int:
+        """
+        :param text_pos: The position in `self.text`.
+        :return: The position in the original source string.
+        """
+        return self._charmap[text_pos]
+
+
 class LatexDocument:
     """
     A latex document that provides a coherent source string (using flachtex) and a
@@ -41,26 +67,7 @@ class LatexDocument:
     the compiled text.
     """
 
-    def __init__(self, path: str, detex=True, file_finder=None, yalafi_opts=None):
-        self._source: flachtex.TraceableString = None
-        self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
-        self._files = None
-        self._detex = None
-        self._detex_charmap = None
-        self._detex_line_index = None
-        self._source_line_index = None
-        self._yalafi_opts = yalafi_opts if yalafi_opts else Options()
-        self._parse(path, detex, file_finder)
-
-    def _parse(self, path: str, detex=True, file_finder=None):
-        """
-        Parses and detexes a latex document. Automatically includes all
-        includes files in the path.
-        :param path: Path to the main file of the latex document.
-        :param detex: Set to false if you do not need to detex the document.
-        :param file_finder: A file finder. Can be set explicitly for testing.
-        :return: Returns itself.
-        """
+    def __init__(self, path: str, file_finder=None, yalafi_opts=None):
         expand = flachtex.expand_file_and_attach_sources
         flat_source, sources = expand(
             path, skip_rules=BASIC_SKIP_RULES + [_IgnoreRule()], file_finder=file_finder
@@ -68,11 +75,9 @@ class LatexDocument:
         self._source = flachtex.remove_comments(flat_source)
         self._source_line_index = compute_row_index(str(self._source))
         self._files = sources
-        if detex:
-            opts = self._yalafi_opts
-            self._detex, self._detex_charmap = tex2txt(str(self._source), opts)
-            self._detex_line_index = compute_row_index(self._detex)
-        return self
+        self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
+        self._detex = Detex(str(self._source), yalafi_opts)
+        self._source_line_index = None
 
     def files(self) -> typing.Iterable[str]:
         """
@@ -80,8 +85,8 @@ class LatexDocument:
         Sorted by inclusion.
         :return:
         """
-        for f in self._files.keys():
-            yield f
+        for file_path in self._files:
+            yield file_path
 
     def get_source(self) -> str:
         """
@@ -97,7 +102,7 @@ class LatexDocument:
         """
         if not self._detex:
             raise ValueError("No detex available!")
-        return self._detex
+        return self._detex.text
 
     def get_file_content(self, path: str) -> str:
         """
@@ -120,11 +125,12 @@ class LatexDocument:
         :return: Origin of the part.
         """
         if isinstance(begin, tuple):
-            begin = self._detex_line_index[begin[0]] + begin[1]
-            end = self._detex_line_index[end[0]] + end[1]
-        b = self._detex_charmap[begin] - 1
-        e = self._detex_charmap[end - 1]
-        origin = self.get_origin_of_source(b, e)
+            begin = self._detex.text_pos(begin[0], begin[1])
+        if isinstance(end, tuple):
+            end = self._detex.text_pos(end[0], end[1])
+        begin_source = self._detex.source_pos(begin) - 1
+        end_source = self._detex.source_pos(end - 1)
+        origin = self.get_origin_of_source(begin_source, end_source)
         origin.begin.tpos = begin
         origin.end.tpos = end
         return origin
@@ -142,7 +148,9 @@ class LatexDocument:
         end = min(len(text), origin.end.pos + n)
         return text[begin:end]
 
-    def _create_origin(self, path, begin: int, end: int) -> Origin:
+    def _create_origin(
+        self, path: str, begin: int, end: int, sbegin: int, send: int
+    ) -> Origin:
         if path not in self._sources_row_indices:
             self._sources_row_indices[path] = compute_row_index(
                 self.get_file_content(path)
@@ -151,21 +159,19 @@ class LatexDocument:
         row_begin = 0
         while row_begin + 1 < len(row_index) and begin >= row_index[row_begin + 1]:
             row_begin += 1
-        # row_begin -= 1
         assert row_begin >= 0
         col_begin = begin - row_index[row_begin]
         assert col_begin >= 0
         row_end = row_begin
         while row_end + 1 < len(row_index) and end >= row_index[row_end + 1]:
             row_end += 1
-        # row_end -= 1
         assert row_end >= row_begin
         col_end = end - row_index[row_end]
         assert col_end >= 0
         return Origin(
             file=path,
-            begin=Origin.Position(begin, row_begin, col_begin),
-            end=Origin.Position(end, row_end, col_end),
+            begin=Origin.Position(begin, row_begin, col_begin, sbegin),
+            end=Origin.Position(end, row_end, col_end, send),
         )
 
     def get_origin_of_source(
@@ -181,6 +187,7 @@ class LatexDocument:
         """
         if isinstance(begin, tuple):
             begin = self._source_line_index[begin[0]] + begin[1]
+        if isinstance(end, tuple):
             end = self._source_line_index[end[0]] + end[1]
         assert begin < end
         origin_begin = self._source.get_origin(begin)
@@ -189,9 +196,9 @@ class LatexDocument:
         while origin_begin[0] != origin_end[0]:
             end -= 1
             origin_end = self._source.get_origin(end)
-        origin = self._create_origin(origin_begin[0], origin_begin[1], origin_end[1])
-        origin.begin.spos = begin
-        origin.end.spos = end
+        origin = self._create_origin(
+            origin_begin[0], origin_begin[1], origin_end[1], sbegin=begin, send=end
+        )
         return origin
 
     def find_in_text(self, pattern: str) -> typing.Iterable[Origin]:

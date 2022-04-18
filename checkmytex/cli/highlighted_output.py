@@ -18,10 +18,10 @@ def log(text: str):
 
 
 def print_header(text: str):
-    l = "=" * len(text)
-    print(f"{ColorCodes.HEADER}|={l}=|{ColorCodes.ENDC}")
+    sep = "=" * len(text)
+    print(f"{ColorCodes.HEADER}|={sep}=|{ColorCodes.ENDC}")
     print(f"{ColorCodes.HEADER}| {text} |{ColorCodes.ENDC}")
-    print(f"{ColorCodes.HEADER}|={l}=|{ColorCodes.ENDC}")
+    print(f"{ColorCodes.HEADER}|={sep}=|{ColorCodes.ENDC}")
 
 
 def highlight(s: str):

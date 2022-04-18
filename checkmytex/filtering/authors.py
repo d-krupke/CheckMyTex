@@ -50,6 +50,7 @@ class IgnoreWordsFromBibliography(Filter):
 
     def __init__(self, paths=None):
         self._paths = paths if paths else []
+        self._text = None
         self.word_list = set()
 
     def _find_bibtex_paths(self, document: LatexDocument):

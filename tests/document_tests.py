@@ -17,7 +17,9 @@ class LatexDocumentTest(unittest.TestCase):
             o1 = document.get_origin_of_source(i, i + 1)
             o2 = document.get_origin_of_text(i, i + 1)
             o3 = Origin(
-                "/main.tex", Origin.Position(i, 0, i), Origin.Position(i + 1, 0, i + 1)
+                "/main.tex",
+                Origin.Position(i, 0, i, 0),
+                Origin.Position(i + 1, 0, i + 1, 0),
             )
             self.assertEqual(o1, o2)
             self.assertEqual(o1, o3)
@@ -26,7 +28,9 @@ class LatexDocumentTest(unittest.TestCase):
             o1 = document.get_origin_of_source(i, i + 1)
             o2 = document.get_origin_of_text(i, i + 1)
             o3 = Origin(
-                "/main.tex", Origin.Position(i, 1, j), Origin.Position(i + 1, 1, j + 1)
+                "/main.tex",
+                Origin.Position(i, 1, j, 0),
+                Origin.Position(i + 1, 1, j + 1, 0),
             )
             self.assertEqual(o1, o2)
             self.assertEqual(o1, o3)
@@ -41,7 +45,9 @@ class LatexDocumentTest(unittest.TestCase):
             o1 = document.get_origin_of_source(i, i + 1)
             o2 = document.get_origin_of_text(i, i + 1)
             o3 = Origin(
-                "/main.tex", Origin.Position(i, 0, i), Origin.Position(i + 1, 0, i + 1)
+                "/main.tex",
+                Origin.Position(i, 0, i, 0),
+                Origin.Position(i + 1, 0, i + 1, 0),
             )
             self.assertEqual(o1, o2)
             self.assertEqual(o1, o3)
@@ -50,7 +56,9 @@ class LatexDocumentTest(unittest.TestCase):
             o1 = document.get_origin_of_source(i, i + 1)
             o2 = document.get_origin_of_text(i, i + 1)
             o3 = Origin(
-                "/sub.tex", Origin.Position(j, 0, j), Origin.Position(j + 1, 0, j + 1)
+                "/sub.tex",
+                Origin.Position(j, 0, j, 0),
+                Origin.Position(j + 1, 0, j + 1, 0),
             )
             self.assertEqual(o1, o2)
             self.assertEqual(o1, o3)
@@ -71,8 +79,8 @@ class LatexDocumentTest(unittest.TestCase):
                 key = f"{f}{i}"
                 origin = Origin(
                     "/" + f + ".tex",
-                    Origin.Position(3 * i, i, 0),
-                    Origin.Position(3 * i + 1, i, 1),
+                    Origin.Position(3 * i, i, 0, 0),
+                    Origin.Position(3 * i + 1, i, 1, 0),
                 )
                 p = document.get_text().find(key)
                 self.assertEqual(origin, document.get_origin_of_source(p, p + 1))
@@ -97,14 +105,14 @@ class LatexDocumentTest(unittest.TestCase):
                 if f == "B":
                     origin = Origin(
                         "/" + f + ".tex",
-                        Origin.Position(3 * i - 2, i, 0),
-                        Origin.Position(3 * i + 1 - 2, i, 1),
+                        Origin.Position(3 * i - 2, i, 0, 0),
+                        Origin.Position(3 * i + 1 - 2, i, 1, 0),
                     )
                 else:
                     origin = Origin(
                         "/" + f + ".tex",
-                        Origin.Position(3 * i, i, 0),
-                        Origin.Position(3 * i + 1, i, 1),
+                        Origin.Position(3 * i, i, 0, 0),
+                        Origin.Position(3 * i + 1, i, 1, 0),
                     )
                 p = document.get_text().find(key)
                 self.assertEqual(origin, document.get_origin_of_source(p, p + 1))

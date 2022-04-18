@@ -58,20 +58,20 @@ class FilePrinter:
             self._print_problem(p)
             self._problem_handler(p)
 
-    def print(self, f: str):
-        source = self._analyzed_document.get_file_content(f)
+    def print(self, file_path: str):
+        source = self._analyzed_document.get_file_content(file_path)
         lines = source.split("\n")
-        problems = self._analyzed_document.get_problems(f)
+        problems = self._analyzed_document.get_problems(file_path)
         # Print Header
-        print_header(f)
+        print_header(file_path)
         log(f"{len(problems)} problem{'s' if len(problems) != 1 else ''} found.")
         # Print lines
         last_printed_line = -1
-        for i, l in self._enumerate_relevant_lines(lines, problems):
+        for i, line in self._enumerate_relevant_lines(lines, problems):
             if i != last_printed_line + 1:
                 print("...")
             last_printed_line = i
-            self._print_line(f, i, l)
-            self._handle_line_problems(f, i)
+            self._print_line(file_path, i, line)
+            self._handle_line_problems(file_path, i)
         if len(lines) != last_printed_line + 1:
             print("...")

@@ -19,7 +19,7 @@ class Checker(abc.ABC):
     def is_available(self) -> bool:
         pass
 
-    def _run(self, cmd, input=None) -> typing.Tuple[str, str, int]:
+    def _run(self, cmd: str, input=None) -> typing.Tuple[str, str, int]:
         with subprocess.Popen(
             cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
         ) as proc:
@@ -28,8 +28,8 @@ class Checker(abc.ABC):
             else:
                 out, err = proc.communicate()
             return (
-                out.decode() if out else None,
-                err.decode() if err else None,
+                out.decode() if out else "",
+                err.decode() if err else "",
                 proc.wait(),
             )
 

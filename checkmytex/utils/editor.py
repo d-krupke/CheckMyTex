@@ -26,9 +26,9 @@ class Editor:
                 self.editor.split("/")[-1], self._default_pattern
             )
 
-    def _number_of_lines(self, f):
-        with open(f, "r") as f:
-            return len(f.readlines())
+    def _number_of_lines(self, file_path):
+        with open(file_path, "r") as file:
+            return len(file.readlines())
 
     def open(self, file, line) -> int:
         l1 = self._number_of_lines(file)

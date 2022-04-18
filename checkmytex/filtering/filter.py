@@ -18,6 +18,10 @@ class Filter(abc.ABC):
 
 
 class IgnoreIncludegraphics(Filter):
+    """
+    Ignore errors that occur within an \\includegraphics{} command.
+    """
+
     def __init__(self):
         self._ranges = []
 
@@ -56,12 +60,13 @@ class IgnoreRefs(Filter):
 class IgnoreRepeatedWords(Filter):
     def __init__(self, words: typing.List[str]):
         self.words = words
-        self.document = None
+        self.document: typing.Optional[LatexDocument] = None
 
     def prepare(self, document: LatexDocument):
         self.document = document
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
+        assert self.document, "Prepare has been called."
         for p in problems:
             if p.rule == "EN_REPEATEDWORDS_PROBLEM":
                 text = self.document.get_file_content(p.origin.file)

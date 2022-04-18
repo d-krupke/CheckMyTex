@@ -24,5 +24,5 @@ class InteractiveCli:
         OverviewPrinter().print(analyzed_document)
         fp = FilePrinter(analyzed_document, problem_handler)
         # Go through all files
-        for f in analyzed_document.list_files():
-            fp.print(f)
+        for file_path in analyzed_document.list_files():
+            fp.print(file_path)

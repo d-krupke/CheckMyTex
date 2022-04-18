@@ -54,8 +54,8 @@ class AnalyzedDocument:
             return self.problems
 
     def list_files(self) -> typing.Iterable[str]:
-        for f in self.document.files():
-            yield f
+        for file_path in self.document.files():
+            yield file_path
 
     def get_file_content(self, f) -> str:
         return self.document.get_file_content(f)

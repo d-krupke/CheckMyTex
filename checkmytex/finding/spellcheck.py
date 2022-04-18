@@ -18,7 +18,7 @@ class AspellChecker(Checker):
     def _get_words(
         self, document: LatexDocument
     ) -> typing.Dict[str, typing.List[Origin]]:
-        word_occurrences = dict()
+        word_occurrences: typing.Dict[str, typing.List[Origin]] = dict()
         word_regex = re.compile(r"(^|[\s(-])(?P<word>[^\s-]+)")
         text = document.get_text()
         is_word = re.compile(r"[A-Z]?[a-z]+-?[A-Z]?[a-z]+", re.UNICODE)
@@ -64,6 +64,10 @@ class AspellChecker(Checker):
                 )
 
     def is_available(self) -> bool:
+        """
+        Check if this tool is available on the system.
+        :return: True if it is available.
+        """
         bin = shutil.which("aspell")
         if not bin:
             return False
@@ -73,6 +77,7 @@ class AspellChecker(Checker):
             return False
         if "en_US" in out.split("\n"):
             return True
+        return False
 
 
 class CheckSpell(Checker):

@@ -1,9 +1,17 @@
+"""
+Build instructions for setuptools. Install manually with
+`python setup.py install`
+"""
+
 from setuptools import setup
 
 
 def readme():
-    with open("README.md") as f:
-        return f.read()
+    """
+    :return: Content of README.md
+    """
+    with open("README.md") as file:
+        return file.read()
 
 
 setup(

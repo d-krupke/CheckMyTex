@@ -60,7 +60,7 @@ class InteractiveProblemHandler:
         print("Context:", problem.context.replace("\n", " "))
         o = problem.origin
         n = 40
-        if None not in (o.begin.tpos, o.end.tpos):
+        if o.begin.tpos is not None and o.end.tpos is not None:
             text = self.analyzed_document.document.get_text()
             b = max(0, o.begin.tpos - n)
             e = min(len(text), o.end.tpos + n)
