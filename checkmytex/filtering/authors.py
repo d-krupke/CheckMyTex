@@ -33,8 +33,7 @@ class IgnoreLikelyAuthorNames(Filter):
         self._name_elements.add("et")
         self._name_elements.add("al")
 
-    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[
-        Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
                 begin = problem.origin.begin.tpos
@@ -100,8 +99,7 @@ class IgnoreWordsFromBibliography(Filter):
         bibtex = self._collect_bibtexs(document)
         self._extract_words_from_bibtex(bibtex)
 
-    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[
-        Problem]:
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
                 begin = problem.origin.begin.tpos

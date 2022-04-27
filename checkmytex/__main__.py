@@ -34,8 +34,8 @@ def main():
         analyzed_document = engine.analyze(latex_document)
 
         InteractiveCli(analyzed_document, whitelist, just_print=args.print)
-    except KeyError as ke:
-        print("Error:", str(ke))
+    except KeyError as key_error:
+        print("Error:", str(key_error))
 
 
 if __name__ == "__main__":

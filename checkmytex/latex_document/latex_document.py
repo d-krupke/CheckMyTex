@@ -13,6 +13,14 @@ from yalafi.tex2txt import Options, tex2txt
 from .origin import Origin
 
 
+def _to_pos(pos: typing.Union[int, typing.Tuple[int, int]], index) -> int:
+    if isinstance(pos, tuple):
+        return index[pos[0]] + pos[1]
+    if isinstance(pos, int):
+        return pos
+    raise ValueError(f"Can not deduce position from {pos}")
+
+
 class _IgnoreRule(RegexSkipRule):
     """
     A skip rule for flachtex to remove parts delimited by `%%PAUSE-CHECKING`
@@ -185,10 +193,8 @@ class LatexDocument:
         :param end: (Exclusive) end either as position or line+column
         :return: Origin of the part.
         """
-        if isinstance(begin, tuple):
-            begin = self._source_line_index[begin[0]] + begin[1]
-        if isinstance(end, tuple):
-            end = self._source_line_index[end[0]] + end[1]
+        begin = _to_pos(begin, self._source_line_index)
+        end = _to_pos(end, self._source_line_index)
         assert begin < end
         origin_begin = self._source.get_origin(begin)
         origin_end = self._source.get_origin(end)

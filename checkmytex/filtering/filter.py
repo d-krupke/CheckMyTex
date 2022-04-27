@@ -1,5 +1,4 @@
 import abc
-import os
 import re
 import typing
 
@@ -46,15 +45,15 @@ class IgnoreRefs(Filter):
     def prepare(self, document: LatexDocument):
         expr = r"\\(([Cc]?ref)|(fullcite)|(f?ref((ch)|(sec))))\{(?P<ref>[^\}]+)\}"
         for match in re.finditer(expr, document.get_source()):
-            r = (match.start("ref"), match.end("ref"))
-            self._ranges.append(r)
+            span = (match.start("ref"), match.end("ref"))
+            self._ranges.append(span)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            b = p.origin.begin.spos
-            e = p.origin.end.spos
-            if not any(r[0] <= b <= e <= r[1] for r in self._ranges):
-                yield p
+        for problem in problems:
+            begin = problem.origin.begin.spos
+            end = problem.origin.end.spos
+            if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
+                yield problem
 
 
 class IgnoreRepeatedWords(Filter):
@@ -67,13 +66,13 @@ class IgnoreRepeatedWords(Filter):
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         assert self.document, "Prepare has been called."
-        for p in problems:
-            if p.rule == "EN_REPEATEDWORDS_PROBLEM":
-                text = self.document.get_file_content(p.origin.file)
-                t = text[p.origin.begin.pos : p.origin.end.pos]
-                if t.strip().lower() in self.words:
+        for problem in problems:
+            if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
+                text = self.document.get_file_content(problem.origin.file)
+                section = text[problem.origin.begin.pos : problem.origin.end.pos]
+                if section.strip().lower() in self.words:
                     continue
-            yield p
+            yield problem
 
 
 class IgnoreSpellingWithMath(Filter):
@@ -84,11 +83,11 @@ class IgnoreSpellingWithMath(Filter):
         self.document = document
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p.rule == "SPELLING":
-                b = p.origin.begin.spos
-                e = p.origin.end.spos
-                source_of_word = self.document.get_source()[b:e]
+        for problem in problems:
+            if problem.rule == "SPELLING":
+                begin = problem.origin.begin.spos
+                end = problem.origin.end.spos
+                source_of_word = self.document.get_source()[begin:end]
                 if "\\" in source_of_word or "$" in source_of_word:
                     continue
-            yield p
+            yield problem

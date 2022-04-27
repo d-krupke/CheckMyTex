@@ -1,6 +1,6 @@
 name: Publish to PyPI
 
-on: 
+on:
   push:
     branches:
       - master
