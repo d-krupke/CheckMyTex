@@ -14,9 +14,10 @@ class Whitelist(Filter):
 
     def __init__(self, path: str = None, on_add=None):
         """
-        :param path: File to initialize the whitelist from. If you do not want the new problems to be automatically
-        appended, use `load` instead.
-        :param on_add: Callback [Problem]->None that is called on newly whitelisted problems.
+        :param path: File to initialize the whitelist from. If you do not want
+        the new problems to be automatically appended, use `load` instead.
+        :param on_add: Callback [Problem]->None that is called on newly
+         whitelisted problems.
         """
         self._shortkeys: typing.Set[str] = set()
         self._whitelist: typing.Dict[str, str] = {}
@@ -32,7 +33,8 @@ class Whitelist(Filter):
 
     def load(self, path: str) -> None:
         """
-        Load content of a whitelist. Each line contains a whitelisted item in the form `KEY # Comment`
+        Load content of a whitelist. Each line contains a whitelisted item in
+         the form `KEY # Comment`
         :param path: Path to the whitelist file.
         :return: None
         """
@@ -48,9 +50,9 @@ class Whitelist(Filter):
 
     def save(self, path: str) -> None:
         """
-        Save the whitelisted items to a file. All whitelisted items will be written.
-        Note that when the whitelist is initialized from a file, all new keys will
-        directly be appended.
+        Save the whitelisted items to a file. All whitelisted items will be
+        written. Note that when the whitelist is initialized from a file, all
+        new keys will directly be appended.
         :param path: Path to write.
         :return: None
         """

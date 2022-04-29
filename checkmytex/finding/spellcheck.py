@@ -68,10 +68,10 @@ class AspellChecker(Checker):
         Check if this tool is available on the system.
         :return: True if it is available.
         """
-        bin = shutil.which("aspell")
-        if not bin:
+        bin_path = shutil.which("aspell")
+        if not bin_path:
             return False
-        out, err, code = self._run(f"{bin} dicts")
+        out, err, code = self._run(f"{bin_path} dicts")
         if code:  # something happened.
             print("Could not query aspell dicts:", err)
             return False

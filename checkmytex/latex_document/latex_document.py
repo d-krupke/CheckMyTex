@@ -85,7 +85,6 @@ class LatexDocument:
         self._files = sources
         self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
         self._detex = Detex(str(self._source), yalafi_opts)
-        self._source_line_index = None
 
     def files(self) -> typing.Iterable[str]:
         """

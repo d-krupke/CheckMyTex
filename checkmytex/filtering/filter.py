@@ -1,4 +1,5 @@
 import abc
+import os
 import re
 import typing
 
@@ -31,11 +32,11 @@ class IgnoreIncludegraphics(Filter):
             self._ranges.append(r)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            b = p.origin.begin.spos
-            e = p.origin.end.spos
-            if not any(r[0] <= b <= e <= r[1] for r in self._ranges):
-                yield p
+        for problem in problems:
+            begin = problem.origin.begin.spos
+            end = problem.origin.end.spos
+            if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
+                yield problem
 
 
 class IgnoreRefs(Filter):
@@ -91,3 +92,66 @@ class IgnoreSpellingWithMath(Filter):
                 if "\\" in source_of_word or "$" in source_of_word:
                     continue
             yield problem
+
+
+class MathMode(Filter):
+    def __init__(self, rules: typing.Dict[str, typing.Optional[typing.List]]):
+        self.ranges: typing.List[typing.Tuple[int, int]] = []
+        self.rules = rules
+
+    def _find_simple_math(self, source):
+        regex = re.compile(
+            r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
+        )
+        for match in regex.finditer(source):
+            begin = match.start("math")
+            end = match.end("math")
+            self.ranges.append((begin, end))
+
+    def _find_line_math(self, source):
+        regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
+        for match in regex.finditer(source):
+            begin = match.start()
+            end = match.end()
+            self.ranges.append((begin, end))
+
+    def _find_environments(self, source, env):
+        regex = re.compile(
+            r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
+            re.MULTILINE | re.DOTALL,
+        )
+        for match in regex.finditer(source):
+            begin = match.start()
+            end = match.end()
+            self.ranges.append((begin, end))
+
+    def prepare(self, document: LatexDocument):
+        source = document.get_source()
+        self._find_simple_math(source)
+        self._find_line_math(source)
+        self._find_environments(source, "equation")
+        self._find_environments(source, "equation\\*")
+        self._find_environments(source, "align")
+        self._find_environments(source, "align\\*")
+        self._find_environments(source, "array")
+
+    def _problem_fits_rule(self, problem):
+        for tool, rules in self.rules.items():
+            if problem.tool == tool:
+                if not rules or problem.rule in rules:
+                    return True
+        return False
+
+    def _problem_applies(self, problem):
+        if not self._problem_fits_rule(problem):
+            return False
+        begin = problem.origin.begin.spos
+        end = problem.origin.end.spos
+        if not any(r[0] <= begin <= end <= r[1] for r in self.ranges):
+            return False
+        return True
+
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
+        for problem in problems:
+            if not self._problem_applies(problem):
+                yield problem
