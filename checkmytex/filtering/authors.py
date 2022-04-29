@@ -34,12 +34,30 @@ class IgnoreLikelyAuthorNames(Filter):
         self._name_elements.add("al")
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p.rule == "SPELLING":
-                w = self._text[p.origin.begin.tpos : p.origin.end.tpos].strip()
-                if w in self._name_elements:
+        for problem in problems:
+            if problem.rule == "SPELLING":
+                begin = problem.origin.begin.tpos
+                end = problem.origin.end.tpos
+                misspelled_word = self._text[begin:end].strip()
+                if misspelled_word in self._name_elements:
                     continue
-            yield p
+            yield problem
+
+
+def _find_bibtex_paths(document: LatexDocument):
+    regex = r"\\((addbibresource)|(bibliography))\{(?P<path>[^}]+)\}"
+    paths = set()
+    for match in re.finditer(regex, document.get_source()):
+        bib_file = match.group("path")
+        in_file = document.get_origin_of_source(
+            match.start("path"), match.end("path")
+        ).file
+        path = os.path.join(os.path.dirname(in_file), bib_file)
+        if os.path.isfile(path):
+            paths.add(path)
+        elif os.path.isfile(path + ".bib"):
+            paths.add(path + ".bib")
+    return paths
 
 
 class IgnoreWordsFromBibliography(Filter):
@@ -50,31 +68,17 @@ class IgnoreWordsFromBibliography(Filter):
 
     def __init__(self, paths=None):
         self._paths = paths if paths else []
+        self._text = None
         self.word_list = set()
-
-    def _find_bibtex_paths(self, document: LatexDocument):
-        regex = r"\\((addbibresource)|(bibliography))\{(?P<path>[^}]+)\}"
-        paths = set()
-        for match in re.finditer(regex, document.get_source()):
-            bib_file = match.group("path")
-            in_file = document.get_origin_of_source(
-                match.start("path"), match.end("path")
-            ).file
-            p = os.path.join(os.path.dirname(in_file), bib_file)
-            if os.path.isfile(p):
-                paths.add(p)
-            elif os.path.isfile(p + ".bib"):
-                paths.add(p + ".bib")
-        return paths
 
     def _collect_bibtexs(self, document: LatexDocument):
         bibtex = ""
-        for p in self._find_bibtex_paths(document):
-            with open(p, "r") as f:
-                bibtex += "\n".join(f.readlines())
-        for p in self._paths:
-            with open(p, "r") as f:
-                bibtex += "\n".join(f.readlines())
+        for path in _find_bibtex_paths(document):
+            with open(path, "r") as file:
+                bibtex += "\n".join(file.readlines())
+        for path in self._paths:
+            with open(path, "r") as file:
+                bibtex += "\n".join(file.readlines())
         return bibtex
 
     def _extract_words_from_bibtex(self, bibtex: str):
@@ -86,9 +90,9 @@ class IgnoreWordsFromBibliography(Filter):
         for match in re.finditer(expr, bibtex, re.MULTILINE):
             text += match.group("text") + " "
         text = tex2txt(text, Options())[0]
-        for w in re.split(r"[\s.,():\-]+", text):
-            if len(w) > 1:
-                self.word_list.add(w)
+        for word in re.split(r"[\s.,():\-]+", text):
+            if len(word) > 1:
+                self.word_list.add(word)
 
     def prepare(self, document: LatexDocument):
         self._text = document.get_text()
@@ -96,9 +100,11 @@ class IgnoreWordsFromBibliography(Filter):
         self._extract_words_from_bibtex(bibtex)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p.rule == "SPELLING":
-                w = self._text[p.origin.begin.tpos : p.origin.end.tpos].strip()
-                if w in self.word_list:
+        for problem in problems:
+            if problem.rule == "SPELLING":
+                begin = problem.origin.begin.tpos
+                end = problem.origin.end.tpos
+                misspelled_word = self._text[begin:end].strip()
+                if misspelled_word in self.word_list:
                     continue
-            yield p
+            yield problem

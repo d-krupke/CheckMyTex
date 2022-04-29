@@ -1,3 +1,6 @@
+"""
+Module for checking a latex document by applying a set of checker and filter.
+"""
 import typing
 
 from checkmytex.filtering.filter import Filter
@@ -29,6 +32,10 @@ class DocumentAnalyzer:
         self.rules = []
 
     def setup_default(self):
+        """
+        Setup default checker.
+        :return: None
+        """
         self.log("Using default modules.")
         aspell = AspellChecker()
         if aspell.is_available():
@@ -61,6 +68,11 @@ class DocumentAnalyzer:
                 self.log(guide)
 
     def add_filter(self, rule: Filter) -> None:
+        """
+        Add a filter that is applied on the output of the checkers.
+        :param rule: The filter rule
+        :return: None
+        """
         self.rules.append(rule)
 
     def _filter(self, problems: typing.Iterable[Problem]):
@@ -83,7 +95,6 @@ class DocumentAnalyzer:
         return AnalyzedDocument(latex_document, problems)
 
     def _find_problems(self, latex_document: LatexDocument) -> typing.Iterable[Problem]:
-
-        for c in self.checker:
-            for p in c.check(latex_document):
-                yield p
+        for checker in self.checker:
+            for problem in checker.check(latex_document):
+                yield problem

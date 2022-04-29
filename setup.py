@@ -1,14 +1,22 @@
+"""
+Build instructions for setuptools. Install manually with
+`python setup.py install`
+"""
+
 from setuptools import setup
 
 
 def readme():
-    with open("README.md") as f:
-        return f.read()
+    """
+    :return: Content of README.md
+    """
+    with open("README.md") as file:
+        return file.read()
 
 
 setup(
     name="CheckMyTex",
-    version="0.7.3",
+    version="0.7.4",
     description="A simple tool for checking complex LaTeX documents, e.g., dissertations.",
     long_description=readme(),
     long_description_content_type="text/markdown",

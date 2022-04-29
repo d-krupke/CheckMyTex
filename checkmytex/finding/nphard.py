@@ -1,3 +1,7 @@
+"""
+Simple module for finding inconsisting writing style of NP-hard/complete.
+Common problem with documents in theoretical computer science.
+"""
 import re
 import typing
 

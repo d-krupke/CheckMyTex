@@ -16,7 +16,7 @@ class Origin:
             pos: int,
             row: int,
             col: int,
-            spos: typing.Optional[int] = None,
+            spos: int,
             tpos: typing.Optional[int] = None,
         ):
             self.pos = pos  # position in the file. Starting at zero.

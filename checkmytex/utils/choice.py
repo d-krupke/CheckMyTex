@@ -1,3 +1,6 @@
+"""
+Provides a simple class for CLI option prompt.
+"""
 import typing
 
 
@@ -17,7 +20,7 @@ class OptionPrompt:
     def add_option(
         self,
         key: str,
-        text: str,
+        text: typing.Optional[str],
         func: typing.Callable,
         help_: typing.Optional[str] = None,
     ) -> None:
@@ -40,8 +43,8 @@ class OptionPrompt:
         Prints help.
         :return: None
         """
-        for k, h in self._help.items():
-            print(f"[{k}] {h}")
+        for key, help_text in self._help.items():
+            print(f"[{key}] {help_text}")
 
     def _is_valid_option(self, option):
         return option in self._options or option in self._help_options

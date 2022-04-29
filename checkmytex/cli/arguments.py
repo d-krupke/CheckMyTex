@@ -1,8 +1,17 @@
+"""
+Parsing the arguments from CLI.
+"""
 import argparse
 import os
+import sys
 
 
 def parse_arguments(log):
+    """
+    Parse CLI arguments.
+    :param log: A logging function.
+    :return: The parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         description="CheckMyTex: A simple tool for checking your LaTeX."
     )
@@ -13,7 +22,7 @@ def parse_arguments(log):
     args = parser.parse_args()
     if not args.path:
         parser.print_help()
-        exit(1)
+        sys.exit(1)
     if args.w:
         args.whitelist = args.w
     else:

@@ -1,3 +1,6 @@
+"""
+Finding usages of raw \\ref
+"""
 import re
 import typing
 
@@ -8,6 +11,10 @@ from .problem import Problem
 
 
 class Cleveref(Checker):
+    """
+    A checker module for finding raw \\ref. Better use \\cref.
+    """
+
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Checking for cleveref usage...")
         # \ref instead of smarter \cref

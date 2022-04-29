@@ -1,3 +1,6 @@
+"""
+A main file to execute CheckMyTex with CLI.
+"""
 from checkmytex.cli import InteractiveCli, log, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
@@ -9,10 +12,16 @@ from checkmytex.filtering import (
     IgnoreWordsFromBibliography,
     Whitelist,
 )
+from checkmytex.filtering.filter import MathMode
 from checkmytex.latex_document import LatexDocument
 
 
 def main():
+    """
+    A main function, such that it can also be called with different entry
+    points
+    :return: None
+    """
     args = parse_arguments(log)
     whitelist = Whitelist(args.whitelist)
     log("Parsing LaTeX project...")
@@ -28,11 +37,15 @@ def main():
         engine.add_filter(IgnoreLikelyAuthorNames())
         engine.add_filter(IgnoreWordsFromBibliography())
         engine.add_filter(IgnoreSpellingWithMath())
+        engine.add_filter(
+            MathMode({"SPELLING": None, "languagetool": None, "Proselint": None})
+        )
+
         analyzed_document = engine.analyze(latex_document)
 
         InteractiveCli(analyzed_document, whitelist, just_print=args.print)
-    except KeyError as ke:
-        print("Error:", str(ke))
+    except KeyError as key_error:
+        print("Error:", str(key_error))
 
 
 if __name__ == "__main__":

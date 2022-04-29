@@ -31,12 +31,12 @@ class InteractiveProblemHandler:
         self.analyzed_document.remove_similar(problem)
         return True
 
-    def _whitelist_problem(self, p):
-        self.analyzed_document.mark_as_false_positive(p)
+    def _whitelist_problem(self, problem):
+        self.analyzed_document.mark_as_false_positive(problem)
         return True
 
-    def _ignore_all(self, p):
-        self.analyzed_document.remove_with_rule(p.rule)
+    def _ignore_all(self, problem):
+        self.analyzed_document.remove_with_rule(problem.rule)
         return True
 
     def _edit(self, problem):
@@ -60,23 +60,23 @@ class InteractiveProblemHandler:
         print("Context:", problem.context.replace("\n", " "))
         o = problem.origin
         n = 40
-        if None not in (o.begin.tpos, o.end.tpos):
+        if o.begin.tpos is not None and o.end.tpos is not None:
             text = self.analyzed_document.document.get_text()
-            b = max(0, o.begin.tpos - n)
-            e = min(len(text), o.end.tpos + n)
+            begin = max(0, o.begin.tpos - n)
+            end = min(len(text), o.end.tpos + n)
             print_detail(
-                "Text: " + text[b : o.begin.tpos],
+                "Text: " + text[begin : o.begin.tpos],
                 text[o.begin.tpos : o.end.tpos],
-                text[o.end.tpos : e],
+                text[o.end.tpos : end],
             )
         if None not in (o.begin.spos, o.end.spos):
             source = self.analyzed_document.document.get_source()
-            b = max(0, o.begin.spos - n)
-            e = min(len(source), o.end.spos + n)
+            begin = max(0, o.begin.spos - n)
+            end = min(len(source), o.end.spos + n)
             print_detail(
-                "Source: " + source[b : o.begin.spos],
+                "Source: " + source[begin : o.begin.spos],
                 source[o.begin.spos : o.end.spos],
-                source[o.end.spos : e],
+                source[o.end.spos : end],
             )
         print("Position:", problem.origin)
         return False

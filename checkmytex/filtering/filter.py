@@ -18,6 +18,10 @@ class Filter(abc.ABC):
 
 
 class IgnoreIncludegraphics(Filter):
+    """
+    Ignore errors that occur within an \\includegraphics{} command.
+    """
+
     def __init__(self):
         self._ranges = []
 
@@ -28,11 +32,11 @@ class IgnoreIncludegraphics(Filter):
             self._ranges.append(r)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            b = p.origin.begin.spos
-            e = p.origin.end.spos
-            if not any(r[0] <= b <= e <= r[1] for r in self._ranges):
-                yield p
+        for problem in problems:
+            begin = problem.origin.begin.spos
+            end = problem.origin.end.spos
+            if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
+                yield problem
 
 
 class IgnoreRefs(Filter):
@@ -42,33 +46,34 @@ class IgnoreRefs(Filter):
     def prepare(self, document: LatexDocument):
         expr = r"\\(([Cc]?ref)|(fullcite)|(f?ref((ch)|(sec))))\{(?P<ref>[^\}]+)\}"
         for match in re.finditer(expr, document.get_source()):
-            r = (match.start("ref"), match.end("ref"))
-            self._ranges.append(r)
+            span = (match.start("ref"), match.end("ref"))
+            self._ranges.append(span)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            b = p.origin.begin.spos
-            e = p.origin.end.spos
-            if not any(r[0] <= b <= e <= r[1] for r in self._ranges):
-                yield p
+        for problem in problems:
+            begin = problem.origin.begin.spos
+            end = problem.origin.end.spos
+            if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
+                yield problem
 
 
 class IgnoreRepeatedWords(Filter):
     def __init__(self, words: typing.List[str]):
         self.words = words
-        self.document = None
+        self.document: typing.Optional[LatexDocument] = None
 
     def prepare(self, document: LatexDocument):
         self.document = document
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p.rule == "EN_REPEATEDWORDS_PROBLEM":
-                text = self.document.get_file_content(p.origin.file)
-                t = text[p.origin.begin.pos : p.origin.end.pos]
-                if t.strip().lower() in self.words:
+        assert self.document, "Prepare has been called."
+        for problem in problems:
+            if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
+                text = self.document.get_file_content(problem.origin.file)
+                section = text[problem.origin.begin.pos : problem.origin.end.pos]
+                if section.strip().lower() in self.words:
                     continue
-            yield p
+            yield problem
 
 
 class IgnoreSpellingWithMath(Filter):
@@ -79,11 +84,74 @@ class IgnoreSpellingWithMath(Filter):
         self.document = document
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        for p in problems:
-            if p.rule == "SPELLING":
-                b = p.origin.begin.spos
-                e = p.origin.end.spos
-                source_of_word = self.document.get_source()[b:e]
+        for problem in problems:
+            if problem.rule == "SPELLING":
+                begin = problem.origin.begin.spos
+                end = problem.origin.end.spos
+                source_of_word = self.document.get_source()[begin:end]
                 if "\\" in source_of_word or "$" in source_of_word:
                     continue
-            yield p
+            yield problem
+
+
+class MathMode(Filter):
+    def __init__(self, rules: typing.Dict[str, typing.Optional[typing.List]]):
+        self.ranges: typing.List[typing.Tuple[int, int]] = []
+        self.rules = rules
+
+    def _find_simple_math(self, source):
+        regex = re.compile(
+            r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
+        )
+        for match in regex.finditer(source):
+            begin = match.start("math")
+            end = match.end("math")
+            self.ranges.append((begin, end))
+
+    def _find_line_math(self, source):
+        regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
+        for match in regex.finditer(source):
+            begin = match.start()
+            end = match.end()
+            self.ranges.append((begin, end))
+
+    def _find_environments(self, source, env):
+        regex = re.compile(
+            r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
+            re.MULTILINE | re.DOTALL,
+        )
+        for match in regex.finditer(source):
+            begin = match.start()
+            end = match.end()
+            self.ranges.append((begin, end))
+
+    def prepare(self, document: LatexDocument):
+        source = document.get_source()
+        self._find_simple_math(source)
+        self._find_line_math(source)
+        self._find_environments(source, "equation")
+        self._find_environments(source, "equation\\*")
+        self._find_environments(source, "align")
+        self._find_environments(source, "align\\*")
+        self._find_environments(source, "array")
+
+    def _problem_fits_rule(self, problem):
+        for tool, rules in self.rules.items():
+            if problem.tool == tool:
+                if not rules or problem.rule in rules:
+                    return True
+        return False
+
+    def _problem_applies(self, problem):
+        if not self._problem_fits_rule(problem):
+            return False
+        begin = problem.origin.begin.spos
+        end = problem.origin.end.spos
+        if not any(r[0] <= begin <= end <= r[1] for r in self.ranges):
+            return False
+        return True
+
+    def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
+        for problem in problems:
+            if not self._problem_applies(problem):
+                yield problem
