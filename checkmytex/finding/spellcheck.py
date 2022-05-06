@@ -15,6 +15,10 @@ from .problem import Problem
 
 
 class AspellChecker(Checker):
+    def __init__(self, lang="en_US"):
+        super().__init__()
+        self.lang = lang
+
     def _get_words(
         self, document: LatexDocument
     ) -> typing.Dict[str, typing.List[Origin]]:
@@ -40,7 +44,7 @@ class AspellChecker(Checker):
         words = self._get_words(document)
         bin = shutil.which("aspell")
         word_list = "\n".join(words.keys())
-        out, err, code = self._run(f"{bin}  -a --lang=en_US", input=word_list)
+        out, err, code = self._run(f"{bin}  -a --lang={self.lang}", input=word_list)
         regex = re.compile(r"^\s*&\s*(?P<word>\w+)[0-9\s]*:(?P<sugg>.*)$", re.MULTILINE)
         for match in regex.finditer(out):
             word = match.group("word").strip()
@@ -73,17 +77,18 @@ class AspellChecker(Checker):
             return False
         out, err, code = self._run(f"{bin_path} dicts")
         if code:  # something happened.
-            print("Could not query aspell dicts:", err)
+            self.log("Could not query aspell dicts:", err)
             return False
-        if "en_US" in out.split("\n"):
+        if self.lang in out.split("\n"):
             return True
+        self.log(f"Could not find aspell dictionary for {self.lang}.")
         return False
 
 
 class CheckSpell(Checker):
-    def __init__(self):
+    def __init__(self, lang="en"):
         super().__init__()
-        self.spell = SpellChecker(distance=1)
+        self.spell = SpellChecker(distance=1, language=lang)
         # self._word_finder = re.compile(r"")
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:

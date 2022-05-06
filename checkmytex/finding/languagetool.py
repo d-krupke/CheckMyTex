@@ -9,12 +9,17 @@ from .problem import Problem
 
 
 class Languagetool(Checker):
-    def __init__(
-        self,
-    ):
-        self._lang = "en-US"
+    def __init__(self, lang="en-US"):
+        """
+        If you modify the language, you may also have to modify the
+        `disable_rules`. These can be modified any time before running `check`.
+        :param lang: Language option. E.g. "de-DE" for german. The original
+            language tool code used with `-l` in the CLI.
+        """
+        super().__init__()
+        self._lang = lang
         self.disable_rules = [
-            "MORFOLOGIK_RULE_EN_US",
+            f"MORFOLOGIK_RULE_{lang.upper().replace('-', '_').strip()}",
             # disable spell checking because it is very slow.
             "WHITESPACE_RULE",
             # The whitespaces will be off due to detexing.

@@ -49,8 +49,6 @@ class DocumentAnalyzer:
         self.add_checker(Proselint())
         self.add_checker(Cleveref())
         self.add_checker(UniformNpHard())
-        for checker in self.checker:
-            checker.log = self.log
 
     def add_checker(self, checker: Checker) -> None:
         """

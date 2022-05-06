@@ -22,6 +22,10 @@ class MathMode(Filter):
     """
 
     def __init__(self, rules: typing.Dict[str, typing.Optional[typing.List]]):
+        """
+        :param rules: Specify which tools and rules (None for all) should be
+        ignored in math mode.
+        """
         self.ranges: typing.List[typing.Tuple[int, int]] = []
         self.rules = rules
 
