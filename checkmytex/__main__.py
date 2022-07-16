@@ -10,9 +10,9 @@ from checkmytex.filtering import (
     IgnoreRepeatedWords,
     IgnoreSpellingWithMath,
     IgnoreWordsFromBibliography,
+    MathMode,
     Whitelist,
 )
-from checkmytex.filtering.filter import MathMode
 from checkmytex.latex_document import LatexDocument
 
 

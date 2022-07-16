@@ -10,7 +10,8 @@ with hopefully any document.
 Primary concepts are
 
 - not just listing problems but also their exact locations,
-- working on the whole document, not just individual files (because otherwise, you forget to check some files)
+- working on the whole document, not just individual files (because otherwise, you forget to check some files),
+- lots of predefined rules such as newcommand-substitution, todo-removal, etc.,
 - simple extension of further checking modules,
 - ability to whitelist found problems and share this whitelist,
 - edit the errors directly (in Vim with automatic jump to line), and
