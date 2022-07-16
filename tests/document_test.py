@@ -8,9 +8,7 @@ from checkmytex.latex_document import LatexDocument, Origin
 class LatexDocumentTest(unittest.TestCase):
     def test_1(self):
         sources = {"/main.tex": "0123\n\tBCD\nXYZ\n"}
-        document = LatexDocument(
-            "/main.tex", file_finder=FileFinder("/", "/main.tex", sources)
-        )
+        document = LatexDocument("/main.tex", file_finder=FileFinder("/", sources))
         self.assertEqual(document.get_source(), sources["/main.tex"])
         self.assertEqual(document.get_text(), sources["/main.tex"])
         for i in range(4):
@@ -38,9 +36,7 @@ class LatexDocumentTest(unittest.TestCase):
     def test_2(self):
 
         sources = {"/main.tex": "0123\n\\input{sub.tex}\nXYZ\n", "/sub.tex": "ABC\n"}
-        document = LatexDocument(
-            "/main.tex", file_finder=FileFinder("/", "/main.tex", sources)
-        )
+        document = LatexDocument("/main.tex", file_finder=FileFinder("/", sources))
         for i in range(4):
             o1 = document.get_origin_of_source(i, i + 1)
             o2 = document.get_origin_of_text(i, i + 1)
@@ -71,9 +67,7 @@ class LatexDocumentTest(unittest.TestCase):
             "/B.tex": "B0\nB1\nB2\n",
             "/C.tex": "C0\nC1\nC2",
         }
-        document = LatexDocument(
-            "/main.tex", file_finder=FileFinder("/", "/main.tex", sources)
-        )
+        document = LatexDocument("/main.tex", file_finder=FileFinder("/", sources))
         for f in ["A", "B", "C"]:
             for i in range(0, 3):
                 key = f"{f}{i}"
@@ -94,9 +88,7 @@ class LatexDocumentTest(unittest.TestCase):
             "/B.tex": "\nB1\nB2\n",
             "/C.tex": "C0\nC1\nC2",
         }
-        document = LatexDocument(
-            "/main.tex", file_finder=FileFinder("/", "/main.tex", sources)
-        )
+        document = LatexDocument("/main.tex", file_finder=FileFinder("/", sources))
         for f in ["A", "B", "C"]:
             for i in range(0, 3):
                 key = f"{f}{i}"

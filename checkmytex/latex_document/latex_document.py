@@ -2,12 +2,15 @@
 The LatexDocument provides easy access to the latex document to be fed to
 a checker and to trace the checker's report back to the original document.
 """
+import os.path
 import re
 import typing
 
 import flachtex
-from flachtex.rules import BASIC_SKIP_RULES, Range, RegexSkipRule
-from flachtex.utils import compute_row_index
+from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
+from flachtex.rules import ChangesRule, TodonotesRule
+from flachtex.rules.skip_rules import RegexSkipRule
+from flachtex.utils import Range, compute_row_index
 from yalafi.tex2txt import Options, tex2txt
 
 from .origin import Origin
@@ -76,15 +79,38 @@ class LatexDocument:
     """
 
     def __init__(self, path: str, file_finder=None, yalafi_opts=None):
-        expand = flachtex.expand_file_and_attach_sources
-        flat_source, sources = expand(
-            path, skip_rules=BASIC_SKIP_RULES + [_IgnoreRule()], file_finder=file_finder
+        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+        preprocessor.skip_rules.append(TodonotesRule())
+        preprocessor.skip_rules.append(_IgnoreRule())
+        preprocessor.substitution_rules.append(ChangesRule())
+        preprocessor.substitution_rules.append(ChangesRule(True))
+        preprocessor.substitution_rules.append(
+            self._find_command_definitions(path, file_finder)
         )
+        if file_finder:
+            preprocessor.file_finder = file_finder
+        flat_source = preprocessor.expand_file(path)
         self._source = flachtex.remove_comments(flat_source)
         self._source_line_index = compute_row_index(str(self._source))
-        self._files = sources
+        self._files = preprocessor.structure
         self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
         self._detex = Detex(str(self._source), yalafi_opts)
+
+    def _find_command_definitions(self, path, file_finder) -> NewCommandSubstitution:
+        """
+        Parse the document once independently to extract new commands.
+        :param path:
+        :return:
+        """
+        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+        if file_finder:
+            preprocessor.file_finder = file_finder
+        doc = preprocessor.expand_file(path)
+        cmds = find_new_commands(doc)
+        ncs = NewCommandSubstitution()
+        for cmd in cmds:
+            ncs.new_command(cmd)
+        return ncs
 
     def files(self) -> typing.Iterable[str]:
         """

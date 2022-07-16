@@ -10,4 +10,5 @@ from .filter import (
     IgnoreRepeatedWords,
     IgnoreSpellingWithMath,
 )
+from .math_mode import MathMode
 from .whitelist import Whitelist

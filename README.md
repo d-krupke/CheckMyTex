@@ -10,7 +10,8 @@ with hopefully any document.
 Primary concepts are
 
 - not just listing problems but also their exact locations,
-- working on the whole document, not just individual files (because otherwise, you forget to check some files)
+- working on the whole document, not just individual files (because otherwise, you forget to check some files),
+- lots of predefined rules such as newcommand-substitution, todo-removal, etc.,
 - simple extension of further checking modules,
 - ability to whitelist found problems and share this whitelist,
 - edit the errors directly (in Vim with automatic jump to line), and
@@ -27,10 +28,12 @@ The reason for sticking to a CLI are simple:
 - Spelling errors using aspell or [pyspellchecker](https://pypi.org/project/pyspellchecker/)
 - Grammar errors using [languagetool](https://languagetool.org/)
 - LaTeX-smells using [ChkTeX](https://www.nongnu.org/chktex/)
-- Raw numbers instead of siunitx ([simple regex](checkmytex/finding/siunitx.py), showing you how easy new modules can be added)
+- Raw numbers instead of siunitx ([simple regex](checkmytex/finding/siunitx.py), showing you how easy new modules can be
+  added)
 - Additional advise from [proselint](https://github.com/amperser/proselint)
 - (Correct) usage of cleveref.
-- Uniform writing style of NP-hard/complete (this is probably a problem only within my community, but it doesn't harm you)
+- Uniform writing style of NP-hard/complete (this is probably a problem only within my community, but it doesn't harm
+  you)
 
 I found this set of tools to be sufficient to find most problems in text and LaTeX-source, and I am constantly
 surprised on how well it works.
@@ -49,9 +52,11 @@ pip install checkmytex
 ```
 
 You additionally need to install [languagetool](https://languagetool.org/) and a LaTeX-distribution (which should
-contain ChkTeX).
+contain ChkTeX). To have a better spell checker, you should also install aspell and the corresponding dictionaries.
+All these should be available via yours systems package manages, e.g. `pacman`, `apt`, or `brew`.
 
-**Currently, this tool will only work on Unix!**
+> :warning This tool currently only supports Unix (Linux and Mac OS). It could work in some windows configurations, but
+> probably you get some unexpected behavior due to incompatible system calls.
 
 ## Usage
 
@@ -71,7 +76,8 @@ For each problem, you will be asked what to do
 - _whitelist_ will whitelist the problem and never ask you about it again (for this document).
 - _Ignore_ will ignore all problems that belong to the same rule, but ask you again next time you run CheckMyTex.
 - _next file_ will jump to the next file.
-- _edit_ will open you `$EDITOR` at the location of the problem. It tries to keep track of line changes without reprocessing the document.
+- _edit_ will open you `$EDITOR` at the location of the problem. It tries to keep track of line changes without
+  reprocessing the document.
 - _look up_ will google the problem for you (if available). E.g., you can check for rare technical terms.
 - _find_ allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
 - _?_ provides further information of the problem. Primarily for debugging and fine-tuning.
@@ -122,7 +128,7 @@ class NoOld(Checker):
             context = document.get_source_context(origin)
             long_id = f"NO_OLD:{context}"
             yield Problem(origin, "Please do not use \\old{! (it confuses highlighting)",
-                          context= context,long_id=long_id, tool="CustomNoOld", rule="NO_OLD")
+                          context=context, long_id=long_id, tool="CustomNoOld", rule="NO_OLD")
 ```
 
 This is all!
@@ -159,11 +165,12 @@ from checkmytex import LatexDocument
 class FilterAlign(Filter):
     def __init__(self):
         self._ranges = []
+
     def prepare(self, document: LatexDocument):
         #  analyze which parts of the source are align-environments using a regular expression
         expr = r"\\begin\{align\}.*?\\end\{align\}"
         source = document.get_source()
-        for match in re.finditer(expr, source, re.MULTILINE|re.DOTALL):
+        for match in re.finditer(expr, source, re.MULTILINE | re.DOTALL):
             self._ranges.append((match.start(), match.end()))
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
@@ -175,11 +182,18 @@ class FilterAlign(Filter):
 
 We can add this filter similar to a checker to the `DocumentAnalyzer`.
 
+## Other Languages
+
+Other languages are partially supported: You need to create your own main-file and provide the right language codes
+for the different tools. An example for german can be found in [german.py](./examples/german.py).
+
 ## Development Status
 
 This tool is still under development but already usable. Just expect some imperfections. Ideas are welcome.
 
 ### TODOs
 
-- Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling the corresponding rules?
-- More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/__main__.py).
+- Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling
+  the corresponding rules?
+- More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/__main__.py)
+  .

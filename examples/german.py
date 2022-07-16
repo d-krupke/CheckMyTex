@@ -1,5 +1,6 @@
 """
-A main file to execute CheckMyTex with CLI.
+A main file modified to check german tex files. Not as powerful as the
+english version.
 """
 from checkmytex.cli import InteractiveCli, log, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
@@ -12,6 +13,15 @@ from checkmytex.filtering import (
     IgnoreWordsFromBibliography,
     MathMode,
     Whitelist,
+)
+from checkmytex.finding import (
+    AspellChecker,
+    CheckSpell,
+    ChkTex,
+    Cleveref,
+    Languagetool,
+    SiUnitx,
+    UniformNpHard,
 )
 from checkmytex.latex_document import LatexDocument
 
@@ -28,7 +38,18 @@ def main():
     try:
         latex_document = LatexDocument(args.path[0])
         engine = DocumentAnalyzer(log=log)
-        engine.setup_default()
+        # Add chcker
+        aspell = AspellChecker(lang="de_DE")
+        if aspell.is_available():
+            engine.add_checker(aspell)
+        else:
+            engine.log("Aspell not available. Using pyspellchecker.")
+            engine.add_checker(CheckSpell(lang="de"))
+        engine.add_checker(ChkTex())
+        engine.add_checker(Languagetool(lang="de-DE"))
+        engine.add_checker(SiUnitx())
+        engine.add_checker(Cleveref())
+        engine.add_checker(UniformNpHard())
         # Add filter
         engine.add_filter(whitelist)
         engine.add_filter(IgnoreIncludegraphics())
