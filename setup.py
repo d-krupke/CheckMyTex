@@ -38,7 +38,7 @@ setup(
         "checkmytex.cli",
         "checkmytex.filtering",
     ],
-    install_requires=["pyspellchecker", "flachtex>=0.3.1", "yalafi", "proselint"],
+    install_requires=["pyspellchecker", "flachtex>=0.3.2", "yalafi", "proselint"],
     entry_points={
         "console_scripts": ["checkmytex=checkmytex.__main__:main"],
     },

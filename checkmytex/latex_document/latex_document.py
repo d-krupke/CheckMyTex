@@ -7,6 +7,7 @@ import re
 import typing
 
 import flachtex
+from flachtex import FileFinder, TraceableString
 from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
 from flachtex.rules import ChangesRule, TodonotesRule
 from flachtex.rules.skip_rules import RegexSkipRule
@@ -78,21 +79,13 @@ class LatexDocument:
     the compiled text.
     """
 
-    def __init__(self, path: str, file_finder=None, yalafi_opts=None):
-        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
-        preprocessor.skip_rules.append(TodonotesRule())
-        preprocessor.skip_rules.append(_IgnoreRule())
-        preprocessor.substitution_rules.append(ChangesRule())
-        preprocessor.substitution_rules.append(ChangesRule(True))
-        preprocessor.substitution_rules.append(
-            self._find_command_definitions(path, file_finder)
-        )
-        if file_finder:
-            preprocessor.file_finder = file_finder
-        flat_source = preprocessor.expand_file(path)
-        self._source = flachtex.remove_comments(flat_source)
+    def __init__(self,
+                 source: TraceableString,
+                 files: typing.Dict[str, str],
+                 yalafi_opts=None):
+        self._source = source
         self._source_line_index = compute_row_index(str(self._source))
-        self._files = preprocessor.structure
+        self._files = files
         self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
         self._detex = Detex(str(self._source), yalafi_opts)
 
@@ -147,9 +140,9 @@ class LatexDocument:
         return self._files[path]["content"]
 
     def get_origin_of_text(
-        self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+            self,
+            begin: typing.Union[int, typing.Tuple[int, int]],
+            end: typing.Union[int, typing.Tuple[int, int]],
     ) -> Origin:
         """
         Returns the origin of the compiled text (`get_text`).
@@ -182,7 +175,7 @@ class LatexDocument:
         return text[begin:end]
 
     def _create_origin(
-        self, path: str, begin: int, end: int, sbegin: int, send: int
+            self, path: str, begin: int, end: int, sbegin: int, send: int
     ) -> Origin:
         if path not in self._sources_row_indices:
             self._sources_row_indices[path] = compute_row_index(
@@ -208,9 +201,9 @@ class LatexDocument:
         )
 
     def get_origin_of_source(
-        self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+            self,
+            begin: typing.Union[int, typing.Tuple[int, int]],
+            end: typing.Union[int, typing.Tuple[int, int]],
     ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).
@@ -239,3 +232,54 @@ class LatexDocument:
     def find_in_source(self, pattern: str) -> typing.Iterable[Origin]:
         for match in re.finditer(pattern, self.get_source()):
             yield self.get_origin_of_source(match.start(), match.end())
+
+
+class LatexParser:
+    def __init__(self,
+                 file_finder: typing.Optional[FileFinder] = None,
+                 yalafi_opts: typing.Optional[typing.Dict] = None):
+        self._ff = file_finder
+        self.file_finder = FileFinder() if not file_finder else file_finder
+        self._yalafi_opts = yalafi_opts
+
+    def newcommand(self, name: int, num_parameters: int, definition: str):
+        pass
+
+    def _get_source(self, path: str) \
+            -> typing.Tuple[TraceableString, typing.Dict[str, str]]:
+        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+        preprocessor.file_finder = self.file_finder
+        preprocessor.skip_rules.append(TodonotesRule())
+        preprocessor.skip_rules.append(_IgnoreRule())
+        preprocessor.substitution_rules.append(ChangesRule())
+        preprocessor.substitution_rules.append(ChangesRule(True))
+        preprocessor.substitution_rules.append(
+            self._find_command_definitions(path, self.file_finder)
+        )
+        flat_source = preprocessor.expand_file(path)
+        return flachtex.remove_comments(flat_source), preprocessor.structure
+
+    def _find_command_definitions(self, path, file_finder) -> NewCommandSubstitution:
+        """
+        Parse the document once independently to extract new commands.
+        :param path:
+        :return:
+        """
+        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+        if file_finder:
+            preprocessor.file_finder = file_finder
+        doc = preprocessor.expand_file(path)
+        cmds = find_new_commands(doc)
+        ncs = NewCommandSubstitution()
+        for cmd in cmds:
+            ncs.new_command(cmd)
+        return ncs
+
+    def parse(self, path: str,
+              project_root: typing.Optional[str] = None) -> LatexDocument:
+        if project_root:
+            self.file_finder.set_root(project_root)
+        else:
+            self.file_finder.set_root(os.path.dirname(path))
+        source, files = self._get_source(path)
+        return LatexDocument(source, files, self._yalafi_opts)
