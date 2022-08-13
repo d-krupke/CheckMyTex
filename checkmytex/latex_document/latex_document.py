@@ -7,41 +7,12 @@ import re
 import typing
 
 import flachtex
+from flachtex import TraceableString, FileFinder
 from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
-from flachtex.rules import ChangesRule, TodonotesRule
-from flachtex.rules.skip_rules import RegexSkipRule
-from flachtex.utils import Range, compute_row_index
 from yalafi.tex2txt import Options, tex2txt
 
+from .indexed_string import IndexedString
 from .origin import Origin
-
-
-def _to_pos(pos: typing.Union[int, typing.Tuple[int, int]], index) -> int:
-    if isinstance(pos, tuple):
-        return index[pos[0]] + pos[1]
-    if isinstance(pos, int):
-        return pos
-    raise ValueError(f"Can not deduce position from {pos}")
-
-
-class _IgnoreRule(RegexSkipRule):
-    """
-    A skip rule for flachtex to remove parts delimited by `%%PAUSE-CHECKING`
-    and `%%CONTINUE-CHECKING`.
-    """
-
-    def __init__(self):
-        super().__init__(
-            r"((^\s*%%PAUSE-CHECKING)"
-            r"(?P<skipped_part>.*?)"
-            r"(^\s*%%CONTINUE-CHECKING))"
-        )
-
-    def determine_skip(self, match: re.Match):
-        span_to_be_skipped = Range(
-            match.start("skipped_part"), match.end("skipped_part")
-        )
-        return span_to_be_skipped
 
 
 class Detex:
@@ -52,7 +23,7 @@ class Detex:
     def __init__(self, source: str, yalafi_opts: dict):
         yalafi_opts = yalafi_opts if yalafi_opts else Options()
         self.text, self._charmap = tex2txt(str(source), yalafi_opts)
-        self._line_index = compute_row_index(self.text)
+        self.indexed_text = IndexedString(self.text)
 
     def text_pos(self, line: int, column: int) -> int:
         """
@@ -60,7 +31,7 @@ class Detex:
         :param column: Column in line
         :return: The position in `self.text`.
         """
-        return self._line_index[line] + column
+        return self.indexed_text.get_position(line, column)
 
     def source_pos(self, text_pos: int) -> int:
         """
@@ -78,25 +49,19 @@ class LatexDocument:
     the compiled text.
     """
 
-    def __init__(self, path: str, file_finder=None, yalafi_opts=None):
-        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
-        preprocessor.skip_rules.append(TodonotesRule())
-        preprocessor.skip_rules.append(_IgnoreRule())
-        preprocessor.substitution_rules.append(ChangesRule())
-        preprocessor.substitution_rules.append(ChangesRule(True))
-        preprocessor.substitution_rules.append(
-            self._find_command_definitions(path, file_finder)
-        )
-        if file_finder:
-            preprocessor.file_finder = file_finder
-        flat_source = preprocessor.expand_file(path)
-        self._source = flachtex.remove_comments(flat_source)
-        self._source_line_index = compute_row_index(str(self._source))
-        self._files = preprocessor.structure
-        self._sources_row_indices: typing.Dict[str, typing.List[int]] = {}
-        self._detex = Detex(str(self._source), yalafi_opts)
+    def __init__(
+            self, source: TraceableString, files: typing.Dict[str, typing.Dict],
+            detex: Detex
+    ):
+        self._source = IndexedString(source)
+        self._files = files
+        for path, data in files.items():
+            data["content"] = IndexedString(data["content"])
+        self._detex = detex
 
-    def _find_command_definitions(self, path, file_finder) -> NewCommandSubstitution:
+    def _find_command_definitions(self, path: str,
+                                  file_finder: typing.Optional[FileFinder]) \
+            -> NewCommandSubstitution:
         """
         Parse the document once independently to extract new commands.
         :param path:
@@ -126,7 +91,7 @@ class LatexDocument:
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
         """
-        return str(self._source)
+        return str(self._source.text)
 
     def get_text(self) -> str:
         """
@@ -144,12 +109,12 @@ class LatexDocument:
         :param path: Path to the file.
         :return: Content of file as string.
         """
-        return self._files[path]["content"]
+        return self._files[path]["content"].text
 
     def get_origin_of_text(
-        self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+            self,
+            begin: typing.Union[int, typing.Tuple[int, int]],
+            end: typing.Union[int, typing.Tuple[int, int]],
     ) -> Origin:
         """
         Returns the origin of the compiled text (`get_text`).
@@ -161,8 +126,11 @@ class LatexDocument:
             begin = self._detex.text_pos(begin[0], begin[1])
         if isinstance(end, tuple):
             end = self._detex.text_pos(end[0], end[1])
+        if begin > end:
+            raise ValueError("Incorrect range. End before begin.")
         begin_source = self._detex.source_pos(begin) - 1
         end_source = self._detex.source_pos(end - 1)
+        assert begin_source < end_source
         origin = self.get_origin_of_source(begin_source, end_source)
         origin.begin.tpos = begin
         origin.end.tpos = end
@@ -182,35 +150,24 @@ class LatexDocument:
         return text[begin:end]
 
     def _create_origin(
-        self, path: str, begin: int, end: int, sbegin: int, send: int
+            self, path: str, begin: int, end: int, sbegin: int, send: int
     ) -> Origin:
-        if path not in self._sources_row_indices:
-            self._sources_row_indices[path] = compute_row_index(
-                self.get_file_content(path)
-            )
-        row_index = self._sources_row_indices[path]
-        row_begin = 0
-        while row_begin + 1 < len(row_index) and begin >= row_index[row_begin + 1]:
-            row_begin += 1
-        assert row_begin >= 0
-        col_begin = begin - row_index[row_begin]
-        assert col_begin >= 0
-        row_end = row_begin
-        while row_end + 1 < len(row_index) and end >= row_index[row_end + 1]:
-            row_end += 1
-        assert row_end >= row_begin
-        col_end = end - row_index[row_end]
-        assert col_end >= 0
+        assert 0 <= begin <= end
+        assert 0 <= sbegin <= send
+        f: IndexedString = self._files[path]["content"]
+        lo_begin = f.get_line_and_offset(begin)
+        lo_end = f.get_line_and_offset(end)
+        assert lo_begin <= lo_end
         return Origin(
             file=path,
-            begin=Origin.Position(begin, row_begin, col_begin, sbegin),
-            end=Origin.Position(end, row_end, col_end, send),
+            begin=Origin.Position(begin, lo_begin[0], lo_begin[1], sbegin),
+            end=Origin.Position(end, lo_end[0], lo_end[1], send),
         )
 
     def get_origin_of_source(
-        self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+            self,
+            begin: typing.Union[int, typing.Tuple[int, int]],
+            end: typing.Union[int, typing.Tuple[int, int]],
     ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).
@@ -218,15 +175,29 @@ class LatexDocument:
         :param end: (Exclusive) end either as position or line+column
         :return: Origin of the part.
         """
-        begin = _to_pos(begin, self._source_line_index)
-        end = _to_pos(end, self._source_line_index)
+        # TODO: This is an ugly solution!
+        begin = self._source.to_position(begin)
+        end = self._source.to_position(end)
         assert begin < end
-        origin_begin = self._source.get_origin(begin)
-        origin_end = self._source.get_origin(end)
+        origins = [self._source.text.get_origin(i) for i in range(begin, end)]
+        file_order = {f: i for i, f in enumerate(self.files())}
+        max_file = max(origins, key=lambda f: file_order.get(f[0], -1))
+        if max_file[0] not in file_order:
+            raise ValueError("no origin found")
+        origins = [o for o in origins if o[0] == max_file[0]]
+        f = self._files[max_file[0]]["content"]
+        l, offset = f.get_line_and_offset(origins[-1][1])
+        origins = [o for o in origins if f.get_line_and_offset(o[1])[0]==l]
+        #print(origins)
+        origin_begin = origins[0]
+        origin_end = origins[-1]
+        origin_end = (origin_end[0], origin_end[1]+1)
         # if not same file, reduce range. Worst case: begin=end-1
         while origin_begin[0] != origin_end[0]:
             end -= 1
-            origin_end = self._source.get_origin(end)
+            origin_end = self._source.text.get_origin(end)
+        assert origin_begin[0] == origin_end[0], "same file"
+        assert origin_begin[1] <= origin_end[1], "begin before end"
         origin = self._create_origin(
             origin_begin[0], origin_begin[1], origin_end[1], sbegin=begin, send=end
         )

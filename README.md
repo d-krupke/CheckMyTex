@@ -45,7 +45,7 @@ with bad LaTeX that I try to detect automatically.
 
 ## Install
 
-You can install CheckMyTex using pip
+You can install CheckMyTex using pip (if you have Python3 installed)
 
 ```
 pip install checkmytex
@@ -57,6 +57,20 @@ All these should be available via yours systems package manages, e.g. `pacman`, 
 
 > :warning This tool currently only supports Unix (Linux and Mac OS). It could work in some windows configurations, but
 > probably you get some unexpected behavior due to incompatible system calls.
+
+### Mac
+
+```shell
+brew install --cask mactex  # install a tex distribution
+brew install languagtool  # install the grammar checker languagetool
+brew install aspell  # install a dictionary
+```
+
+### Arch Linux
+
+```shell
+sudo pacman -S texlive-most languagetool aspell aspell-en
+```
 
 ## Usage
 
@@ -196,4 +210,8 @@ This tool is still under development but already usable. Just expect some imperf
 - Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling
   the corresponding rules?
 - More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/__main__.py)
+
+## Changes
+
+- 0.8.1: Fixing problem with text manipulated by commands. All found errors now should only span a single line. Solution is ugly and should be improved. For now, it is working.
   .

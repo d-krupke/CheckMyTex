@@ -1,6 +1,7 @@
 """
 Module for checking a latex document by applying a set of checker and filter.
 """
+import logging
 import typing
 
 from checkmytex.filtering.filter import Filter
@@ -94,5 +95,13 @@ class DocumentAnalyzer:
 
     def _find_problems(self, latex_document: LatexDocument) -> typing.Iterable[Problem]:
         for checker in self.checker:
-            for problem in checker.check(latex_document):
-                yield problem
+            try:
+                for problem in checker.check(latex_document):
+                    yield problem
+            except AssertionError as ae:
+                raise ae
+            except Exception as e:
+                logging.getLogger("CheckMyTex").error(
+                    f"Exception using {checker}: {e}. {type(e)}"
+                )
+                raise e
