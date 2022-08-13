@@ -5,7 +5,7 @@ from flachtex import FileFinder
 from checkmytex import DocumentAnalyzer
 from checkmytex.cli import log
 from checkmytex.finding import CheckSpell
-from checkmytex.latex_document.latex_document import LatexParser
+from checkmytex.latex_document.parser import LatexParser
 
 
 class CheckerTest(unittest.TestCase):
@@ -78,8 +78,8 @@ Let us use \importantterm{}bla here.
         self.assertEqual(len(report.problems), 1)
         start = report.problems[0].origin.begin.pos
         end = report.problems[0].origin.end.pos
-        #print(document.get_text())
+        # print(document.get_text())
         print(source[start:end])
-        self.assertEqual(start, 179)
+        self.assertEqual(start, 469)
         self.assertEqual(end, 472)
-        self.assertEqual(source[start:end], "ImportantTermbla")
+        self.assertEqual(source[start:end], "bla")

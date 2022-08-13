@@ -72,8 +72,6 @@ brew install aspell  # install a dictionary
 sudo pacman -S texlive-most languagetool aspell aspell-en
 ```
 
-
-
 ## Usage
 
 ```bash
@@ -212,4 +210,8 @@ This tool is still under development but already usable. Just expect some imperf
 - Reduce double-whitespace matches. They do not matter in LaTeX. Maybe clean the detexed file instead of just disabling
   the corresponding rules?
 - More configuration options. Currently, the best option is to simply build your own [main.py](./checkmytex/__main__.py)
+
+## Changes
+
+- 0.8.1: Fixing problem with text manipulated by commands. All found errors now should only span a single line. Solution is ugly and should be improved. For now, it is working.
   .

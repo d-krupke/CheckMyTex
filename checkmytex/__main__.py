@@ -14,7 +14,7 @@ from checkmytex.filtering import (
     Whitelist,
 )
 from checkmytex.latex_document import LatexDocument
-from checkmytex.latex_document.latex_document import LatexParser
+from checkmytex.latex_document.parser import LatexParser
 
 
 def main():

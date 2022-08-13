@@ -1,4 +1,4 @@
 flachtex>=0.3.4
+proselint>=0.13.0
 pyspellchecker>=0.6.3
 yalafi>=1.3.0
-proselint>=0.13.0

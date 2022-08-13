@@ -98,5 +98,10 @@ class DocumentAnalyzer:
             try:
                 for problem in checker.check(latex_document):
                     yield problem
+            except AssertionError as ae:
+                raise ae
             except Exception as e:
-                logging.getLogger("CheckMyTex").error(f"Exception using {checker}: {e}.")
+                logging.getLogger("CheckMyTex").error(
+                    f"Exception using {checker}: {e}. {type(e)}"
+                )
+                raise e
