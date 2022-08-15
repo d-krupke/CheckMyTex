@@ -74,7 +74,9 @@ class AnalyzedDocument:
                 problems = [
                     p
                     for p in problems
-                    if p.origin.begin.row <= line <= p.origin.end.row
+                    if p.origin.begin.file.position.line
+                    <= line
+                    <= p.origin.end.file.position.line
                 ]
             return problems
         return self.problems

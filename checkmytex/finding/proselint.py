@@ -102,7 +102,7 @@ class Proselint(Checker):
         for suggestion in suggestions:
             rule = suggestion[0]
             message = suggestion[1]
-            origin = document.get_origin_of_text(
+            origin = document.get_simplified_origin_of_text(
                 suggestion[4], suggestion[4] + suggestion[6]
             )
             context = document.get_source_context(origin)

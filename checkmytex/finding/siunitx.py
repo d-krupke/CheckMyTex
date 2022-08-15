@@ -42,7 +42,7 @@ class SiUnitx(Checker):
                 continue
             if _looks_like_year(num):  # many false positives.
                 continue
-            origin = document.get_origin_of_source(
+            origin = document.get_simplified_origin_of_source(
                 match.start("number"), match.end("number")
             )
             message = (

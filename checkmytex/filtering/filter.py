@@ -33,8 +33,8 @@ class IgnoreIncludegraphics(Filter):
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
-            begin = problem.origin.begin.spos
-            end = problem.origin.end.spos
+            begin = problem.origin.begin.source.index
+            end = problem.origin.end.source.index
             if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
                 yield problem
 
@@ -51,8 +51,8 @@ class IgnoreRefs(Filter):
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
-            begin = problem.origin.begin.spos
-            end = problem.origin.end.spos
+            begin = problem.origin.begin.source.index
+            end = problem.origin.end.source.index
             if not any(r[0] <= begin <= end <= r[1] for r in self._ranges):
                 yield problem
 
@@ -70,7 +70,9 @@ class IgnoreRepeatedWords(Filter):
         for problem in problems:
             if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
                 text = self.document.get_file_content(problem.origin.file)
-                section = text[problem.origin.begin.pos : problem.origin.end.pos]
+                section = text[
+                    problem.origin.begin.file.position.index : problem.origin.end.file.position.index
+                ]
                 if section.strip().lower() in self.words:
                     continue
             yield problem
@@ -86,8 +88,8 @@ class IgnoreSpellingWithMath(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
-                begin = problem.origin.begin.spos
-                end = problem.origin.end.spos
+                begin = problem.origin.begin.source.index
+                end = problem.origin.end.source.index
                 source_of_word = self.document.get_source()[begin:end]
                 if "\\" in source_of_word or "$" in source_of_word:
                     continue

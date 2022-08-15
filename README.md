@@ -138,11 +138,12 @@ class NoOld(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         source = document.get_source()
         for match in re.finditer(r"\\old\{", source):
-            origin = document.get_origin_of_source(match.start(), match.end())
+            origin = document.get_simplified_origin_of_source(match.start(), match.end())
             context = document.get_source_context(origin)
             long_id = f"NO_OLD:{context}"
             yield Problem(origin, "Please do not use \\old{! (it confuses highlighting)",
-                          context=context, long_id=long_id, tool="CustomNoOld", rule="NO_OLD")
+                          context=context, long_id=long_id, tool="CustomNoOld",
+                          rule="NO_OLD")
 ```
 
 This is all!

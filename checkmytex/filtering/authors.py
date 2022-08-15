@@ -36,8 +36,8 @@ class IgnoreLikelyAuthorNames(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
-                begin = problem.origin.begin.tpos
-                end = problem.origin.end.tpos
+                begin = problem.origin.begin.text.index
+                end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()
                 if misspelled_word in self._name_elements:
                     continue
@@ -49,7 +49,7 @@ def _find_bibtex_paths(document: LatexDocument):
     paths = set()
     for match in re.finditer(regex, document.get_source()):
         bib_file = match.group("path")
-        in_file = document.get_origin_of_source(
+        in_file = document.get_simplified_origin_of_source(
             match.start("path"), match.end("path")
         ).file
         path = os.path.join(os.path.dirname(in_file), bib_file)
@@ -102,8 +102,8 @@ class IgnoreWordsFromBibliography(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
-                begin = problem.origin.begin.tpos
-                end = problem.origin.end.tpos
+                begin = problem.origin.begin.text.index
+                end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()
                 if misspelled_word in self.word_list:
                     continue

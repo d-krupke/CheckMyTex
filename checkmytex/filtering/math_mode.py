@@ -75,8 +75,8 @@ class MathMode(Filter):
     def _problem_applies(self, problem):
         if not self._problem_fits_rule(problem):
             return False
-        begin = problem.origin.begin.spos
-        end = problem.origin.end.spos
+        begin = problem.origin.begin.source.index
+        end = problem.origin.end.source.index
         if not any(r[0] <= begin <= end <= r[1] for r in self.ranges):
             return False
         return True
