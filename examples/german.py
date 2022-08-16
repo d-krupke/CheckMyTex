@@ -24,6 +24,7 @@ from checkmytex.finding import (
     UniformNpHard,
 )
 from checkmytex.latex_document import LatexDocument
+from checkmytex.latex_document.parser import LatexParser
 
 
 def main():
@@ -36,7 +37,8 @@ def main():
     whitelist = Whitelist(args.whitelist)
     log("Parsing LaTeX project...")
     try:
-        latex_document = LatexDocument(args.path[0])
+        parser = LatexParser()
+        latex_document = parser.parse(args.path[0])
         engine = DocumentAnalyzer(log=log)
         # Add chcker
         aspell = AspellChecker(lang="de_DE")
