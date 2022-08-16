@@ -51,7 +51,7 @@ def _find_bibtex_paths(document: LatexDocument):
         bib_file = match.group("path")
         in_file = document.get_simplified_origin_of_source(
             match.start("path"), match.end("path")
-        ).file
+        ).get_file()
         path = os.path.join(os.path.dirname(in_file), bib_file)
         if os.path.isfile(path):
             paths.add(path)

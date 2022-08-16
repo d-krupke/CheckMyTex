@@ -16,6 +16,9 @@ class TextPosition:
         self.line = line
         self.line_offset = line_offset
 
+    def serialize(self) -> typing.Dict:
+        return {"index": self.index, "line": self.line, "line_offset": self.line_offset}
+
     def __eq__(self, other):
         # line and line offset should depend on the position.
         return self.index == other.index

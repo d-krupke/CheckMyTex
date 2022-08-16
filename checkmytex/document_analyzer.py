@@ -102,6 +102,5 @@ class DocumentAnalyzer:
                 raise ae
             except Exception as e:
                 logging.getLogger("CheckMyTex").error(
-                    f"Exception using {checker}: {e}. {type(e)}"
+                    f"Exception using {checker}: {e}."
                 )
-                raise e

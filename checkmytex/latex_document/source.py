@@ -25,6 +25,9 @@ class FilePosition:
     def __repr__(self):
         return f"{self.path}{self.position}"
 
+    def serialize(self) -> typing.Dict:
+        return {"path": self.path, "position": self.position.serialize()}
+
 
 class LatexSource:
     def __init__(
@@ -71,5 +74,11 @@ class LatexSource:
         origins = [o for o in origins if o.path == focus_on_file]
         file_begin, file_end = simplify_text_range(o.position for o in origins)
         return FilePosition(focus_on_file, file_begin), FilePosition(
-            focus_on_file, file_end
+            focus_on_file, file_end.virtual_next()
         )
+
+    def serialize(self) -> typing.Dict:
+        return {
+            "flat": str(self.flat_source),
+            "files": {path: str(content) for path, content in self.files.items()}
+        }

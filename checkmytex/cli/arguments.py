@@ -17,6 +17,7 @@ def parse_arguments(log):
     )
 
     parser.add_argument("-w", help="Path to whitelist", type=str)
+    parser.add_argument("--json", type=str, help="Write result as json to file.")
     parser.add_argument("--print", action="store_true", help="Just print the output")
     parser.add_argument("path", nargs=1, help="Path to main.tex")
     args = parser.parse_args()

@@ -2,13 +2,10 @@
 The LatexDocument provides easy access to the latex document to be fed to
 a checker and to trace the checker's report back to the original document.
 """
+import logging
 import os.path
 import re
 import typing
-
-import flachtex
-from flachtex import FileFinder, TraceableString
-from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
 
 from .detex import DetexedText
 from .origin import Origin, OriginPointer
@@ -35,11 +32,13 @@ class LatexDocument:
         """
         return self.sources.file_names
 
-    def get_source(self) -> str:
+    def get_source(self, line=None) -> str:
         """
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
         """
+        if line is not None:
+            return self.sources.flat_source.get_line(line)
         return str(self.sources.flat_source)
 
     def get_text(self) -> str:
@@ -93,10 +92,9 @@ class LatexDocument:
         :param n: +-n characters
         :return: The source context of the problem's origin.
         """
-        text = self.get_file_content(origin.file)
-        begin = max(0, origin.begin.source.index - n)
-        end = min(len(text), origin.end.source.index + n)
-        return text[begin:end]
+        text = self.get_file_content(origin.get_file())
+        s_span = origin.get_source_span()
+        return text[max(0, s_span[0]-n):min(len(text), s_span[1]+n)]
 
     def get_simplified_origin_of_source(
         self,
@@ -111,8 +109,12 @@ class LatexDocument:
         """
         if begin > end:
             raise ValueError("End is before begin.")
-        begin = self.sources.flat_source.get_detailed_position(begin)
-        end = self.sources.flat_source.get_detailed_position(end)
+        source = self.sources.flat_source
+        begin = source.get_detailed_position(begin)
+        end = source.get_detailed_position(end)
+        if end.index - begin.index > 1000:  # reduce very large ranges.
+            logging.getLogger("CheckMyTex").info(f"Reducing long range {begin}-{end}.")
+            begin = source.get_detailed_position(end.index - 1000)
         assert begin < end
         r = self.sources.get_simplified_origin_range(begin.index, end.index)
         assert isinstance(r[0], FilePosition)
@@ -125,3 +127,7 @@ class LatexDocument:
     def find_in_source(self, pattern: str) -> typing.Iterable[Origin]:
         for match in re.finditer(pattern, self.get_source()):
             yield self.get_simplified_origin_of_source(match.start(), match.end())
+
+    def serialize(self) -> typing.Dict:
+        return {"sources": self.sources.serialize(),
+                "text": str(self.detexed_text)}

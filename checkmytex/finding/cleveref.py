@@ -22,7 +22,7 @@ class Cleveref(Checker):
             origin = document.get_simplified_origin_of_source(
                 match.start(), match.end()
             )
-            context = document.get_source_context(origin)
+            context = match.string
             message = (
                 "Prefer using cleveref's \\cref or \\Cref instead of native \\ref."
             )
@@ -42,7 +42,7 @@ class Cleveref(Checker):
             origin = document.get_simplified_origin_of_source(
                 match.start("cref"), match.end("cref")
             )
-            context = document.get_source_context(origin)
+            context = match.string
             message = "Use \\Cref instead of \\cref at the beginning of a sentence."
             rule = "CREF-CAPTION"
             yield Problem(
