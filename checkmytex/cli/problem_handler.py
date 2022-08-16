@@ -39,14 +39,14 @@ class InteractiveProblemHandler:
         self.analyzed_document.remove_with_rule(problem.rule)
         return True
 
-    def _edit(self, problem):
-        f = problem.origin.file
-        line = problem.origin.begin.row
+    def _edit(self, problem: Problem):
+        f = problem.origin.get_file()
+        line = problem.origin.get_file_line()
         self.editor.open(file=f, line=line)
         return True
 
     def _next_file(self, problem):
-        self._skip_file = problem.origin.file
+        self._skip_file = problem.origin.get_file()
         return True
 
     def _look_up(self, problem):
@@ -60,23 +60,26 @@ class InteractiveProblemHandler:
         print("Context:", problem.context.replace("\n", " "))
         o = problem.origin
         n = 40
-        if o.begin.tpos is not None and o.end.tpos is not None:
+        t_span = o.get_text_span()
+        if t_span:
             text = self.analyzed_document.document.get_text()
-            begin = max(0, o.begin.tpos - n)
-            end = min(len(text), o.end.tpos + n)
+            begin = max(0, t_span[0] - n)
+            end = min(len(text), t_span[1] + n)
             print_detail(
-                "Text: " + text[begin : o.begin.tpos],
-                text[o.begin.tpos : o.end.tpos],
-                text[o.end.tpos : end],
+                "Text: " + text[begin : t_span[0]],
+                text[t_span[0] : t_span[1]],
+                text[t_span[1] : end],
             )
-        if None not in (o.begin.spos, o.end.spos):
+        s_span = o.get_source_span()
+        if s_span:
             source = self.analyzed_document.document.get_source()
-            begin = max(0, o.begin.spos - n)
-            end = min(len(source), o.end.spos + n)
+            s_span = o.get_source_span()
+            begin = max(0, s_span[0] - n)
+            end = min(len(source),s_span[1] + n)
             print_detail(
-                "Source: " + source[begin : o.begin.spos],
-                source[o.begin.spos : o.end.spos],
-                source[o.end.spos : end],
+                "Source: " + source[begin : s_span[0]],
+                source[s_span[0] : s_span[1]],
+                source[s_span[1] : end],
             )
         print("Position:", problem.origin)
         return False
@@ -88,23 +91,19 @@ class InteractiveProblemHandler:
             log("Searching in text...")
             for origin in self.analyzed_document.document.find_in_text(pattern):
                 print(origin)
-                for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.analyzed_document.get_file_content(origin.file).split(
-                        "\n"
-                    )
-                    print_simple_line(l, source[l])
+                l = origin.get_source_line()
+                source = self.analyzed_document.document.get_source(l)
+                print_simple_line(l, source)
             log("Searching in source...")
             for origin in self.analyzed_document.document.find_in_source(pattern):
                 print(origin)
-                for l in range(origin.begin.row, origin.end.row + 1):
-                    source = self.analyzed_document.get_file_content(origin.file).split(
-                        "\n"
-                    )
-                    print_simple_line(l, source[l])
+                l = origin.get_source_line()
+                source = self.analyzed_document.document.get_source(l)
+                print_simple_line(l, source)
         return False
 
     def __call__(self, problem: Problem):
-        if problem.origin.file == self._skip_file:
+        if problem.origin.get_file() == self._skip_file:
             return
         prompt = OptionPrompt()
         prompt.add_option(

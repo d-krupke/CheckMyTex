@@ -110,6 +110,12 @@ This tool will have problems with some areas of you document. You can exclude th
 The time to check a 300-page dissertation is around a few seconds. A better spell checking would be available but
 drastically increase the runtime.
 
+If you want to process the output with another tool, you can export the result as json
+using:
+```bash
+checkmytex --json analysis.json main.tex
+```
+
 ## Extending CheckMyTex
 
 ### Finding problems in the LaTeX document
@@ -138,11 +144,12 @@ class NoOld(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         source = document.get_source()
         for match in re.finditer(r"\\old\{", source):
-            origin = document.get_origin_of_source(match.start(), match.end())
+            origin = document.get_simplified_origin_of_source(match.start(), match.end())
             context = document.get_source_context(origin)
             long_id = f"NO_OLD:{context}"
             yield Problem(origin, "Please do not use \\old{! (it confuses highlighting)",
-                          context=context, long_id=long_id, tool="CustomNoOld", rule="NO_OLD")
+                          context=context, long_id=long_id, tool="CustomNoOld",
+                          rule="NO_OLD")
 ```
 
 This is all!
@@ -189,7 +196,8 @@ class FilterAlign(Filter):
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for p in problems:
-            if any(r[0] <= p.origin.begin.spos < r[1] for r in self._ranges):
+            s_span = p.origin.get_source_span()
+            if any(r[0] <= s_span[0] < r[1] for r in self._ranges):
                 continue  # problem starts within a previous found range of an align-environment
             yield p
 ```
@@ -213,5 +221,6 @@ This tool is still under development but already usable. Just expect some imperf
 
 ## Changes
 
+- 0.9.0: Fundamental refactoring and JSON-ouput.
 - 0.8.1: Fixing problem with text manipulated by commands. All found errors now should only span a single line. Solution is ugly and should be improved. For now, it is working.
   .

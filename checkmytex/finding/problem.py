@@ -36,13 +36,13 @@ class Problem:
     def __hash__(self):
         return hash(self.short_id)
 
-    def to_json(self) -> dict:
+    def serialize(self) -> dict:
         return {
             "id": self.short_id,
             "tool": self.tool,
             "message": self.message,
             "context": self.context,
             "rule": self.rule,
-            "origin": self.origin,
+            "origin": self.origin.serialize() if self.origin else None,
             "url": self.look_up_url,
         }

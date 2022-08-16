@@ -14,26 +14,14 @@ class LatexDocumentTest(unittest.TestCase):
         self.assertEqual(document.get_source(), sources["/main.tex"])
         self.assertEqual(document.get_text(), sources["/main.tex"])
         for i in range(4):
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin(
-                "/main.tex",
-                Origin.Position(i, 0, i, 0),
-                Origin.Position(i + 1, 0, i + 1, 0),
-            )
+            o1 = document.get_simplified_origin_of_source(i, i + 1)
+            o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
         for i in range(5, 8):
             j = i - 5
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin(
-                "/main.tex",
-                Origin.Position(i, 1, j, 0),
-                Origin.Position(i + 1, 1, j + 1, 0),
-            )
+            o1 = document.get_simplified_origin_of_source(i, i + 1)
+            o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
 
     def test_2(self):
 
@@ -41,26 +29,16 @@ class LatexDocumentTest(unittest.TestCase):
         parser = LatexParser(file_finder=FileFinder("/", sources))
         document = parser.parse("/main.tex")
         for i in range(4):
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin(
-                "/main.tex",
-                Origin.Position(i, 0, i, 0),
-                Origin.Position(i + 1, 0, i + 1, 0),
-            )
+            o1 = document.get_simplified_origin_of_source(i, i + 1)
+            o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
         for i in range(5, 8):
             j = i - 5
-            o1 = document.get_origin_of_source(i, i + 1)
-            o2 = document.get_origin_of_text(i, i + 1)
-            o3 = Origin(
-                "/sub.tex",
-                Origin.Position(j, 0, j, 0),
-                Origin.Position(j + 1, 0, j + 1, 0),
-            )
+            o1 = document.get_simplified_origin_of_source(i, i + 1)
+            o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
-            self.assertEqual(o1, o3)
+            self.assertEqual(o1.get_file(), "/sub.tex")
+            self.assertEqual(o1.get_file_span(), (j, j+1))
 
     def test_3(self):
         sources = {
@@ -75,14 +53,14 @@ class LatexDocumentTest(unittest.TestCase):
         for f in ["A", "B", "C"]:
             for i in range(0, 3):
                 key = f"{f}{i}"
-                origin = Origin(
-                    "/" + f + ".tex",
-                    Origin.Position(3 * i, i, 0, 0),
-                    Origin.Position(3 * i + 1, i, 1, 0),
-                )
                 p = document.get_text().find(key)
-                self.assertEqual(origin, document.get_origin_of_source(p, p + 1))
-                self.assertEqual(origin, document.get_origin_of_text(p, p + 1))
+                origin = document.get_simplified_origin_of_source(p, p + 1)
+                self.assertEqual(
+                    origin, document.get_simplified_origin_of_text(p, p + 1)
+                )
+                self.assertEqual(origin.get_file(), "/" + f + ".tex")
+                self.assertEqual(origin.get_file_span()[0], 3 * i)
+                self.assertEqual(origin.get_file_line(), i)
 
     def test_4(self):
         sources = {
@@ -100,17 +78,14 @@ class LatexDocumentTest(unittest.TestCase):
                 if key == "B0":
                     continue
                 if f == "B":
-                    origin = Origin(
-                        "/" + f + ".tex",
-                        Origin.Position(3 * i - 2, i, 0, 0),
-                        Origin.Position(3 * i + 1 - 2, i, 1, 0),
-                    )
+                    file = "/" + f + ".tex"
+                    pos_begin = 3 * i - 2
+                    pos_end = 3 * i + 1 - 2
                 else:
-                    origin = Origin(
-                        "/" + f + ".tex",
-                        Origin.Position(3 * i, i, 0, 0),
-                        Origin.Position(3 * i + 1, i, 1, 0),
-                    )
+                    file = "/" + f + ".tex"
+                    pos_begin = 3 * i
+                    pos_end = 3 * i + 1
                 p = document.get_text().find(key)
-                self.assertEqual(origin, document.get_origin_of_source(p, p + 1))
-                self.assertEqual(origin, document.get_origin_of_text(p, p + 1))
+                origin = document.get_simplified_origin_of_source(p, p + 1)
+                self.assertEqual(origin.get_file(), file)
+                self.assertEqual(origin.get_file_span(), (pos_begin, pos_end))

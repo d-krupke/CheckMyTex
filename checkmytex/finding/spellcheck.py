@@ -33,7 +33,7 @@ class AspellChecker(Checker):
             if not is_word.fullmatch(word):
                 continue
             begin = match.start("word")
-            origin = document.get_origin_of_text(begin, begin + len(word))
+            origin = document.get_simplified_origin_of_text(begin, begin + len(word))
             if word not in word_occurrences:
                 word_occurrences[word] = []
             word_occurrences[word].append(origin)
@@ -112,7 +112,7 @@ class CheckSpell(Checker):
         for word_element in word_elements:
             if len(word_element) < 2 or not self.spell.unknown([word_element]):
                 continue
-            origin = document.get_origin_of_text(begin, begin + len(word))
+            origin = document.get_simplified_origin_of_text(begin, begin + len(word))
             candidates = [
                 c for c in self.spell.candidates(word_element) if c != word_element
             ]

@@ -41,7 +41,7 @@ class Languagetool(Checker):
                 look_up_url = problem["rule"]["urls"][0]["value"]
             except KeyError:
                 look_up_url = None
-            origin = document.get_origin_of_text(
+            origin = document.get_simplified_origin_of_text(
                 problem["offset"], problem["offset"] + problem["length"]
             )
             # using source context because the detexed context is too unstable with math
@@ -72,7 +72,7 @@ class Languagetool(Checker):
             return False
         source = document.get_source()
         context = source[
-            origin.end.spos : max(len(source), origin.end.spos + 10)
+            origin.end.source.index : max(len(source), origin.end.source.index + 10)
         ].strip()
         if context and context[0] in ("\\", "$"):
             return True
@@ -84,7 +84,9 @@ class Languagetool(Checker):
         if problem["rule"]["id"] != "UPPERCASE_SENTENCE_START":
             return False
         source = document.get_source()
-        context = source[max(0, origin.begin.spos - 10) : origin.begin.spos].strip()
+        context = source[
+            max(0, origin.begin.source.index - 10) : origin.begin.source.index
+        ].strip()
         if context and context[-1] == "\\":
             return True
         return False

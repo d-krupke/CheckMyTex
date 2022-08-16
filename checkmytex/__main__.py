@@ -1,6 +1,8 @@
 """
 A main file to execute CheckMyTex with CLI.
 """
+import json
+
 from checkmytex.cli import InteractiveCli, log, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
@@ -25,11 +27,13 @@ def main():
     """
     args = parse_arguments(log)
     whitelist = Whitelist(args.whitelist)
-    log("Parsing LaTeX project...")
+    log_ = log
+    log_("Parsing LaTeX project...")
     try:
         parser = LatexParser()
         latex_document = parser.parse(args.path[0])
-        engine = DocumentAnalyzer(log=log)
+        engine = DocumentAnalyzer(log=log_)
+        engine.log = log_
         engine.setup_default()
         # Add filter
         engine.add_filter(whitelist)
@@ -44,7 +48,10 @@ def main():
         )
 
         analyzed_document = engine.analyze(latex_document)
-
+        if args.json:
+            with open(args.json, "w") as f:
+                json.dump(analyzed_document.serialize(), f)
+            return
         InteractiveCli(analyzed_document, whitelist, just_print=args.print)
     except KeyError as key_error:
         print("Error:", str(key_error))

@@ -25,7 +25,7 @@ def _extract_problem(match: re.Match, document: LatexDocument) -> Problem:
     context_after = match.group("context_after")
     begin = (row - 1, col - 1)
     end = (row - 1, col + max(len(text), 1) - 1)
-    origin = document.get_origin_of_source(begin, end)
+    origin = document.get_simplified_origin_of_source(begin, end)
 
     longid = message + "|" + context_before + text + context_after
     return Problem(

@@ -69,15 +69,14 @@ class AnalyzedDocument:
         Returns problems. Can be for a specific file and even line.
         """
         if file:
-            problems = [p for p in self.problems if p.origin.file == file]
+            problems = [p for p in self.problems if p.origin.get_file() == file]
             if line:
-                problems = [
-                    p
-                    for p in problems
-                    if p.origin.begin.row <= line <= p.origin.end.row
-                ]
+                problems = [p for p in problems if p.origin.get_file_line() == line]
             return problems
         return self.problems
+
+    def get_orphaned_problems(self):
+        return [p for p in self.problems if not p.origin]
 
     def list_files(self) -> typing.Iterable[str]:
         """
@@ -91,3 +90,9 @@ class AnalyzedDocument:
         Returns the content of a specific file in the document.
         """
         return self.document.get_file_content(file_name)
+
+    def serialize(self):
+        return {
+            "document": self.document.serialize(),
+            "problems": [p.serialize() for p in self.problems]
+        }

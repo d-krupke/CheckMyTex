@@ -27,8 +27,8 @@ class FilePrinter:
                 yield i, line_content
 
             def in_range(problem):
-                begin = problem.origin.begin.row - self._shorten
-                end = problem.origin.end.row + self._shorten
+                begin = problem.origin.begin.file.position.line - self._shorten
+                end = problem.origin.end.file.position.line + self._shorten
                 return begin <= i < end
 
             if any(in_range(p) for p in problems):
@@ -38,8 +38,16 @@ class FilePrinter:
         problems = self._analyzed_document.get_problems(file_name, line_number)
 
         def span(p):
-            a = p.origin.begin.col if p.origin.begin.row == line_number else 0
-            b = p.origin.end.col if p.origin.end.row == line_number else len(line)
+            a = (
+                p.origin.begin.file.position.line_offset
+                if p.origin.begin.file.position.line == line_number
+                else 0
+            )
+            b = (
+                p.origin.end.file.position.line_offset
+                if p.origin.end.file.position.line == line_number
+                else len(line)
+            )
             return a, b
 
         highlighted_line = add_highlights(line, (span(p) for p in problems))
@@ -53,7 +61,9 @@ class FilePrinter:
 
     def _handle_line_problems(self, f, i):
         line_problems = self._analyzed_document.get_problems(f, line=i)
-        line_problems = [p for p in line_problems if p.origin.end.row == i]
+        line_problems = [
+            p for p in line_problems if p.origin.end.file.position.line == i
+        ]
         for p in line_problems:
             self._print_problem(p)
             self._problem_handler(p)

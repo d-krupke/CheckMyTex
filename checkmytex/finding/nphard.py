@@ -35,7 +35,9 @@ class UniformNpHard(Checker):
             if len(variants_np) <= 1:
                 continue
 
-            origin = document.get_origin_of_source(match.start(), match.end())
+            origin = document.get_simplified_origin_of_source(
+                match.start(), match.end()
+            )
             context = document.get_source_context(origin)
             message = "Non-uniform 'NP'. Maybe use the 'complexity'-package?"
             rule = "UNIFORM-NP"
