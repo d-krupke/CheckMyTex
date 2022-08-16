@@ -37,9 +37,8 @@ class LatexDocumentTest(unittest.TestCase):
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
-            self.assertEqual(o1.file, "/sub.tex")
-            self.assertEqual(o1.begin.file.position.index, j)
-            self.assertEqual(o1.end.file.position.index, j + 1)
+            self.assertEqual(o1.get_file(), "/sub.tex")
+            self.assertEqual(o1.get_file_span(), (j, j+1))
 
     def test_3(self):
         sources = {
@@ -59,9 +58,9 @@ class LatexDocumentTest(unittest.TestCase):
                 self.assertEqual(
                     origin, document.get_simplified_origin_of_text(p, p + 1)
                 )
-                self.assertEqual(origin.file, "/" + f + ".tex")
-                self.assertEqual(origin.begin.file.position.index, 3 * i)
-                self.assertEqual(origin.begin.file.position.line, i)
+                self.assertEqual(origin.get_file(), "/" + f + ".tex")
+                self.assertEqual(origin.get_file_span()[0], 3 * i)
+                self.assertEqual(origin.get_file_line(), i)
 
     def test_4(self):
         sources = {
@@ -88,6 +87,5 @@ class LatexDocumentTest(unittest.TestCase):
                     pos_end = 3 * i + 1
                 p = document.get_text().find(key)
                 origin = document.get_simplified_origin_of_source(p, p + 1)
-                self.assertEqual(origin.file, file)
-                self.assertEqual(origin.begin.file.position.index, pos_begin)
-                self.assertEqual(origin.end.file.position.index, pos_end)
+                self.assertEqual(origin.get_file(), file)
+                self.assertEqual(origin.get_file_span(), (pos_begin, pos_end))

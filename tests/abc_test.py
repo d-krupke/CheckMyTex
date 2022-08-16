@@ -4,7 +4,7 @@ import unittest
 
 from flachtex import FileFinder
 
-from build.lib.checkmytex.finding import Checker, Problem
+from checkmytex.finding import Checker, Problem
 from checkmytex import LatexDocument, DocumentAnalyzer
 from checkmytex.latex_document.parser import LatexParser
 

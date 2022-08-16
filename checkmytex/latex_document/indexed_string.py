@@ -105,7 +105,7 @@ def simplify_text_range(
             return last_line[0], last_line[0].virtual_next()
         # use the line before, which is longer
         last_line = [p for p in positions if p.line == max_line - 1]
-    return min(last_line), max(last_line)
+    return min(last_line), max(last_line).virtual_next()
 
 
 class IndexedStringTest(unittest.TestCase):

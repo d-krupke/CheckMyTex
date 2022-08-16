@@ -40,8 +40,7 @@ Let us use \importantterm here.
         report = engine.analyze(document)
         print(document.get_text())
         self.assertEqual(len(report.problems), 1)
-        start = report.problems[0].origin.begin.path.position.position
-        end = report.problems[0].origin.end.path.position.position
+        start, end  = report.problems[0].origin.get_file_span()
         self.assertEqual(start, 176)
         self.assertEqual(end, 189)
         self.assertEqual(source[start:end], "ImportantTerm")
@@ -76,8 +75,7 @@ Let us use \importantterm{}bla here.
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
         self.assertEqual(len(report.problems), 1)
-        start = report.problems[0].origin.begin.path.position.position
-        end = report.problems[0].origin.end.path.position.position
+        start, end = report.problems[0].origin.get_file_span()
         # print(document.get_text())
         print(source[start:end])
         self.assertEqual(start, 469)

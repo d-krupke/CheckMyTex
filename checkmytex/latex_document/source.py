@@ -74,7 +74,7 @@ class LatexSource:
         origins = [o for o in origins if o.path == focus_on_file]
         file_begin, file_end = simplify_text_range(o.position for o in origins)
         return FilePosition(focus_on_file, file_begin), FilePosition(
-            focus_on_file, file_end.virtual_next()
+            focus_on_file, file_end
         )
 
     def serialize(self) -> typing.Dict:
