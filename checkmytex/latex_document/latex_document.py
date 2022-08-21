@@ -50,14 +50,14 @@ class LatexDocument:
             raise ValueError("No detex available!")
         return str(self.detexed_text.text)
 
-    def get_file_content(self, path: str) -> str:
+    def get_file_content(self, path: str, line: typing.Optional[int] = None) -> str:
         """
         Return the content of a file. Does not perform any file reads but
         returns from cache.
         :param path: Path to the file.
         :return: Content of file as string.
         """
-        return self.sources.get_file(path)
+        return self.sources.get_file(path, line)
 
     def get_simplified_origin_of_text(
         self,
@@ -94,7 +94,7 @@ class LatexDocument:
         """
         text = self.get_file_content(origin.get_file())
         s_span = origin.get_source_span()
-        return text[max(0, s_span[0]-n):min(len(text), s_span[1]+n)]
+        return text[max(0, s_span[0] - n) : min(len(text), s_span[1] + n)]
 
     def get_simplified_origin_of_source(
         self,
@@ -129,5 +129,4 @@ class LatexDocument:
             yield self.get_simplified_origin_of_source(match.start(), match.end())
 
     def serialize(self) -> typing.Dict:
-        return {"sources": self.sources.serialize(),
-                "text": str(self.detexed_text)}
+        return {"sources": self.sources.serialize(), "text": str(self.detexed_text)}

@@ -4,6 +4,7 @@ A main file to execute CheckMyTex with CLI.
 import json
 
 from checkmytex.cli import InteractiveCli, log, parse_arguments
+from checkmytex.cli.rich_printer import RichPrinter
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
     IgnoreIncludegraphics,
@@ -52,6 +53,8 @@ def main():
             with open(args.json, "w") as f:
                 json.dump(analyzed_document.serialize(), f)
             return
+        if args.html:
+            RichPrinter(analyzed_document).save(args.html)
         InteractiveCli(analyzed_document, whitelist, just_print=args.print)
     except KeyError as key_error:
         print("Error:", str(key_error))

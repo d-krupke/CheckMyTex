@@ -1,0 +1,132 @@
+import os.path
+import typing
+from collections import defaultdict
+
+from rich.console import Console
+from rich.markup import escape
+from rich.syntax import Syntax
+from rich.table import Table
+
+from checkmytex import AnalyzedDocument
+from checkmytex.finding import Problem
+
+
+class RichPrinter:
+    def __init__(self, analysis: AnalyzedDocument, shorten: typing.Optional[int] = 5):
+        self.analysis = analysis
+        self.console = Console(record=True)
+        self.shorten = shorten
+        self.file_prefix = os.path.commonpath(list(self.analysis.list_files()))
+
+    def print(self):
+        self.console.print("CheckMyTex", style="bold italic")
+        self.print_file_overview()
+        self.print_rule_count()
+        for filename in self.analysis.list_files():
+            self.print_file(filename)
+        self.print_orphaned_problems()
+
+    def save(self, path):
+        self.console.save_html(path)
+
+    def print_orphaned_problems(self):
+        self.console.rule("Other problems")
+        for prob in self.analysis.get_orphaned_problems():
+            self.print_problem(prob)
+
+    def print_rule_count(self):
+        table = Table(title="Problems by type", expand=True)
+        table.add_column("Tool", justify="left")
+        table.add_column("Rule", justify="left")
+        table.add_column("Count", justify="right")
+        problem_counts = defaultdict(lambda: defaultdict(lambda: 0))
+        for prob in self.analysis.get_problems():
+            problem_counts[prob.tool][prob.rule] += 1
+        for tool, rules in problem_counts.items():
+            first = True
+            for rule, count in rules.items():
+                if first:
+                    table.add_row(escape(str(tool)), escape(str(rule)), str(count))
+                    first = False
+                else:
+                    table.add_row("", escape(str(rule)), str(count))
+        self.console.print(table)
+
+    def print_file_overview(self):
+        table = Table(title="Problems by file", expand=True)
+        table.add_column("File", justify="left")
+        table.add_column("Count", justify="right")
+        for file in self.analysis.list_files():
+            table.add_row(
+                escape(str(file[len(self.file_prefix) :])),
+                str(len(self.analysis.get_problems(file))),
+            )
+        if self.analysis.get_orphaned_problems():
+            table.add_row("UNKNOWN", str(len(self.analysis.get_orphaned_problems())))
+        self.console.print(table)
+
+    def print_file(self, filename: str):
+        self.console.rule(filename[len(self.file_prefix) :])
+        last_printed_line = -1
+        problematic_lines = list(
+            set(
+                prob.origin.get_file_line()
+                for prob in self.analysis.get_problems(filename)
+            )
+        )
+        problematic_lines.sort()
+        print(problematic_lines)
+        for l in problematic_lines:
+            if self.shorten is not None:
+                l_ = max(last_printed_line + 1, l - self.shorten)
+            else:
+                l_ = last_printed_line + 1
+            if l_ != 0 and l_ != last_printed_line + 1:
+                self.console.print("...")
+            problems = self.analysis.get_problems(filename, l)
+            highlights = [
+                (
+                    prob.origin.get_file_line(),
+                    prob.origin.begin.file.position.line_offset,
+                    prob.origin.end.file.position.line_offset,
+                )
+                for prob in problems
+            ]
+            assert l_ <= l
+            self.print_source(filename, l_, l + 1, highlights)
+            last_printed_line = l
+            for prob in problems:
+                self.print_problem(prob)
+        if self.shorten is None:
+            file_length = len(
+                self.analysis.document.get_file_content(filename).split("\n")
+            )
+            if file_length > last_printed_line + 1:
+                self.print_source(filename, last_printed_line + 1, file_length, [])
+
+    def print_source(
+        self,
+        filename,
+        begin,
+        end,
+        highlights: typing.Iterable[typing.Tuple[int, int, int]],
+    ):
+        text = "".join(
+            self.analysis.document.get_file_content(filename, i)
+            for i in range(begin, end)
+        )
+        if not text:
+            return
+        if text[-1] == "\n":
+            text = text[:-1]
+        syntax = Syntax(
+            text, "latex", start_line=begin, line_numbers=True, word_wrap=True
+        )
+        for l, b, e in highlights:
+            syntax.stylize_range("white on red", (1 + l - begin, b), (1 + l - begin, e))
+        self.console.print(syntax)
+
+    def print_problem(self, problem: Problem):
+        self.console.print(
+            escape(f">>> [{problem.tool}] {problem.message}"), style="red"
+        )
