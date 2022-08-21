@@ -42,7 +42,9 @@ class LatexSource:
         self.file_names: typing.List[str] = list(self.files.keys())
         self.file_order = {f: i for i, f in enumerate(self.file_names)}
 
-    def get_file(self, file: str) -> str:
+    def get_file(self, file: str, line: typing.Optional[int]) -> str:
+        if line is not None:
+            return str(self.files[file].get_line(line))
         return str(self.files[file])
 
     def investigate_origin(self, index: int) -> typing.Optional[FilePosition]:
@@ -80,5 +82,5 @@ class LatexSource:
     def serialize(self) -> typing.Dict:
         return {
             "flat": str(self.flat_source),
-            "files": {path: str(content) for path, content in self.files.items()}
+            "files": {path: str(content) for path, content in self.files.items()},
         }

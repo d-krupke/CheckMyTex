@@ -112,8 +112,15 @@ drastically increase the runtime.
 
 If you want to process the output with another tool, you can export the result as json
 using:
+
 ```bash
 checkmytex --json analysis.json main.tex
+```
+
+If you want an HTML-document you can share with your co-authors, use
+
+```bash
+checkmytex --html analysis.html main.tex
 ```
 
 ## Extending CheckMyTex
@@ -221,6 +228,7 @@ This tool is still under development but already usable. Just expect some imperf
 
 ## Changes
 
+- 0.10.0: Beautiful HTML-output using _rich_. Interactive CLI will follow soon.
 - 0.9.0: Fundamental refactoring and JSON-ouput.
 - 0.8.1: Fixing problem with text manipulated by commands. All found errors now should only span a single line. Solution is ugly and should be improved. For now, it is working.
   .
