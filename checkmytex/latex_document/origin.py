@@ -10,10 +10,10 @@ class OriginPointer:
     """
 
     def __init__(
-            self,
-            file: FilePosition,
-            source: TextPosition,
-            text: typing.Optional[TextPosition] = None,
+        self,
+        file: FilePosition,
+        source: TextPosition,
+        text: typing.Optional[TextPosition] = None,
     ):
         self.file = file  # position in file
         self.source = source  # position in flat source
@@ -33,9 +33,11 @@ class OriginPointer:
         return f"FILE:{self.file}|SOURCE:{self.source}|text::{self.text}"
 
     def serialize(self) -> typing.Dict:
-        return {"file": self.file.serialize(),
-                "source": self.source.serialize(),
-                "text": self.text.serialize() if self.text else None}
+        return {
+            "file": self.file.serialize(),
+            "source": self.source.serialize(),
+            "text": self.text.serialize() if self.text else None,
+        }
 
 
 class Origin:
@@ -76,18 +78,15 @@ class Origin:
         return self.begin.file.position.line
 
     def __repr__(self):
-        return f"{self.get_file()}" f"[{self.begin.file.position}-{self.end.file.position}]"
+        return (
+            f"{self.get_file()}"
+            f"[{self.begin.file.position}-{self.end.file.position}]"
+        )
 
     def __eq__(self, other):
         if not isinstance(other, Origin):
             raise ValueError("Can only compare origins.")
-        return (
-                self.begin == other.begin
-                and self.end == other.end
-        )
+        return self.begin == other.begin and self.end == other.end
 
     def serialize(self) -> typing.Dict:
-        return {
-            "begin": self.begin.serialize(),
-            "end": self.end.serialize()
-        }
+        return {"begin": self.begin.serialize(), "end": self.end.serialize()}

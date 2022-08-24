@@ -16,7 +16,7 @@ def readme():
 
 setup(
     name="CheckMyTex",
-    version="0.10.0",
+    version="0.10.1",
     description="A simple tool for checking complex LaTeX documents, e.g., dissertations.",
     long_description=readme(),
     long_description_content_type="text/markdown",
@@ -40,7 +40,7 @@ setup(
     ],
     install_requires=[
         "pyspellchecker>=0.6.3",
-        "flachtex>=0.3.2",
+        "flachtex>=0.3.7",
         "yalafi>=1.3.0",
         "proselint>=0.13.0",
         "rich>=12.5.1",

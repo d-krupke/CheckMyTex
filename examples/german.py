@@ -2,7 +2,8 @@
 A main file modified to check german tex files. Not as powerful as the
 english version.
 """
-from checkmytex.cli import InteractiveCli, log, parse_arguments
+
+from checkmytex.cli import parse_arguments, cli
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
     IgnoreIncludegraphics,
@@ -18,13 +19,11 @@ from checkmytex.finding import (
     AspellChecker,
     CheckSpell,
     ChkTex,
-    Cleveref,
     Languagetool,
     SiUnitx,
+    Cleveref,
     UniformNpHard,
 )
-from checkmytex.latex_document import LatexDocument
-from checkmytex.latex_document.parser import LatexParser
 
 
 def main():
@@ -33,42 +32,33 @@ def main():
     points
     :return: None
     """
-    args = parse_arguments(log)
+    args = parse_arguments()
+    engine = DocumentAnalyzer()
+    engine.setup_default()
+    # Add filter
     whitelist = Whitelist(args.whitelist)
-    log("Parsing LaTeX project...")
-    try:
-        parser = LatexParser()
-        latex_document = parser.parse(args.path[0])
-        engine = DocumentAnalyzer(log=log)
-        # Add chcker
-        aspell = AspellChecker(lang="de_DE")
-        if aspell.is_available():
-            engine.add_checker(aspell)
-        else:
-            engine.log("Aspell not available. Using pyspellchecker.")
-            engine.add_checker(CheckSpell(lang="de"))
-        engine.add_checker(ChkTex())
-        engine.add_checker(Languagetool(lang="de-DE"))
-        engine.add_checker(SiUnitx())
-        engine.add_checker(Cleveref())
-        engine.add_checker(UniformNpHard())
-        # Add filter
-        engine.add_filter(whitelist)
-        engine.add_filter(IgnoreIncludegraphics())
-        engine.add_filter(IgnoreRefs())
-        engine.add_filter(IgnoreRepeatedWords(["problem", "problems"]))
-        engine.add_filter(IgnoreLikelyAuthorNames())
-        engine.add_filter(IgnoreWordsFromBibliography())
-        engine.add_filter(IgnoreSpellingWithMath())
-        engine.add_filter(
-            MathMode({"SPELLING": None, "languagetool": None, "Proselint": None})
-        )
-
-        analyzed_document = engine.analyze(latex_document)
-
-        InteractiveCli(analyzed_document, whitelist, just_print=args.print)
-    except KeyError as key_error:
-        print("Error:", str(key_error))
+    aspell = AspellChecker(lang="de_DE")
+    if aspell.is_available():
+        engine.add_checker(aspell)
+    else:
+        engine.add_checker(CheckSpell(lang="de"))
+    engine.add_checker(ChkTex())
+    engine.add_checker(Languagetool(lang="de-DE"))
+    engine.add_checker(SiUnitx())
+    engine.add_checker(Cleveref())
+    engine.add_checker(UniformNpHard())
+    # Add filter
+    engine.add_filter(whitelist)
+    engine.add_filter(IgnoreIncludegraphics())
+    engine.add_filter(IgnoreRefs())
+    engine.add_filter(IgnoreRepeatedWords(["problem", "problems"]))
+    engine.add_filter(IgnoreLikelyAuthorNames())
+    engine.add_filter(IgnoreWordsFromBibliography())
+    engine.add_filter(IgnoreSpellingWithMath())
+    engine.add_filter(
+        MathMode({"SPELLING": None, "languagetool": None, "Proselint": None})
+    )
+    cli(engine, args=args, whitelist=whitelist)
 
 
 if __name__ == "__main__":

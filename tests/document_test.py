@@ -38,7 +38,7 @@ class LatexDocumentTest(unittest.TestCase):
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             self.assertEqual(o1, o2)
             self.assertEqual(o1.get_file(), "/sub.tex")
-            self.assertEqual(o1.get_file_span(), (j, j+1))
+            self.assertEqual(o1.get_file_span(), (j, j + 1))
 
     def test_3(self):
         sources = {

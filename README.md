@@ -2,10 +2,13 @@
 
 A tool to comfortably check complex LaTeX documents, e.g., dissertations, for common errors.
 There are already pretty good correction tools for LaTex, e.g., [TeXtidote](https://github.com/sylvainhalle/textidote),
-[YaLafi](https://github.com/matze-dd/YaLafi), or [LaTeXBuddy](https://gitlab.com/LaTeXBuddy/LaTeXBuddy) (in which I was
+[YaLafi](https://github.com/matze-dd/YaLafi) (of which we use the tex2text engine), 
+or [LaTeXBuddy](https://gitlab.com/LaTeXBuddy/LaTeXBuddy) (in which I was
 involved and of which I copied some things), but they had shortcomings with complex documents, and they also did not
 fit my workflow. CheckMyTex builds upon YaLafi, but provides a simple CLI with some additional magic and tricks to deal
-with hopefully any document.
+with hopefully any document. The primary difference to its main contenders is the focus on CLI and whitelists.
+
+> :warning: Your terminal needs to support rich (should be most terminals)!  
 
 Primary concepts are
 
@@ -17,11 +20,13 @@ Primary concepts are
 - edit the errors directly (in Vim with automatic jump to line), and
 - having a single, simple command that you can easily run before every commit.
 
-This tool does not have a fancy HTML-output (like the other tools), even though I first designed it that way.
-The reason for sticking to a CLI are simple:
+This tool has a fancy HTML-output (like other tools), but its primary intention is to be used as CLI:
 
 1. Thanks to colored output, the highlighting works just as nice in CLI as in HTML. No need to switch to your browser.
 2. The CLI can use your favourite editor (currently, only (n)vim and nano have full support) without switching context.
+
+An example output can be seen [here](./example_output.html). The CLI version looks
+nearly identical (thanks to [rich](https://rich.readthedocs.io/en/stable/introduction.html), but you are iteratively asked how to deal with each problem.
 
 ## What does CheckMyTex currently check for you?
 
@@ -55,7 +60,7 @@ You additionally need to install [languagetool](https://languagetool.org/) and a
 contain ChkTeX). To have a better spell checker, you should also install aspell and the corresponding dictionaries.
 All these should be available via yours systems package manages, e.g. `pacman`, `apt`, or `brew`.
 
-> :warning This tool currently only supports Unix (Linux and Mac OS). It could work in some windows configurations, but
+> :warning: This tool currently only supports Unix (Linux and Mac OS). It could work in some windows configurations, but
 > probably you get some unexpected behavior due to incompatible system calls.
 
 ### Mac
@@ -96,9 +101,6 @@ For each problem, you will be asked what to do
 - _find_ allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
 - _?_ provides further information of the problem. Primarily for debugging and fine-tuning.
 
-This all works with nice coloring, as shown below.
-![cli](./.cli_example.jpeg)
-Note the false positives in the author names will now be detected and no longer shown.
 
 Whitelisted problems are by default saved in `.whitelist.txt` (document root) and are human-readable.
 You can copy it to use also for other documents or change the path using the `-w` argument with a path when calling
@@ -228,6 +230,7 @@ This tool is still under development but already usable. Just expect some imperf
 
 ## Changes
 
+- 0.10.1: Also the interactive mode is now using rich.
 - 0.10.0: Beautiful HTML-output using _rich_. Interactive CLI will follow soon.
 - 0.9.0: Fundamental refactoring and JSON-ouput.
 - 0.8.1: Fixing problem with text manipulated by commands. All found errors now should only span a single line. Solution is ugly and should be improved. For now, it is working.

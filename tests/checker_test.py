@@ -3,7 +3,6 @@ import unittest
 from flachtex import FileFinder
 
 from checkmytex import DocumentAnalyzer
-from checkmytex.cli import log
 from checkmytex.finding import CheckSpell
 from checkmytex.latex_document.parser import LatexParser
 
@@ -35,12 +34,12 @@ Let us use \importantterm here.
         """
         parser = LatexParser(FileFinder(".", {"main.tex": source}))
         document = parser.parse("main.tex")
-        engine = DocumentAnalyzer(log=log)
+        engine = DocumentAnalyzer()
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
         print(document.get_text())
         self.assertEqual(len(report.problems), 1)
-        start, end  = report.problems[0].origin.get_file_span()
+        start, end = report.problems[0].origin.get_file_span()
         self.assertEqual(start, 176)
         self.assertEqual(end, 189)
         self.assertEqual(source[start:end], "ImportantTerm")
@@ -71,7 +70,7 @@ Let us use \importantterm{}bla here.
         """
         parser = LatexParser(FileFinder(".", {"main.tex": source}))
         document = parser.parse("main.tex")
-        engine = DocumentAnalyzer(log=log)
+        engine = DocumentAnalyzer()
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
         self.assertEqual(len(report.problems), 1)
