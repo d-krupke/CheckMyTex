@@ -1,28 +1,40 @@
-from checkmytex.analyzed_document import AnalyzedDocument
-from checkmytex.cli.file_printer import FilePrinter
-from checkmytex.cli.overview import print_overview
-from checkmytex.cli.problem_handler import InteractiveProblemHandler
+import argparse
+import json
+import typing
+
+from rich.console import Console
+
+from checkmytex.document_analyzer import DocumentAnalyzer
+from checkmytex.cli.rich_printer import RichPrinter, ProblemHandler
 from checkmytex.filtering.whitelist import Whitelist
+from checkmytex.latex_document.parser import LatexParser
 from checkmytex.utils.editor import Editor
 
 
-class InteractiveCli:
-    def __init__(
-        self,
-        analyzed_document: AnalyzedDocument,
-        whitelist: Whitelist,
-        just_print: bool = False,
-    ):
-        self.just_print = just_print
-        self.editor = Editor()
-
-        analyzed_document.set_on_false_positive_cb(lambda p: whitelist.add(p))
-        if self.just_print:
-            problem_handler = lambda p: None
+def cli(
+    engine: DocumentAnalyzer,
+    args: argparse.Namespace,
+    whitelist: Whitelist,
+    latex_parser: typing.Optional[LatexParser] = None,
+):
+    console = Console(record=True)
+    try:
+        latex_parser = latex_parser if latex_parser is not None else LatexParser()
+        latex_document = latex_parser.parse(args.path[0])
+        analyzed_document = engine.analyze(latex_document)
+        if args.json:
+            with open(args.json, "w") as f:
+                json.dump(analyzed_document.serialize(), f)
+            return
+        if args.html:
+            RichPrinter(analyzed_document).to_html(args.html)
         else:
-            problem_handler = InteractiveProblemHandler(analyzed_document, self.editor)
-        print_overview(analyzed_document)
-        fp = FilePrinter(analyzed_document, problem_handler)
-        # Go through all files
-        for file_path in analyzed_document.list_files():
-            fp.print(file_path)
+            analyzed_document.set_on_false_positive_cb(lambda p: whitelist.add(p))
+            rp = RichPrinter(
+                analyzed_document,
+                problem_handler=ProblemHandler(analyzed_document, Editor(), console),
+                console=console,
+            )
+            rp.print()
+    except KeyError as key_error:
+        console.log("Error:", str(key_error))

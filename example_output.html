@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<style>
+.r1 {font-weight: bold; font-style: italic}
+.r2 {font-style: italic}
+.r3 {font-weight: bold}
+.r4 {color: #00ff00; text-decoration-color: #00ff00}
+.r5 {color: #800080; text-decoration-color: #800080}
+.r6 {color: #ff00ff; text-decoration-color: #ff00ff}
+.r7 {background-color: #272822}
+.r8 {color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #272822}
+.r9 {color: #66d9ef; text-decoration-color: #66d9ef; background-color: #272822}
+.r10 {color: #a6e22e; text-decoration-color: #a6e22e; background-color: #272822}
+.r11 {color: #f8f8f2; text-decoration-color: #f8f8f2; background-color: #272822}
+.r12 {color: #75715e; text-decoration-color: #75715e; background-color: #272822}
+.r13 {color: #c0c0c0; text-decoration-color: #c0c0c0; background-color: #800000}
+.r14 {color: #800000; text-decoration-color: #800000; background-color: #c0c0c0}
+.r15 {color: #800000; text-decoration-color: #800000; background-color: #c0c0c0; font-weight: bold}
+.r16 {color: #808000; text-decoration-color: #808000}
+.r17 {color: #008000; text-decoration-color: #008000; background-color: #c0c0c0}
+.r18 {color: #008080; text-decoration-color: #008080; background-color: #c0c0c0; font-weight: bold}
+.r19 {color: #e6db74; text-decoration-color: #e6db74; background-color: #272822}
+.r20 {color: #ae81ff; text-decoration-color: #ae81ff; background-color: #272822}
+.r21 {color: #800080; text-decoration-color: #800080; background-color: #c0c0c0}
+.r22 {color: #800080; text-decoration-color: #800080; background-color: #c0c0c0; font-style: italic}
+.r23 {color: #f92672; text-decoration-color: #f92672; background-color: #272822}
+body {
+    color: #000000;
+    background-color: #ffffff;
+}
+</style>
+</head>
+<html>
+<body>
+    <code>
+        <pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span class="r1">CheckMyTex</span>
+<span class="r2">                                Problems by file                                </span>
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃<span class="r3"> File                                                          </span>┃<span class="r3">        Count </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ /main.tex                                                     │           11 │
+│ /00-Abstract.tex                                              │            1 │
+│ /01-Introduction.tex                                          │           24 │
+│ /02-ModelAndPreliminaries.tex                                 │            4 │
+│ /03-Algorithm.tex                                             │           37 │
+│ /04-Analysis.tex                                              │           10 │
+│ /05-Experiments.tex                                           │           20 │
+│ /06-Conclusion.tex                                            │            2 │
+└───────────────────────────────────────────────────────────────┴──────────────┘
+<span class="r2">                                Problems by type                                </span>
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃<span class="r3"> Tool           </span>┃<span class="r3"> Rule                                                </span>┃<span class="r3"> Count </span>┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ chktex         │ Warning: Command terminated with space.             │     2 │
+│                │ Warning: No italic correction (`\/&#x27;) found.         │    10 │
+│                │ Warning: Delete this space to maintain correct      │    22 │
+│                │ pagereferences.                                     │       │
+│                │ Warning: Non-breaking space (`~&#x27;) should have been  │     5 │
+│                │ used.                                               │       │
+│                │ Warning: Intersentence spacing (`\@&#x27;) should        │     1 │
+│                │ perhaps be used.                                    │       │
+│                │ Warning: You should enclose the previous            │     2 │
+│                │ parenthesis with `{}&#x27;.                              │       │
+│ aspell         │ SPELLING                                            │    20 │
+│ languagetool   │ UPPERCASE_SENTENCE_START                            │     1 │
+│                │ DOUBLE_PUNCTUATION                                  │     1 │
+│                │ SOME_OF_THE                                         │     2 │
+│                │ ET_AL                                               │     2 │
+│                │ EN_COMPOUNDS                                        │     1 │
+│                │ SENT_START_CONJUNCTIVE_LINKING_ADVERB_COMMA         │     1 │
+│                │ LARGE_NUMBER_OF                                     │     1 │
+│                │ MISSING_COMMA_AFTER_INTRODUCTORY_PHRASE             │     1 │
+│                │ UNIT_SPACE                                          │     1 │
+│ Proselint      │ after_the_deadline.redundancy                       │     1 │
+│                │ typography.symbols.sentence_spacing                 │     1 │
+│                │ weasel_words.very                                   │     1 │
+│ CleverrefCheck │ CREF                                                │    22 │
+│ SIUNITX        │ SIUNITX                                             │    11 │
+└────────────────┴─────────────────────────────────────────────────────┴───────┘
+
+<span class="r4">────────────────────────────────── </span><span class="r5">/</span><span class="r6">main.tex</span><span class="r4"> ───────────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\documentclass</span><span class="r10">[letterpaper, 10 pt, conference]</span><span class="r11">{ieeeconf}  </span><span class="r12">% Comment this </span><span class="r7">   </span>
+<span class="r7">    </span><span class="r12">line out if you need a4paper</span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r12">%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line </span><span class="r7">  </span>
+<span class="r7">    </span><span class="r12">for a4 paper</span><span class="r7">                                                                </span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r9">\IEEEoverridecommandlockouts</span><span class="r13"> </span><span class="r11">                             </span><span class="r12">% This command is </span>
+<span class="r7">    </span><span class="r12">only needed if </span><span class="r7">                                                             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Command terminated with space.</span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r11">                                                          </span><span class="r12">% you want to use </span>
+<span class="r7">    </span><span class="r12">the \thanks command</span><span class="r7">                                                         </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r9">\overrideIEEEmargins</span><span class="r13"> </span><span class="r11">                                     </span><span class="r12">% Needed to meet </span><span class="r7"> </span>
+<span class="r7">    </span><span class="r12">printer requirements.</span><span class="r7">                                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Command terminated with space.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">59 </span><span class="r11">    </span><span class="r9">\textcolor</span><span class="r11">{blue}{</span><span class="r9">\footnotesize</span><span class="r11"> </span><span class="r9">\textsf</span><span class="r11">{#1}}</span><span class="r7">                            </span>
+<span class="r7">  </span><span class="r8">60 </span><span class="r11">}</span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">61 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">62 </span><span class="r12">%\renewcommand{\todo}[1]{} %% remove comments to hide TODOs</span><span class="r7">                </span>
+<span class="r7">  </span><span class="r8">63 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">64 </span><span class="r9">\DeclareCaptionType</span><span class="r11">{</span><span class="r13">copyrightbox</span><span class="r11">}</span><span class="r7">                                          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;copyrightbox&#x27;</span><span class="r14">. Suggestions: copyright box, </span>
+<span class="r14">copyright-box,  copyrights,  copyright&#x27;s,  paintbox. Occurrences in text: </span><span class="r18">1</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> This sentence does not start with an uppercase letter.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">87 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">88 </span><span class="r9">\title</span><span class="r11">{</span><span class="r9">\LARGE</span><span class="r11"> </span><span class="r9">\bf</span><span class="r11"> Distributed Cohesive Control for Robot Swarms:</span><span class="r9">\\</span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">89 </span><span class="r11">Maintaining Good Connectivity in the Presence of Exterior Forces}</span><span class="r7">          </span>
+<span class="r7">  </span><span class="r8">90 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">91 </span><span class="r9">\author</span><span class="r11">{</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">92 </span><span class="r13">Dominik</span><span class="r11"> Krupke</span><span class="r19">$</span><span class="r11">^{</span><span class="r20">1</span><span class="r11">}</span><span class="r19">$</span><span class="r11">,</span><span class="r7">                                                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Dominik&#x27;</span><span class="r14">. Suggestions: Dominick,  Dominic, </span>
+<span class="r14">Dominica,  Domino,  Dominion. Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">93 </span><span class="r11">Maximilian Ernestus</span><span class="r19">$</span><span class="r11">^{</span><span class="r20">1</span><span class="r11">}</span><span class="r19">$</span><span class="r11">, </span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">94 </span><span class="r11">Michael Hemmer</span><span class="r19">$</span><span class="r11">^{</span><span class="r20">1</span><span class="r11">}</span><span class="r19">$</span><span class="r11">, and </span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">95 </span><span class="r11">S</span><span class="r9">\&#x27;</span><span class="r11">andor~P.~Fekete</span><span class="r19">$</span><span class="r11">^{</span><span class="r20">1</span><span class="r11">}</span><span class="r19">$</span><span class="r12">%</span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8">96 </span><span class="r12">%\thanks{*This work was not supported by any organization}% &lt;-this % stops </span>
+<span class="r7">     </span><span class="r12">a space</span><span class="r7">                                                                    </span>
+<span class="r7">  </span><span class="r8">97 </span><span class="r12">%\thanks{$^{1}$ M. Ernestus is on his own, free from the burden of </span><span class="r7">        </span>
+<span class="r7">     </span><span class="r12">institutions, searching for truth. {\tt\small maximilian@ernestus.de}}%</span><span class="r7">    </span>
+<span class="r7">  </span><span class="r8">98 </span><span class="r9">\thanks</span><span class="r11">{</span><span class="r19">$</span><span class="r11">^{</span><span class="r20">1</span><span class="r11">}</span><span class="r19">$</span><span class="r11">S. Fekete, M. Hemmer, and D. </span><span class="r13">Krupke</span><span class="r11"> are with the Computer </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r11">Science Department, TU </span><span class="r13">Braunschweig</span><span class="r11">, </span><span class="r13">Braunschweig</span><span class="r11">, Germany, which is also </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">where</span><span class="r7">                                                                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Krupke&#x27;</span><span class="r14">. Suggestions: Krupp,  Karaoke,  </span>
+<span class="r14">Kruger,  Gripe,  Crupper. Occurrences in text: </span><span class="r18">1</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Braunschweig&#x27;</span><span class="r14">. Suggestions: Brunswick,  </span>
+<span class="r14">Branchlike,  Brushwork,  Bronchitic,  Brunswick&#x27;s. Occurrences in text: </span><span class="r18">2</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Braunschweig&#x27;</span><span class="r14">. Suggestions: Brunswick,  </span>
+<span class="r14">Branchlike,  Brushwork,  Bronchitic,  Brunswick&#x27;s. Occurrences in text: </span><span class="r18">2</span>
+<span class="r7">  </span><span class="r8">99 </span><span class="r11">M. </span><span class="r13">Ernestus</span><span class="r11"> carried out his work. {</span><span class="r9">\tt\small</span><span class="r11"> maximilian@ernestus.de, </span><span class="r7">      </span>
+<span class="r7">     </span><span class="r11">s.fekete@tu-bs.de, mhsaar@gmail.com, d.krupke@tu-bs.de}}</span><span class="r12">%</span><span class="r7">                  </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Ernestus&#x27;</span><span class="r14">. Suggestions: Ernest&#x27;s,  </span>
+<span class="r14">Earnests,  Earnest&#x27;s,  Ernesto&#x27;s,  Ernst&#x27;s. Occurrences in text: </span><span class="r18">1</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">161 </span><span class="r12">%\input{05-DualGraphNavigation.tex}</span><span class="r7">                                       </span>
+<span class="r7">  </span><span class="r8">162 </span><span class="r12">%\input{05-Implementaion.tex}</span><span class="r7">                                             </span>
+<span class="r7">  </span><span class="r8">163 </span><span class="r9">\input</span><span class="r11">{05-Experiments.tex}</span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">164 </span><span class="r9">\input</span><span class="r11">{06-Conclusion.tex}</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">165 </span><span class="r9">\section*</span><span class="r11">{Acknowledgment}</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">166 </span><span class="r11">We thank James McLurkin and </span><span class="r13">SeoungKyou</span><span class="r11"> Lee for many helpful conversations.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;SeoungKyou&#x27;</span><span class="r14">. Suggestions: Senghor,  Snugly,</span>
+<span class="r14">Sejong,  Songbook,  Sung. Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">167 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">168 </span><span class="r9">\addtolength</span><span class="r11">{</span><span class="r9">\textheight</span><span class="r11">}{</span><span class="r13">-12cm</span><span class="r11">}   </span><span class="r12">% This command serves to balance the </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r12">column lengths</span><span class="r7">                                                            </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> Insert a space between the numerical value and the unit </span>
+<span class="r14">symbol.</span>
+
+<span class="r4">─────────────────────────────── </span><span class="r5">/</span><span class="r6">00-Abstract.tex</span><span class="r4"> ───────────────────────────────</span>
+
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r12">%Write a very short summary. Hardly any problem definition. </span><span class="r7">                </span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r12">%Main contributions. </span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r11">We present a number of powerful local mechanisms for maintaining</span><span class="r7">            </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r11">a dynamic swarm of robots with limited capabilities</span><span class="r7">                         </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r11">and information, in the presence of external forces and permanent node </span><span class="r7">     </span>
+<span class="r7">    </span><span class="r11">failures. </span><span class="r7">                                                                  </span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">We propose a set of local {</span><span class="r9">\em</span><span class="r11"> continuous</span><span class="r13">}</span><span class="r11"> algorithms that together produce </span>
+<span class="r7">    </span><span class="r11">a</span><span class="r7">                                                                           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+
+<span class="r4">───────────────────────────── </span><span class="r5">/</span><span class="r6">01-Introduction.tex</span><span class="r4"> ─────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r7">                                                                            </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r9">\section</span><span class="r11">{Introduction}</span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:introduction}</span><span class="r7">                                                    </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r12">%it would look weird. There&#x27;s actually written policy about this.}</span><span class="r7">          </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r7">                                                                            </span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">Consider a swarm of robots that needs to remain connected. </span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">7 </span><span class="r11">There is no central control and no knowledge of the overall environment. </span><span class="r7">   </span>
+<span class="r7">  </span><span class="r8">8 </span><span class="r11">This environment is hostile: The swarm is being pulled apart by external </span><span class="r7">   </span>
+<span class="r7">    </span><span class="r11">forces, </span><span class="r7">                                                                    </span>
+<span class="r7">  </span><span class="r8">9 </span><span class="r11">stretching it into a </span><span class="r13">number of different </span><span class="r11">directions, so it is in danger of </span><span class="r7"> </span>
+<span class="r7">    </span><span class="r11">breaking up.</span><span class="r7">                                                                </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">Proselint</span><span class="r15">]</span><span class="r14"> warning: Redundancy. Use </span><span class="r17">&#x27;number of&#x27;</span><span class="r14"> instead of </span><span class="r17">&#x27;number of </span>
+<span class="r17">different&#x27;</span><span class="r14">. Suggestion: number of</span>
+<span class="r7">  </span><span class="r8">10 </span><span class="r11">Individual robots are weak, with limited sensing, limited communication, </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">and limited connectivity;</span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8">11 </span><span class="r11">even worse, each robot&#x27;s expected lifetime is limited by random, permanent </span>
+<span class="r7">     </span><span class="r11">failures, which may </span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">12 </span><span class="r11">destroy </span><span class="r13">connectedness</span><span class="r11"> and functioning of the swarm as a whole. </span><span class="r7">            </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;connectedness&#x27;</span><span class="r14">. Suggestions: conceitedness,</span>
+<span class="r14">concreteness,  conceitedness&#x27;s,  concreteness&#x27;s. Occurrences in text: </span><span class="r18">2</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">17 </span><span class="r11">In this paper, we study swarm mechanisms that achieve these conflicting </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r11">goals.</span><span class="r7">                                                                     </span>
+<span class="r7">  </span><span class="r8">18 </span><span class="r11">Just like in the paper by Lee and McLurkin~</span><span class="r9">\cite</span><span class="r11">{lee2014distributed}, we </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">aim for algorithms that</span><span class="r7">                                                    </span>
+<span class="r7">  </span><span class="r8">19 </span><span class="r11">(1) maintain connectivity, (2) are fully distributed, and</span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">20 </span><span class="r11">(3) achieve cohesiveness, i.e., a well-coordinated behavior and</span><span class="r7">            </span>
+<span class="r7">  </span><span class="r8">21 </span><span class="r11">state for all robots.</span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">22 </span><span class="r11">While</span><span class="r13"> </span><span class="r9">\cite</span><span class="r11">{lee2014distributed} present a</span><span class="r7">                                  </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Non-breaking space </span><span class="r15">(</span><span class="r14">`~&#x27;</span><span class="r15">)</span><span class="r14"> should have been used.</span>
+<span class="r7">  </span><span class="r8">23 </span><span class="r11">set of rules (based on crucial elements such as boundary recognition and </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">boundary forces~</span><span class="r9">\cite</span><span class="r11">{McLurkin})</span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8">24 </span><span class="r11">that achieve a ``fat&#x27;&#x27;, well-rounded swarm shape even in the presence</span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">25 </span><span class="r11">of obstacles, this is no longer desirable in the presence of multiple </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">outside forces</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">26 </span><span class="r11">that pull the swarm apart, as illustrated in </span><span class="r7">                              </span>
+<span class="r7">     </span><span class="r11">Figure~</span><span class="r13">\ref{fig:experimentpicture}</span><span class="r11">. As a consequence,</span><span class="r7">                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">37 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">38 </span><span class="r9">\begin</span><span class="r11">{figure}[t]</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">39 </span><span class="r11">  </span><span class="r9">\centering</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">40 </span><span class="r11">  </span><span class="r9">\includegraphics</span><span class="r10">[width=0.9\columnwidth]</span><span class="r11">{./example}</span><span class="r7">                       </span>
+<span class="r7">  </span><span class="r8">41 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{A robust robot swarm emulating a Steiner tree between five </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">diverging attachment points.}</span><span class="r7">                                              </span>
+<span class="r7">  </span><span class="r8">42 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:experimentpicture}</span><span class="r7">                                            </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">43 </span><span class="r9">\end</span><span class="r11">{figure}</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">44 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">45 </span><span class="r9">\subsection</span><span class="r11">{Related Work</span><span class="r13">.</span><span class="r11">}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> Two consecutive dots</span>
+<span class="r7">  </span><span class="r8">46 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{ssec:related_work}</span><span class="r7">                                                  </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">47 </span><span class="r11">One of the earliest works on flocking is Reynold&#x27;s pioneering work</span><span class="r13"> </span><span class="r7">        </span>
+<span class="r7">     </span><span class="r9">\cite</span><span class="r11">{Reynolds}.</span><span class="r7">                                                           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Non-breaking space </span><span class="r15">(</span><span class="r14">`~&#x27;</span><span class="r15">)</span><span class="r14"> should have been used.</span>
+<span class="r7">  </span><span class="r8">48 </span><span class="r11">In recent years, a considerable number of aspects and objectives have </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">extended this perspective.</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">49 </span><span class="r11">We highlight only </span><span class="r13">some of the</span><span class="r11"> ensuing papers, showing how they differ from </span>
+<span class="r7">     </span><span class="r11">our perspective.</span><span class="r7">                                                           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> If the text is a generality, </span><span class="r17">&#x27;of the&#x27;</span><span class="r14"> is not necessary.</span>
+<span class="r7">  </span><span class="r8">50 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">51 </span><span class="r11">A basic component of flocking is volumetric control, as presented by </span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">52 </span><span class="r11">Spears~</span><span class="r9">\cite</span><span class="r11">{Spears}: robots use local potential field controllers (with </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">attractive and repulsive</span><span class="r7">                                                   </span>
+<span class="r7">  </span><span class="r8">53 </span><span class="r11">forces) for constructing a regular lattice with a corresponding base </span><span class="r7">      </span>
+<span class="r7">     </span><span class="r11">density~</span><span class="r9">\cite</span><span class="r11">{Olfati-Saber2006, andrew}.  </span><span class="r7">                                 </span>
+<span class="r7">  </span><span class="r8">54 </span><span class="r11">This does not necessarily preserve {</span><span class="r9">\em</span><span class="r11"> connectivity</span><span class="r13">}</span><span class="r11">~</span><span class="r9">\cite</span><span class="r11">{Balch, heyes, </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">Spears}. While the latter can be side-stepped</span><span class="r7">                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8">55 </span><span class="r11">by simply assuming that robots are always connected~</span><span class="r9">\cite</span><span class="r11">{hong}, we aim for</span>
+<span class="r7">     </span><span class="r11">connectivity</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">56 </span><span class="r11">as a requirement, which is vital in a fully distributed setting in which </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">deterministic recovery from disconnectedness</span><span class="r7">                               </span>
+<span class="r7">  </span><span class="r8">57 </span><span class="r11">may be impossible.</span><span class="r7">                                                         </span>
+<span class="r7">  </span><span class="r8">58 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">59 </span><span class="r13">Some of the</span><span class="r11"> ideas of Olfati-Saber~</span><span class="r9">\cite</span><span class="r11">{Olfati-Saber2006} form the basis of</span>
+<span class="r7">     </span><span class="r11">our work and are discussed</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> If the text is a generality, </span><span class="r17">&#x27;of the&#x27;</span><span class="r14"> is not necessary.</span>
+<span class="r7">  </span><span class="r8">60 </span><span class="r11">in more detail further down. In~</span><span class="r9">\cite</span><span class="r11">{Olfati-Saber2006} and other work, </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r11">however, robots do utilize </span><span class="r13">gobal</span><span class="r11"> information, </span><span class="r7">                             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;gobal&#x27;</span><span class="r14">. Suggestions: global,  goal,  </span>
+<span class="r14">gobble,  Gable,  gable. Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">61 </span><span class="r11">e.g., the position of a guide robot in a shared coordinate </span><span class="r7">                </span>
+<span class="r7">     </span><span class="r11">frame~</span><span class="r9">\cite</span><span class="r11">{Olfati-Saber2006, yao, hung, hung2} </span><span class="r7">                           </span>
+<span class="r7">  </span><span class="r8">62 </span><span class="r11">or environmental potential~</span><span class="r9">\cite</span><span class="r11">{Gazi}.</span><span class="r7">                                    </span>
+<span class="r7">  </span><span class="r8">63 </span><span class="r11">Instead of the potentials, Cortes~</span><span class="r13">et.~al.</span><span class="r11">~</span><span class="r9">\cite</span><span class="r11">{cortes} and </span><span class="r7">               </span>
+<span class="r7">     </span><span class="r13">Magnus</span><span class="r11">~</span><span class="r13">et.~al.</span><span class="r11">~</span><span class="r9">\cite</span><span class="r11">{magnus} </span><span class="r7">                                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> Misplaced dot.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Magnus&#x27;</span><span class="r14">. Suggestions: Magnums,  Magus,  </span>
+<span class="r14">Magnum,  Margins,  Ma gnus. Occurrences in text: </span><span class="r18">1</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> Misplaced dot.</span>
+<span class="r7">  </span><span class="r8">64 </span><span class="r11">used </span><span class="r13">Voronoi</span><span class="r11"> tessellation.</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Voronoi&#x27;</span><span class="r14">. Suggestions: Moroni,  Verona,  </span>
+<span class="r14">Boron,  Corona,  Moron. Occurrences in text: </span><span class="r18">1</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">70 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">71 </span><span class="r11">The final property is ``cohesiveness&#x27;&#x27; of the overall swarm: all robots</span><span class="r7">    </span>
+<span class="r7">  </span><span class="r8">72 </span><span class="r11">should maintain a unified state, such as desired distance or</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">73 </span><span class="r11">orientation; see~</span><span class="r9">\cite</span><span class="r11">{Olfati-Saber2006} for a formal definition. </span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">74 </span><span class="r11">As described in~</span><span class="r9">\cite</span><span class="r11">{McLurkin}, detecting and maintaining a swarm boundary</span>
+<span class="r7">     </span><span class="r11">is of particular</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">75 </span><span class="r11">importance for maintaining swarm cohesiveness and </span><span class="r13">connectedness</span><span class="r11">.</span><span class="r7">           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;connectedness&#x27;</span><span class="r14">. Suggestions: conceitedness,</span>
+<span class="r14">concreteness,  conceitedness&#x27;s,  concreteness&#x27;s. Occurrences in text: </span><span class="r18">2</span>
+<span class="r7">  </span><span class="r8">76 </span><span class="r11">This is based on and related to work in the field of </span><span class="r7">                      </span>
+<span class="r7">  </span><span class="r8">77 </span><span class="r11">wireless sensor networks (WSNs), which has considered many geometric </span><span class="r7">      </span>
+<span class="r7">     </span><span class="r11">settings in which a </span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">78 </span><span class="r11">large swarm of stationary nodes is faced with the task of achieving a </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">large-scale overall goal, </span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">79 </span><span class="r11">while the individual components can only operate locally, </span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">80 </span><span class="r11">based on limited individual capabilities and information </span><span class="r7">                  </span>
+<span class="r7">     </span><span class="r11">(</span><span class="r9">\cite</span><span class="r11">{Fekete2006},</span><span class="r13"> </span><span class="r9">\cite</span><span class="r11">{Kroller2006}). </span><span class="r7">                                  </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Non-breaking space </span><span class="r15">(</span><span class="r14">`~&#x27;</span><span class="r15">)</span><span class="r14"> should have been used.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">84 </span><span class="r11">algorithms for static sensor networks, including distributed boundary </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">detection.</span><span class="r7">                                                                 </span>
+<span class="r7">  </span><span class="r8">85 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">86 </span><span class="r11">Beyond the involved properties and paradigm, the overall goal for the swarm</span>
+<span class="r7">     </span><span class="r11">can also be described</span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">87 </span><span class="r11">as a distributed optimization problem: Maintain a generalized Steiner tree </span>
+<span class="r7">     </span><span class="r11">with limited edge lengths</span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8">88 </span><span class="r11">that connects a moving set of terminals.</span><span class="r7">                                   </span>
+<span class="r7">  </span><span class="r8">89 </span><span class="r11">To the best of our knowledge, only Hamann and Wörn </span><span class="r13">\</span><span class="r9">cite</span><span class="r11">{raey}</span><span class="r7">             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Non-breaking space </span><span class="r15">(</span><span class="r14">`~&#x27;</span><span class="r15">)</span><span class="r14"> should have been used.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">91 </span><span class="r11">For static terminals, they start with an exploratory network; as soon as </span><span class="r7">  </span>
+<span class="r7">  </span><span class="r8">92 </span><span class="r11">all terminals are connected, only best paths are kept and locally </span><span class="r7">         </span>
+<span class="r7">     </span><span class="r11">optimized.</span><span class="r7">                                                                 </span>
+<span class="r7">  </span><span class="r8">93 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">94 </span><span class="r11">Even in a centralized and static setting with full information, we have to </span>
+<span class="r7">     </span><span class="r11">deal with a generalization</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">95 </span><span class="r11">of the well-known NP-hard problem of finding a good Steiner </span><span class="r7">               </span>
+<span class="r7">     </span><span class="r11">tree~</span><span class="r9">\cite</span><span class="r11">{garey1977complexity}.</span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8">96 </span><span class="r11">More specifically, we are faced with the {</span><span class="r9">\em</span><span class="r11"> relay placement problem</span><span class="r13">}</span><span class="r11">: the</span>
+<span class="r7">     </span><span class="r11">input is a set of </span><span class="r7">                                                         </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8"> 97 </span><span class="r11">sensors and a number </span><span class="r19">$</span><span class="r11">r \ge </span><span class="r20">1</span><span class="r19">$</span><span class="r11">, the communication range of a relay. </span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8"> 98 </span><span class="r11">The objective is to place a minimum number of relays so that between every</span>
+<span class="r7">      </span><span class="r11">pair</span><span class="r7">                                                                      </span>
+<span class="r7">  </span><span class="r8"> 99 </span><span class="r11">of sensors is connected by a path </span><span class="r9">\emph</span><span class="r11">{through sensors and/or relays}.</span><span class="r7">   </span>
+<span class="r7">  </span><span class="r8">100 </span><span class="r11">The best known theoretical performance bound for this NP-hard problem was </span>
+<span class="r7">      </span><span class="r11">given by Efrat et al.~</span><span class="r9">\cite</span><span class="r11">{efg-iaarp-08},</span><span class="r7">                                </span>
+<span class="r7">  </span><span class="r8">101 </span><span class="r11">who presented a </span><span class="r19">$</span><span class="r13">3.11</span><span class="r19">$</span><span class="r11">-approximation algorithm; they also showed a </span><span class="r7">       </span>
+<span class="r7">      </span><span class="r11">worst-case lower bound of 3</span><span class="r7">                                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">107 </span><span class="r12">%while the rest of the exploratory network is removed. </span><span class="r7">                   </span>
+<span class="r7">  </span><span class="r8">108 </span><span class="r12">%Moreover, Saltenis \cite{journals/informaticaLT/Saltenis99} simulates </span><span class="r7">   </span>
+<span class="r7">  </span><span class="r8">109 </span><span class="r12">%idealized soap films in a serialized algorithm as a Steiner tree </span><span class="r7">        </span>
+<span class="r7">      </span><span class="r12">heuristic.</span><span class="r7">                                                                </span>
+<span class="r7">  </span><span class="r8">110 </span><span class="r12">%In his experiments it mostly produced close results within a linear time </span>
+<span class="r7">  </span><span class="r8">111 </span><span class="r12">%with respect to the number of terminals. </span><span class="r7">                                </span>
+<span class="r7">  </span><span class="r8">112 </span><span class="r11">More specific references are given in Section~</span><span class="r13">\ref{sec:alg:base}</span><span class="r11">, where </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r11">they are used as</span><span class="r7">                                                          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">115 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">116 </span><span class="r9">\subsection</span><span class="r11">{Our contribution}</span><span class="r7">                                             </span>
+<span class="r7">  </span><span class="r8">117 </span><span class="r11">We propose a set of local, self-stabilizing algorithms that maintain a </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">dynamic and robust network between leader robots.</span><span class="r7">                         </span>
+<span class="r7">  </span><span class="r8">118 </span><span class="r11">The algorithms ensure that the swarm adopts the directions of multiple </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">leaders, while preserving a uniform</span><span class="r7">                                       </span>
+<span class="r7">  </span><span class="r8">119 </span><span class="r11">thickness along the edges of the Steiner tree.</span><span class="r7">                            </span>
+<span class="r7">  </span><span class="r8">120 </span><span class="r11">We demonstrate the usefulness of this approach by simulations with a swarm</span>
+<span class="r7">      </span><span class="r11">of </span><span class="r13">400 </span><span class="r11">robots, five</span><span class="r7">                                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+
+<span class="r4">──────────────────────── </span><span class="r5">/</span><span class="r6">02-ModelAndPreliminaries.tex</span><span class="r4"> ─────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\section</span><span class="r11">{Preliminaries}</span><span class="r7">                                                     </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r12">%\paragraph{Problem Description.}</span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:problem_definition}</span><span class="r7">                                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r11">We consider a finite set of robots </span><span class="r19">$</span><span class="r11">\mathcal{R}</span><span class="r19">$</span><span class="r11">. A subset</span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r19">$</span><span class="r11">\mathcal{L}\subsetneq \mathcal{R}, |\mathcal{L}|\ll |\mathcal{R}|</span><span class="r19">$</span><span class="r11"> of them</span><span class="r7"> </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r11">is forced to pursue externally controlled trajectories. For simplicity,</span><span class="r7">     </span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">we call these {</span><span class="r9">\em</span><span class="r11"> leader robots</span><span class="r13">}</span><span class="r11">; note that they have no control over their</span>
+<span class="r7">    </span><span class="r11">trajectories,</span><span class="r7">                                                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">10 </span><span class="r11">the swarm connected, even in the presence of random robot failures and </span><span class="r7">    </span>
+<span class="r7">     </span><span class="r11">arbitrary leader movements.</span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">11 </span><span class="r12">%The communication between the robots is restricted by line of sight and </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">constrained to a limited range of only about 10 times the robot diameter.</span><span class="r7">  </span>
+<span class="r7">  </span><span class="r8">12 </span><span class="r11">Thus, the overall shape of the swarm should form a ``thick&#x27;&#x27; Steiner </span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">13 </span><span class="r11">tree among the leaders with the </span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8">14 </span><span class="r11">robots </span><span class="r19">$</span><span class="r11">\mathcal{R}\setminus \mathcal{L}</span><span class="r19">$</span><span class="r11"> evenly distributed along the </span><span class="r7">    </span>
+<span class="r7">     </span><span class="r11">edges, as shown </span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">15 </span><span class="r11">in Figure~</span><span class="r13">\ref{fig:experimentpicture}</span><span class="r11">.</span><span class="r7">                                     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">27 </span><span class="r12">%\paragraph{Robot Model.}</span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8">28 </span><span class="r11">Robots have the shape of circles; two of them are connected </span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">29 </span><span class="r11">when within a maximum distance and with an unobstructed line of sight.</span><span class="r7">     </span>
+<span class="r7">  </span><span class="r8">30 </span><span class="r11">Robots know the relative positions and orientations of their neighbors </span><span class="r7">    </span>
+<span class="r7">  </span><span class="r8">31 </span><span class="r11">and can communicate asynchronously.</span><span class="r7">                                        </span>
+<span class="r7">  </span><span class="r8">32 </span><span class="r11">Each robot has a unique ID</span><span class="r13">;</span><span class="r11"> leader IDs are easily made known to all others.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Intersentence spacing </span><span class="r15">(</span><span class="r14">`\@&#x27;</span><span class="r15">)</span><span class="r14"> should perhaps be used.</span>
+
+<span class="r4">────────────────────────────── </span><span class="r5">/</span><span class="r6">03-Algorithm.tex</span><span class="r4"> ───────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\section</span><span class="r11">{Algorithm}</span><span class="r7">                                                         </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg}</span><span class="r7">                                                             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r11">The proposed approach consists of a set of local self-stabilizing mechanisms</span>
+<span class="r7">    </span><span class="r11">that either detect a condition or induce a force.</span><span class="r7">                           </span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r11">The weighted sum of the induced forces determines the robot motion; input </span><span class="r7">  </span>
+<span class="r7">    </span><span class="r11">for the local mechanisms</span><span class="r7">                                                    </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r11">of the local state and environment of the robot, output is a value for </span><span class="r7">     </span>
+<span class="r7">    </span><span class="r11">current</span><span class="r7">                                                                     </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r11">robot motion. In principle, these mechanisms are continuous. </span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">(Our simulator described later updates at </span><span class="r13">60 </span><span class="r11">Hz.)</span><span class="r7">                           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">11 </span><span class="r12">%The algorithm is inspired by the Steiner tree approximations of soap films</span>
+<span class="r7">     </span><span class="r12">(\cite{Hwang1992}): %Remark: Hwang does only mention this model, but the </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">referred paper is not available and I do not like to cite blind.</span><span class="r7">           </span>
+<span class="r7">  </span><span class="r8">12 </span><span class="r12">%If a construction of two parallel plates with posts between them is put </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">into soapy water and pulled out again, a thin soap film between the posts </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r12">remains that approximates the Euclidean Steiner tree due to the boundary </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">tension.</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">13 </span><span class="r12">%The boundary tension minimizes the boundary length, which for constant </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r12">volume minimizes the edge lengths.</span><span class="r7">                                         </span>
+<span class="r7">  </span><span class="r8">14 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">15 </span><span class="r12">%Overview of whole algorithm</span><span class="r7">                                               </span>
+<span class="r7">  </span><span class="r8">16 </span><span class="r11">We first discuss the base behavior of the robots in </span><span class="r7">                       </span>
+<span class="r7">     </span><span class="r11">Section~</span><span class="r13">\ref{sec:alg:base}</span><span class="r11">; because it has trouble with generating a </span><span class="r7">      </span>
+<span class="r7">     </span><span class="r11">non-convex swarm shape, it </span><span class="r7">                                                </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">18 </span><span class="r11">This is subsequently improved by leader forces, stability improvement and </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">thickness contraction.</span><span class="r7">                                                     </span>
+<span class="r7">  </span><span class="r8">19 </span><span class="r12">%The active manipulation of this water droplet by leader robots is </span><span class="r7">        </span>
+<span class="r7">     </span><span class="r12">discussed in Section~\ref{sec:alg:leader}. </span><span class="r7">                                </span>
+<span class="r7">  </span><span class="r8">20 </span><span class="r12">%The produced Steiner tree like shape is made more stable by compression in</span>
+<span class="r7">     </span><span class="r12">Section~\ref{sec:alg:stability}.</span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8">21 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">22 </span><span class="r9">\subsection</span><span class="r11">{Base Behavior}</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">23 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg:base}</span><span class="r7">                                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">37 </span><span class="r11">and Demaine~</span><span class="r9">\cite</span><span class="r11">{McLurkin}, which determines if a robot lies</span><span class="r7">              </span>
+<span class="r7">  </span><span class="r8">38 </span><span class="r11">on the boundary and also identifies small holes by using the average angle.</span>
+<span class="r7">  </span><span class="r8">39 </span><span class="r11">In principle, the method allows the robots to distinguish exterior and</span><span class="r7">     </span>
+<span class="r7">  </span><span class="r8">40 </span><span class="r11">interior boundaries and determine their size, but the limited precision and</span>
+<span class="r7">     </span><span class="r11">the</span><span class="r7">                                                                        </span>
+<span class="r7">  </span><span class="r8">41 </span><span class="r11">convergence time limit this usage, so we only use it to detect and ignore </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">small holes.</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">42 </span><span class="r11">Doing the latter is crucial for thickness and density computation, see </span><span class="r7">    </span>
+<span class="r7">     </span><span class="r11">Section~</span><span class="r13">\ref{sec:alg:stability}</span><span class="r11">.</span><span class="r7">                                           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">48 </span><span class="r9">\end</span><span class="r11">{itemize}</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">49 </span><span class="r12">%\todo[inline]{More Details}</span><span class="r7">                                               </span>
+<span class="r7">  </span><span class="r8">50 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">51 </span><span class="r12">%Description of the result of the base swarm</span><span class="r7">                               </span>
+<span class="r7">  </span><span class="r8">52 </span><span class="r11">The base swarm is similar to a water droplet and converges towards a circle</span>
+<span class="r7">     </span><span class="r11">after some time.</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">53 </span><span class="r11">The robots are </span><span class="r13">well connected</span><span class="r11"> to the swarm and there are no attachments, as</span>
+<span class="r7">     </span><span class="r11">can be seen in Figure~</span><span class="r13">\ref{fig:baseswarm}</span><span class="r11">.</span><span class="r7">                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> This word is normally spelled with a hyphen.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">61 </span><span class="r9">\begin</span><span class="r11">{subfigure}[b]{0.2</span><span class="r9">\textwidth</span><span class="r11">}</span><span class="r7">                                        </span>
+<span class="r7">  </span><span class="r8">62 </span><span class="r11">    </span><span class="r9">\includegraphics</span><span class="r10">[width=\textwidth]</span><span class="r11">{./baseswarm}</span><span class="r7">                        </span>
+<span class="r7">  </span><span class="r8">63 </span><span class="r11">    </span><span class="r9">\caption</span><span class="r11">{After}</span><span class="r7">                                                        </span>
+<span class="r7">  </span><span class="r8">64 </span><span class="r9">\end</span><span class="r11">{subfigure}</span><span class="r7">                                                            </span>
+<span class="r7">  </span><span class="r8">65 </span><span class="r9">\caption</span><span class="r11">{The base swarm forms the swarm similar to a water drop}</span><span class="r7">           </span>
+<span class="r7">  </span><span class="r8">66 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{fig:baseswarm}</span><span class="r7">                                                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">75 </span><span class="r11">  </span><span class="r12">%\vspace{-8mm}</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">76 </span><span class="r12">%\end{wrapfigure}</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">77 </span><span class="r12">%</span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">78 </span><span class="r11">However, for diverging leaders the base behavior (movement consensus by </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r11">flocking) </span><span class="r7">                                                                 </span>
+<span class="r7">  </span><span class="r8">79 </span><span class="r11">without any other forces rapidly loses connectivity when the target density</span>
+<span class="r7">     </span><span class="r11">no longer suffices to cover the convex hull of leader robots. </span><span class="r7">             </span>
+<span class="r7">  </span><span class="r8">80 </span><span class="r11">Figure~</span><span class="r13">\ref{fig:baseleader}</span><span class="r11"> depicts a situation in which the swarm is about</span>
+<span class="r7">     </span><span class="r11">to lose convexity.</span><span class="r13">   </span><span class="r11"> </span><span class="r7">                                                     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">Proselint</span><span class="r15">]</span><span class="r14"> warning: More than two spaces after the period; use </span><span class="r18">1</span><span class="r14"> or </span><span class="r18">2</span><span class="r14">. </span>
+<span class="r14">Suggestion: </span><span class="r22">None</span>
+<span class="r7">  </span><span class="r8">81 </span><span class="r11">For stronger control and more variable shapes, leader forces are </span><span class="r7">          </span>
+<span class="r7">     </span><span class="r11">introduced.</span><span class="r7">                                                                </span>
+<span class="r7">  </span><span class="r8">82 </span><span class="r9">\begin</span><span class="r11">{figure}[tbh]</span><span class="r7">                                                        </span>
+<span class="r7">  </span><span class="r8">83 </span><span class="r11">    </span><span class="r9">\centering</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">84 </span><span class="r11">    </span><span class="r9">\includegraphics</span><span class="r10">[width=0.8\columnwidth]</span><span class="r11">{./convex2}</span><span class="r7">                     </span>
+<span class="r7">  </span><span class="r8">85 </span><span class="r11">    </span><span class="r9">\caption</span><span class="r11">{The base behavior without leader forces has trouble with </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">staying connected after losing convexity.}</span><span class="r7">                                 </span>
+<span class="r7">  </span><span class="r8">86 </span><span class="r13"> </span><span class="r11">   </span><span class="r9">\label</span><span class="r11">{fig:baseleader}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">87 </span><span class="r9">\end</span><span class="r11">{figure}</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">88 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">89 </span><span class="r9">\subsection</span><span class="r11">{Leader Forces}</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">90 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg:leader}</span><span class="r7">                                                     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8"> 95 </span><span class="r11">Therefore, each robot needs to find an appropriate balance between the </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">influence of different leaders.</span><span class="r7">                                           </span>
+<span class="r7">  </span><span class="r8"> 96 </span><span class="r12">%Merging of leader forces </span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8"> 97 </span><span class="r11">For </span><span class="r19">$</span><span class="r11">\ell\in\mathcal{L}</span><span class="r19">$</span><span class="r11">, let </span><span class="r19">$</span><span class="r11">c_\ell: \mathcal{R}\rightarrow\mathbb{R}^</span><span class="r20">2</span><span class="r19">$</span>
+<span class="r7">      </span><span class="r11">be the force</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8"> 98 </span><span class="r11">on a specific robot and let </span><span class="r19">$</span><span class="r11">d_\ell:\mathcal{R}\rightarrow \mathbb{N}</span><span class="r19">$</span><span class="r11"> be </span>
+<span class="r7">      </span><span class="r11">its distance to </span><span class="r19">$</span><span class="r11">\ell</span><span class="r19">$</span><span class="r11">. </span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8"> 99 </span><span class="r11">The leader forces on robot </span><span class="r19">$</span><span class="r11">r</span><span class="r19">$</span><span class="r11"> are combined as follows:</span><span class="r7">                   </span>
+<span class="r7">  </span><span class="r8">100 </span><span class="r19">\[</span><span class="r11"> \sum_{\ell\in \leaderset}c_\ell</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r11">\frac{d_\ell</span><span class="r23">(</span><span class="r11">r</span><span class="r13">)</span><span class="r11">^{</span><span class="r23">-</span><span class="r20">1</span><span class="r11">}}{\sum_{\ell&#x27;\in </span>
+<span class="r7">      </span><span class="r11">\leaderset}d_{\ell&#x27;}</span><span class="r23">(</span><span class="r11">r</span><span class="r13">)</span><span class="r11">^{</span><span class="r23">-</span><span class="r20">1</span><span class="r11">}}.</span><span class="r19">\]</span><span class="r7">                                          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: You should enclose the previous parenthesis with `</span><span class="r15">{}</span><span class="r14">&#x27;.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: You should enclose the previous parenthesis with `</span><span class="r15">{}</span><span class="r14">&#x27;.</span>
+<span class="r7">  </span><span class="r8">101 </span><span class="r11">See Figure~</span><span class="r13">\ref{fig:leadersmoothing}</span><span class="r11"> for an illustration.</span><span class="r7">                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">109 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">110 </span><span class="r9">\begin</span><span class="r11">{figure}[tbh] </span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">111 </span><span class="r11">  </span><span class="r9">\centering</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">112 </span><span class="r11">  </span><span class="r9">\includegraphics</span><span class="r10">[width=0.45\textwidth]</span><span class="r11">{./linearLeader}</span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">113 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{A one-dimensional scenario with two leaders (red) moving in </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">opposite directions.}</span><span class="r7">                                                     </span>
+<span class="r7">  </span><span class="r8">114 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:leadersmoothing}</span><span class="r7">                                             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">135 </span><span class="r11">On the other hand, moving towards the leader causes a deformation of the </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">swarm</span><span class="r7">                                                                     </span>
+<span class="r7">  </span><span class="r8">136 </span><span class="r11">and can be used to control its shape when multiple leaders are used, but</span><span class="r7">  </span>
+<span class="r7">  </span><span class="r8">137 </span><span class="r11">regions close to the leaders suffer from ``compression&#x27;&#x27;, which can be </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">harmful.  A</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">138 </span><span class="r11">combination of both methods with a smooth transition between velocity </span><span class="r7">    </span>
+<span class="r7">      </span><span class="r11">matching</span><span class="r7">                                                                  </span>
+<span class="r7">  </span><span class="r8">139 </span><span class="r11">close to the leaders and leader pursuit when further away (see</span><span class="r7">            </span>
+<span class="r7">  </span><span class="r8">140 </span><span class="r11">Figure~</span><span class="r13">\ref{fig:leaderforce}</span><span class="r11">) has a positive influence in the context of </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">multiple leaders,</span><span class="r7">                                                         </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">142 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">143 </span><span class="r9">\begin</span><span class="r11">{figure}[tbh] </span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">144 </span><span class="r11">  </span><span class="r9">\centering</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">145 </span><span class="r11">  </span><span class="r9">\includegraphics</span><span class="r10">[width=0.4\textwidth]</span><span class="r11">{./sigmoidal}</span><span class="r7">                      </span>
+<span class="r7">  </span><span class="r8">146 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{With increasing distance to the leader, the effect shifts from </span>
+<span class="r7">      </span><span class="r11">velocity matching to leader pursuit.}</span><span class="r7">                                     </span>
+<span class="r7">  </span><span class="r8">147 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:leaderforce}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">174 </span><span class="r12">%Assuming that this neighbor points into the direction of the leader, we </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r12">use the direction to the neighbor to smooth the leader&#x27;s direction.</span><span class="r7">       </span>
+<span class="r7">  </span><span class="r8">175 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">176 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">177 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">178 </span><span class="r12">%Help Signal</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">179 </span><span class="r13">Additionally</span><span class="r11"> we provide leaders with too few neighbors with an attraction </span>
+<span class="r7">      </span><span class="r11">force, so they do not lose connection to the swarm.</span><span class="r7">                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> A comma may be missing after the conjunctive/linking adverb </span>
+<span class="r17">&#x27;Additionally&#x27;</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">180 </span><span class="r11">This attraction spreads over some distance, but decreases exponentially.</span><span class="r7">  </span>
+<span class="r7">  </span><span class="r8">181 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">182 </span><span class="r12">%\todo[inline]{Maybe add some missing details}</span><span class="r7">                            </span>
+<span class="r7">  </span><span class="r8">183 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">184 </span><span class="r9">\subsection</span><span class="r11">{Stability Improvement}</span><span class="r7">                                        </span>
+<span class="r7">  </span><span class="r8">185 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg:stability}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">191 </span><span class="r11">in effect, this works similar to compression stockings.</span><span class="r7">                   </span>
+<span class="r7">  </span><span class="r8">192 </span><span class="r11">In the following, we give a heuristic for thickness computation and </span><span class="r7">      </span>
+<span class="r7">      </span><span class="r11">compression. </span><span class="r12">%in Section~\ref{sec:alg:stability:thickness}.</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">193 </span><span class="r11">In order to let the flocking algorithm handle this compression without </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">destroying the regular distribution, </span><span class="r7">                                     </span>
+<span class="r7">  </span><span class="r8">194 </span><span class="r12">%\todo{frag...?? Wrong word, isn&#x27;t it??} </span><span class="r7">                                 </span>
+<span class="r7">  </span><span class="r8">195 </span><span class="r11">we sketch a density distribution heuristic later in this Section. </span><span class="r7">        </span>
+<span class="r7">      </span><span class="r12">%~\ref{sec:alg:stability:density}.</span><span class="r7">                                        </span>
+<span class="r7">  </span><span class="r8">196 </span><span class="r11">A comparison of a swarm with and without the stability improvement can be </span>
+<span class="r7">      </span><span class="r11">seen in Figure~</span><span class="r13">\ref{fig:comparison}</span><span class="r11">;</span><span class="r7">                                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">197 </span><span class="r11">Figure~</span><span class="r13">\ref{fig:comparison2}</span><span class="r11"> shows a comparison for the same scenario with</span>
+<span class="r7">      </span><span class="r11">failure rate </span><span class="r19">$</span><span class="r13">0.008</span><span class="r19">$</span><span class="r11"> per second and robot.</span><span class="r7">                                </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">219 </span><span class="r11">  </span><span class="r12">%\includegraphics[width=0.45\textwidth]{./overview.pdf}</span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">220 </span><span class="r11">  </span><span class="r12">%\resizebox{0.8\textwidth}{!}{\input{./overview.eps_tex}}</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">221 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{A comparison of strategies for the same example, for a swarm </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r11">with </span><span class="r19">$</span><span class="r11">n</span><span class="r23">=</span><span class="r20">400</span><span class="r19">$</span><span class="r11"> and failure rate </span><span class="r19">$</span><span class="r20">0</span><span class="r19">$</span><span class="r11">. As indicated, columns correspond to </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">strategies {</span><span class="r9">\sc</span><span class="r11"> Base}, {</span><span class="r9">\sc</span><span class="r11"> Leader}, and {</span><span class="r9">\sc</span><span class="r11"> All}.</span><span class="r7">                       </span>
+<span class="r7">  </span><span class="r8">222 </span><span class="r11">Rows show the swarms at times </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">200</span><span class="r19">$</span><span class="r11">, </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">2000</span><span class="r19">$</span><span class="r11">, </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">3000</span><span class="r19">$</span><span class="r11">, </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">5000</span><span class="r19">$</span><span class="r11">, </span><span class="r7">     </span>
+<span class="r7">      </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">7600</span><span class="r19">$</span><span class="r11">, </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">12</span><span class="r11">,</span><span class="r20">000</span><span class="r19">$</span><span class="r11">, with 60 steps per simulated second. When a swarm is </span>
+<span class="r7">      </span><span class="r11">no longer shown, it has become disconnected</span><span class="r7">                               </span>
+<span class="r7">  </span><span class="r8">223 </span><span class="r11">right after the previous time step.}</span><span class="r7">                                      </span>
+<span class="r7">  </span><span class="r8">224 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:comparison}</span><span class="r7">                                                  </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">233 </span><span class="r11"> </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">4200</span><span class="r19">$</span><span class="r9">\hspace*</span><span class="r11">{-3cm} &amp; </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">4400</span><span class="r19">$</span><span class="r11"> </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r7">         </span>
+<span class="r7">      </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">5400</span><span class="r11">\hspace</span><span class="r23">*</span><span class="r11">{</span><span class="r23">-</span><span class="r20">3</span><span class="r11">cm}</span><span class="r19">$</span><span class="r11"> &amp; </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">5600</span><span class="r19">$</span><span class="r11"> </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r9">\\</span><span class="r7">                        </span>
+<span class="r7">  </span><span class="r8">234 </span><span class="r9">\vspace*</span><span class="r11">{-1.5cm}</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">235 </span><span class="r11"> </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r9">\swarme</span><span class="r11">{4200}{Leader} </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r7">                     </span>
+<span class="r7">      </span><span class="r9">\swarme</span><span class="r11">{final}{Leader} </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r9">\\</span><span class="r7">   </span>
+<span class="r7">  </span><span class="r8">236 </span><span class="r11"> </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r9">\swarme</span><span class="r11">{4200}{All} </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r9">\swarme</span><span class="r11">{4400}{All} </span><span class="r7">     </span>
+<span class="r7">      </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r9">\swarme</span><span class="r11">{5400}{All} </span><span class="r9">\hspace*</span><span class="r11">{-3cm}&amp; </span><span class="r9">\swarme</span><span class="r11">{final}{All} </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r9">\hspace*</span><span class="r11">{-3cm}</span><span class="r9">\\</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">237 </span><span class="r9">\end</span><span class="r11">{tabular} </span><span class="r7">                                                            </span>
+<span class="r7">  </span><span class="r8">238 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{A comparison of strategies for the example from </span><span class="r7">               </span>
+<span class="r7">      </span><span class="r11">Figure~</span><span class="r13">\ref{fig:comparison}</span><span class="r11">, for a swarm with </span><span class="r19">$</span><span class="r11">n</span><span class="r23">=</span><span class="r20">400</span><span class="r19">$</span><span class="r11">, with 60 steps per </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">simulated second and failure rate </span><span class="r19">$</span><span class="r20">0</span><span class="r11">.</span><span class="r20">008</span><span class="r19">$</span><span class="r11"> per second. </span><span class="r7">                    </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">239 </span><span class="r11">The upper line shows the swarm with strategy {</span><span class="r9">\sc</span><span class="r11"> Leader}, the lower shows</span>
+<span class="r7">      </span><span class="r11">strategy {</span><span class="r9">\sc</span><span class="r11"> All}. As shown, the swarm loses connectivity at </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">4400</span><span class="r19">$</span><span class="r11"> </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">({</span><span class="r9">\sc</span><span class="r11"> Leader}),</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">240 </span><span class="r11">or </span><span class="r19">$</span><span class="r11">T</span><span class="r23">=</span><span class="r20">5600</span><span class="r19">$</span><span class="r11"> ({</span><span class="r9">\sc</span><span class="r11"> All}).}</span><span class="r7">                                                 </span>
+<span class="r7">  </span><span class="r8">241 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:comparison2}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">242 </span><span class="r9">\end</span><span class="r11">{figure*}</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">243 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">244 </span><span class="r9">\paragraph</span><span class="r11">{Thickness Contraction}</span><span class="r7">                                         </span>
+<span class="r7">  </span><span class="r8">245 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg:stability:thickness}</span><span class="r7">                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">246 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">247 </span><span class="r12">%Thickness</span><span class="r7">                                                                </span>
+<span class="r7">  </span><span class="r8">248 </span><span class="r11">We define the local thickness at a robot as the radius of the largest hop </span>
+<span class="r7">      </span><span class="r11">circle containing it.</span><span class="r7">                                                     </span>
+<span class="r7">  </span><span class="r8">249 </span><span class="r11">A hop circle of radius~</span><span class="r19">$</span><span class="r11">h</span><span class="r19">$</span><span class="r11"> with robot~</span><span class="r19">$</span><span class="r11">c</span><span class="r19">$</span><span class="r11"> as circle center is the set of </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">all robots with a hop count</span><span class="r7">                                               </span>
+<span class="r7">  </span><span class="r8">250 </span><span class="r19">$</span><span class="r11">\leq h</span><span class="r19">$</span><span class="r11"> to </span><span class="r19">$</span><span class="r11">c</span><span class="r19">$</span><span class="r11">; only robots with distance equal to </span><span class="r19">$</span><span class="r11">h</span><span class="r19">$</span><span class="r11"> may be on the </span><span class="r7">    </span>
+<span class="r7">      </span><span class="r11">boundary.</span><span class="r7">                                                                 </span>
+<span class="r7">  </span><span class="r8">251 </span><span class="r11">An example is highlighted in blue in Figure~</span><span class="r13">\ref{fig:thickness}</span><span class="r11">.</span><span class="r7">          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">262 </span><span class="r9">\begin</span><span class="r11">{figure}</span><span class="r7">                                                            </span>
+<span class="r7">  </span><span class="r8">263 </span><span class="r11">    </span><span class="r9">\centering</span><span class="r7">                                                            </span>
+<span class="r7">  </span><span class="r8">264 </span><span class="r11">    </span><span class="r9">\includegraphics</span><span class="r10">[width=0.45\textwidth]</span><span class="r11">{./thickness}</span><span class="r7">                   </span>
+<span class="r7">  </span><span class="r8">265 </span><span class="r11">    </span><span class="r9">\caption</span><span class="r11">{Thickness determination (</span><span class="r19">$</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)/</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)/</span><span class="r11">h</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11">) </span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">266 </span><span class="r11">for a limb part. The red edges fulfill the Gabriel graph condition. A </span><span class="r7">    </span>
+<span class="r7">      </span><span class="r11">largest </span><span class="r9">\emph</span><span class="r11">{hop circle} is marked in blue.}</span><span class="r7">                             </span>
+<span class="r7">  </span><span class="r8">267 </span><span class="r13"> </span><span class="r11">   </span><span class="r9">\label</span><span class="r11">{fig:thickness}</span><span class="r7">                                                 </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">274 </span><span class="r11">For this heuristic evaluation of the thickness~</span><span class="r19">$</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> of a robot~</span><span class="r19">$</span><span class="r11">r</span><span class="r19">$</span><span class="r11">, we </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">need the hop distance~</span><span class="r19">$</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> from the boundary</span><span class="r7">                            </span>
+<span class="r7">  </span><span class="r8">275 </span><span class="r11">and the circle center distance~</span><span class="r19">$</span><span class="r11">h</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11">.</span><span class="r7">                                    </span>
+<span class="r7">  </span><span class="r8">276 </span><span class="r11">Computing the hop distance to the boundary for each robot can easily be </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r11">achieved</span><span class="r7">                                                                  </span>
+<span class="r7">  </span><span class="r8">277 </span><span class="r11">by setting </span><span class="r19">$</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> to 0 for all robots on the boundary, while all others </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r11">take the minimum of their neighbors plus one, as follows</span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">278 </span><span class="r19">\[</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)=</span><span class="r11">\begin{cases} </span><span class="r20">0</span><span class="r11"> &amp; \text{$r$ on boundary}\\\min\{b</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)+</span><span class="r20">1</span><span class="r11">\mid n \in </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r11">N&#x27;_r\} &amp; \text{else}\end{cases}</span><span class="r19">\]</span><span class="r7">                                         </span>
+<span class="r7">  </span><span class="r8">279 </span><span class="r11">Small holes, that occur frequently but also vanish quickly, are excluded </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">from the boundary, otherwise the value can become too </span><span class="r13">instable</span><span class="r11">.</span><span class="r7">           </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;instable&#x27;</span><span class="r14">. Suggestions: unstable,  </span>
+<span class="r14">unstably,  in stable,  in-stable,  ins table. Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">280 </span><span class="r11">The thickness </span><span class="r19">$</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> is determined as the maximum </span><span class="r19">$</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> within some range</span>
+<span class="r7">      </span><span class="r19">$</span><span class="r11">h</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11">, as follows.</span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">281 </span><span class="r19">\[</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r11">:</span><span class="r23">=</span><span class="r11">\max \{ \{b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r11">\} \cup \{t</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)</span><span class="r11">\mid n\in N&#x27;_r \wedge t</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)+</span><span class="r11">\lambda </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">\geq h</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)</span><span class="r11">\}\},</span><span class="r19">\]</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">282 </span><span class="r11">where </span><span class="r19">$</span><span class="r11">\lambda\in \mathbb{N}</span><span class="r19">$</span><span class="r11"> is a small constant (e.g. </span><span class="r19">$</span><span class="r11">\lambda</span><span class="r23">=</span><span class="r20">2</span><span class="r19">$</span><span class="r11">) that </span>
+<span class="r7">      </span><span class="r11">tackles the problem of irregular boundaries.</span><span class="r7">                              </span>
+<span class="r7">  </span><span class="r8">283 </span><span class="r11">If </span><span class="r19">$</span><span class="r11">r</span><span class="r19">$</span><span class="r11"> is a circle center (</span><span class="r19">$</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)=</span><span class="r11">b</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11">), then the circle center </span><span class="r7">          </span>
+<span class="r7">      </span><span class="r11">distance~</span><span class="r19">$</span><span class="r11">h</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r19">$</span><span class="r11"> is </span><span class="r19">$</span><span class="r20">0</span><span class="r19">$</span><span class="r11">. </span><span class="r7">                                                  </span>
+<span class="r7">  </span><span class="r8">284 </span><span class="r11">Otherwise, </span><span class="r19">\[</span><span class="r11">h</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r11">:</span><span class="r23">=</span><span class="r11">\min\{ h</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)+</span><span class="r20">1</span><span class="r11"> \mid n\in N&#x27;_r\wedge t</span><span class="r23">(</span><span class="r11">n</span><span class="r23">)=</span><span class="r11">t</span><span class="r23">(</span><span class="r11">r</span><span class="r23">)</span><span class="r11"> \}</span><span class="r19">\]</span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">285 </span><span class="r11">An example is shown in Figure~</span><span class="r13">\ref{fig:thickness}</span><span class="r11">.</span><span class="r7">                        </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">296 </span><span class="r12">%Now that we have determined the thickness $t(r)$ we can induce a </span><span class="r7">        </span>
+<span class="r7">      </span><span class="r12">thickness dependent compression force on boundary robots.</span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">297 </span><span class="r12">%Each boundary robot presses against the neighbor from which it obtained </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r12">its $h(r)$ value with a force linear to the thickness value.</span><span class="r7">              </span>
+<span class="r7">  </span><span class="r8">298 </span><span class="r12">%Boundaries of small holes are excluded again and boundaries of large </span><span class="r7">    </span>
+<span class="r7">      </span><span class="r12">holes are only kept as we can not distinguish them reliable enough from </span><span class="r7">  </span>
+<span class="r7">      </span><span class="r12">the exterior boundary.</span><span class="r7">                                                    </span>
+<span class="r7">  </span><span class="r8">299 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">300 </span><span class="r9">\paragraph</span><span class="r11">{Density}</span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">301 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:alg:stability:density}</span><span class="r7">                                         </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">302 </span><span class="r12">%Intro</span><span class="r7">                                                                    </span>
+<span class="r7">  </span><span class="r8">303 </span><span class="r11">The local density of a robot refers to the number of neighbors in relation</span>
+<span class="r7">      </span><span class="r11">to its observable area as shown in Figure~</span><span class="r13">\ref{fig:observablearea}</span><span class="r11">.</span><span class="r7">       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">305 </span><span class="r11">By introducing an attraction to low and repulsion from high local density </span>
+<span class="r7">      </span><span class="r11">neighbors, the overall swarm density is maintained at a specific </span><span class="r7">         </span>
+<span class="r7">      </span><span class="r11">homogeneous level.</span><span class="r7">                                                        </span>
+<span class="r7">  </span><span class="r8">306 </span><span class="r9">\begin</span><span class="r11">{figure}[tbh]</span><span class="r7">                                                       </span>
+<span class="r7">  </span><span class="r8">307 </span><span class="r11">  </span><span class="r9">\centering</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">308 </span><span class="r11">  </span><span class="r9">\includegraphics</span><span class="r10">[width=0.7\columnwidth]</span><span class="r11">{./observablearea}</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">309 </span><span class="r11">  </span><span class="r9">\caption</span><span class="r11">{The observable area of a robot. The impact of hidden robots </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">intersecting this area is ignored.}</span><span class="r7">                                       </span>
+<span class="r7">  </span><span class="r8">310 </span><span class="r11"> </span><span class="r13"> </span><span class="r9">\label</span><span class="r11">{fig:observablearea}</span><span class="r7">                                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">313 </span><span class="r12">%\begin{wrapfigure}{r}{0.2\textwidth}</span><span class="r7">                                     </span>
+<span class="r7">  </span><span class="r8">314 </span><span class="r12">%  \vspace{-6mm}</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">315 </span><span class="r12">%  \includegraphics[width=0.20\textwidth]{./observablearea}</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">316 </span><span class="r12">%  \vspace{-9mm}</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">317 </span><span class="r12">%\end{wrapfigure}</span><span class="r7">                                                         </span>
+<span class="r7">  </span><span class="r8">318 </span><span class="r11">It is determined by dividing the number of neighbors by the roughly </span><span class="r7">      </span>
+<span class="r7">      </span><span class="r11">calculated observable area, cf.~Figure~</span><span class="r13">\ref{fig:observablearea}</span><span class="r11">. </span><span class="r7">         </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">328 </span><span class="r11">For overall balance, we assume its space to be the average space between </span><span class="r7"> </span>
+<span class="r7">      </span><span class="r11">two clockwise sequential neighbors that do not form an exterior area.</span><span class="r7">     </span>
+<span class="r7">  </span><span class="r8">329 </span><span class="r11">A robot can lie on multiple boundaries or multiple times on the same; </span><span class="r7">    </span>
+<span class="r7">      </span><span class="r11">however, this is a sign of a sparse distribution, so we only disregard the</span>
+<span class="r7">      </span><span class="r11">largest one.</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">330 </span><span class="r11">All further exterior areas are fully included and thus lower the density.</span><span class="r7"> </span>
+<span class="r7">  </span><span class="r8">331 </span><span class="r7">                                                                          </span>
+<span class="r7">  </span><span class="r8">332 </span><span class="r12">%Averaging - NEW</span><span class="r7">                                                          </span>
+<span class="r7">  </span><span class="r8">333 </span><span class="r11">The calculated observable area is sometimes not quite accurate, as the </span><span class="r7">   </span>
+<span class="r7">      </span><span class="r11">local knowledge is </span><span class="r13">very </span><span class="r11">limited.</span><span class="r7">                                          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">Proselint</span><span class="r15">]</span><span class="r14"> warning: Substitute </span><span class="r17">&#x27;damn&#x27;</span><span class="r14"> every time you&#x27;re inclined to write </span>
+<span class="r17">&#x27;very&#x27;</span><span class="r14">; your editor will delete it and the writing will be just as it should be.</span>
+<span class="r14">Suggestion: </span><span class="r22">None</span>
+<span class="r7">  </span><span class="r8">334 </span><span class="r11">Small </span><span class="r13">heterogeneities</span><span class="r11"> can let the values vary strongly.</span><span class="r7">                   </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;heterogeneities&#x27;</span><span class="r14">. Suggestions: </span>
+<span class="r14">heterogeneity&#x27;s,  heterogeneity,  heterogeneous,  hydrogenates. Occurrences in </span>
+<span class="r14">text: </span><span class="r18">1</span>
+
+<span class="r4">─────────────────────────────── </span><span class="r5">/</span><span class="r6">04-Analysis.tex</span><span class="r4"> ───────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\section</span><span class="r11">{An Analytic Result}</span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:theo}</span><span class="r7">                                                            </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r7">                                                                            </span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r11">Before describing the performance of our approach simulation results, we </span><span class="r7">   </span>
+<span class="r7">    </span><span class="r11">discuss</span><span class="r7">                                                                     </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r11">a related result from theoretical computer science, showing the analytic </span><span class="r7">   </span>
+<span class="r7">    </span><span class="r11">difficulty</span><span class="r7">                                                                  </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r11">of our underlying scenario, even for a centralized, static offline scenario </span>
+<span class="r7">    </span><span class="r11">without node failures.</span><span class="r7">                                                      </span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">In this setting, Efrat et al.~</span><span class="r9">\cite</span><span class="r11">{efg-iaarp-08} considered the {</span><span class="r9">\em</span><span class="r11"> relay </span>
+<span class="r7">    </span><span class="r11">placement problem},</span><span class="r7">                                                         </span>
+<span class="r7">  </span><span class="r8">7 </span><span class="r11">in which a given, static set of transmitters (called {</span><span class="r9">\em</span><span class="r11"> terminals</span><span class="r13">}</span><span class="r11">) with </span><span class="r7"> </span>
+<span class="r7">    </span><span class="r11">limited communication</span><span class="r7">                                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8">8 </span><span class="r11">range must be connected by a set of more powerful {</span><span class="r9">\em</span><span class="r11"> relays</span><span class="r13">}</span><span class="r11">; the </span><span class="r7">        </span>
+<span class="r7">    </span><span class="r11">objective is</span><span class="r7">                                                                </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8"> 9 </span><span class="r11">to minimize the number of these relays for achieving connectivity. Clearly,</span>
+<span class="r7">     </span><span class="r11">this corresponds</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">10 </span><span class="r11">directly to the achievable scaling factor for which a connected </span><span class="r13">arrangment</span><span class="r11"> </span>
+<span class="r7">     </span><span class="r11">is possible:</span><span class="r7">                                                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;arrangment&#x27;</span><span class="r14">. Suggestions: arrangement,  </span>
+<span class="r14">arraignment,  arrangements,  arrangement&#x27;s,  rearrangement. Occurrences in text:</span>
+<span class="r18">1</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">16 </span><span class="r11">        </span><span class="r9">\includegraphics</span><span class="r10">[width=0.72\textwidth]</span><span class="r11">{./screamshot}</span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">17 </span><span class="r11">        </span><span class="r12">%\input{./screamshot.png}%\\.performances.tex}</span><span class="r7">                     </span>
+<span class="r7">  </span><span class="r8">18 </span><span class="r9">\caption</span><span class="r11">{Relative performance of the different strategy combinations,</span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">19 </span><span class="r11">measured by achievable Steiner tree size before disconnection occurs, </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">compared</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">20 </span><span class="r11">to a hypothetical static offline optimum for the remaining live robots. </span><span class="r7">   </span>
+<span class="r7">     </span><span class="r11">Shown are median</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">21 </span><span class="r11">(bold) along with first and third </span><span class="r13">quartiles</span><span class="r11">. The failure rate is the</span><span class="r7">       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;quartiles&#x27;</span><span class="r14">. Suggestions: quarterlies,  </span>
+<span class="r14">quarrels,  quadrilles,  quarters,  quartos. Occurrences in text: </span><span class="r18">2</span>
+<span class="r7">  </span><span class="r8">22 </span><span class="r11">probability of {</span><span class="r9">\em</span><span class="r11"> each</span><span class="r13">}</span><span class="r11"> robot to die within the next simulated second, </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">consisting of </span><span class="r13">60 </span><span class="r11">time steps.</span><span class="r7">                                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">23 </span><span class="r11">Clearly, the strategies are robust and adaptive; the full set</span><span class="r7">              </span>
+<span class="r7">  </span><span class="r8">24 </span><span class="r11">of strategies does particularly well in adjusting to leader motion and </span><span class="r7">    </span>
+<span class="r7">     </span><span class="r11">robot failures.}</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">25 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{fig:performance}</span><span class="r7">                                                    </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">30 </span><span class="r11">To this date, the best known approximation factor for relay placement is </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r11">the following.</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">31 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">32 </span><span class="r12">%\begin{theorem}</span><span class="r7">                                                           </span>
+<span class="r7">  </span><span class="r8">33 </span><span class="r9">\bigskip</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">34 </span><span class="r11">{</span><span class="r9">\bf</span><span class="r11"> Theorem~IV.1} (Efrat et al.~</span><span class="r9">\cite</span><span class="r11">{efg-iaarp-08})</span><span class="r7">                      </span>
+<span class="r7">  </span><span class="r8">35 </span><span class="r11">There is a </span><span class="r13">3.11</span><span class="r11">-approxi</span><span class="r9">\-</span><span class="r11">ma</span><span class="r9">\-</span><span class="r11">tion algorithm for minimum relay placement.</span><span class="r7">   </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">36 </span><span class="r12">%\end{theorem}</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">37 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">38 </span><span class="r9">\bigskip</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">39 </span><span class="r11">Note that this is a result for a guaranteed worst-case performance</span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">40 </span><span class="r11">of an algorithm, so we can hope to do better in specific settings.</span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">41 </span><span class="r11">However, we are also faced with </span><span class="r13">a large number of</span><span class="r11"> additional difficulties </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">that</span><span class="r7">                                                                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> Specify a number, remove phrase, or simply use </span><span class="r17">&quot;many&quot;</span><span class="r14"> or </span>
+<span class="r17">&quot;numerous&quot;</span>
+
+<span class="r4">───────────────────────────── </span><span class="r5">/</span><span class="r6">05-Experiments.tex</span><span class="r4"> ──────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\section</span><span class="r11">{Simulation Results}</span><span class="r7">                                                </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:experiments}</span><span class="r7">                                                     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r7">  </span><span class="r8">2 </span><span class="r7">                                                                            </span>
+<span class="r7">  </span><span class="r8">3 </span><span class="r12">%&gt;&gt; New Intro&quot;</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">4 </span><span class="r11">We validated our approach by conducting experiments with a set of </span><span class="r7">          </span>
+<span class="r7">  </span><span class="r8">5 </span><span class="r11">five leaders stretching out a swarm of </span><span class="r13">400 </span><span class="r11">robots until it disconnects.</span><span class="r7">     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">6 </span><span class="r11">The performance is measured against the length of the minimal </span><span class="r7">              </span>
+<span class="r7">  </span><span class="r8">7 </span><span class="r11">Steiner tree on disconnection (calculated by the </span><span class="r13">Geosteiner</span><span class="r11"> </span><span class="r7">                </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;Geosteiner&#x27;</span><span class="r14">. Suggestions: Steiner,  </span>
+<span class="r14">Costner,  Ghosting,  Easterner,  Westerner. Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">8 </span><span class="r11">software</span><span class="r13"> </span><span class="r9">\cite</span><span class="r11">{warme2001geosteiner}), divided </span><span class="r7">                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Non-breaking space </span><span class="r15">(</span><span class="r14">`~&#x27;</span><span class="r15">)</span><span class="r14"> should have been used.</span>
+<span class="r7">  </span><span class="r8"> 9 </span><span class="r11">by the theoretically maximal possible length estimated by </span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">10 </span><span class="r19">$</span><span class="r11">|\mathcal{R}&#x27;|</span><span class="r23">*</span><span class="r11">\operatorname{range}</span><span class="r19">$</span><span class="r11">, where </span><span class="r19">$</span><span class="r11">\mathcal{R}&#x27;</span><span class="r19">$</span><span class="r11"> </span><span class="r7">               </span>
+<span class="r7">  </span><span class="r8">11 </span><span class="r11">are the robots that did not fail yet.</span><span class="r7">                                      </span>
+<span class="r7">  </span><span class="r8">12 </span><span class="r11">This would correspond to an optimal but extremely fragile </span><span class="r7">                 </span>
+<span class="r7">  </span><span class="r8">13 </span><span class="r11">Steiner tree in which {</span><span class="r9">\em</span><span class="r11"> any</span><span class="r13">}</span><span class="r11"> node failure disconnects the swarm. </span><span class="r7">       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8">14 </span><span class="r11">Thus, the best possible value of 1 is completely elusive,</span><span class="r7">                  </span>
+<span class="r7">  </span><span class="r8">15 </span><span class="r11">in addition to being the result of an NP-hard offline optimization</span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">16 </span><span class="r11">problem.</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">17 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">18 </span><span class="r11">For </span><span class="r13">comparison</span><span class="r11"> we tested three configurations: </span><span class="r7">                            </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">languagetool</span><span class="r15">]</span><span class="r14"> A comma is probably missing here.</span>
+<span class="r7">  </span><span class="r8">19 </span><span class="r9">\Base</span><span class="r11">---only the base behavior as discussed in Section~</span><span class="r13">\ref{sec:alg:base}</span><span class="r11">; </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">20 </span><span class="r9">\Lead</span><span class="r11">---the basic behavior enriched by leader forces as discussed in </span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">21 </span><span class="r11">Section~</span><span class="r13">\ref{sec:alg:leader}</span><span class="r11">;</span><span class="r7">                                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">22 </span><span class="r9">\All</span><span class="r11">---the final configuration that also incorporates Density and </span><span class="r7">         </span>
+<span class="r7">  </span><span class="r8">23 </span><span class="r11">Thickness Contraction as presented in Section~</span><span class="r13">\ref{sec:alg:stability}</span><span class="r11">.</span><span class="r7">     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">52 </span><span class="r12">%Different failrates are assumed for the robots; therefore the number of </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">robots which determine the upper bound can vary.</span><span class="r7">                           </span>
+<span class="r7">  </span><span class="r8">53 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">54 </span><span class="r12">%For each addition of a new algorithm to the base behavior and four </span><span class="r7">       </span>
+<span class="r7">     </span><span class="r12">different failrates, 100 trails are run to determine first second and third</span>
+<span class="r7">     </span><span class="r12">quartile of the observed performance.</span><span class="r7">                                      </span>
+<span class="r7">  </span><span class="r8">55 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">56 </span><span class="r12">%Simulator</span><span class="r7">                                                                 </span>
+<span class="r7">  </span><span class="r8">57 </span><span class="r11">Our benchmark tests were carried out with </span><span class="r13">60 </span><span class="r11">iterations per simulated </span><span class="r7">     </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">64 </span><span class="r11">giving the swarm robots the opportunity to react.</span><span class="r7">                          </span>
+<span class="r7">  </span><span class="r8">65 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">66 </span><span class="r12">%\todo[inline]{The parameters of the simulation seem reasonable but a bit </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r12">arbitrary, especially speed of leaders vs. other robots (is that necessary?</span>
+<span class="r7">     </span><span class="r12">what happens without?).  Are the parameters representative of McLurkin&#x27;s </span><span class="r7">  </span>
+<span class="r7">     </span><span class="r12">thesis, for example?  Did you run experiments with other values, e.g. with </span>
+<span class="r7">     </span><span class="r12">faster (or slower) robots, thereby increasing McLurkin&#x27;s Robot Speed Ratio?</span>
+<span class="r7">     </span><span class="r12">I imagine you can&#x27;t present a lot of this in a EuroCG abstract, but there </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r12">are a lot of questions here which I hope you address in the talk and a </span><span class="r7">    </span>
+<span class="r7">     </span><span class="r12">longer paper.}</span><span class="r7">                                                             </span>
+<span class="r7">  </span><span class="r8">67 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">68 </span><span class="r12">%Results</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">69 </span><span class="r11">For each configuration we conducted </span><span class="r13">100 </span><span class="r11">random trials on a range of </span><span class="r7">       </span>
+<span class="r7">     </span><span class="r11">different failure rates; note that </span><span class="r7">                                        </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">70 </span><span class="r11">a failure rate of </span><span class="r19">$</span><span class="r20">0</span><span class="r11">.</span><span class="r20">006</span><span class="r19">$</span><span class="r11"> per second corresponds to an expected lifetime of</span>
+<span class="r7">     </span><span class="r11">about 167 seconds, meaning that out of 400 robots,</span><span class="r7">                         </span>
+<span class="r7">  </span><span class="r8">71 </span><span class="r11">on average about every 0.4 seconds one of them breaks down for good.</span><span class="r7">       </span>
+<span class="r7">  </span><span class="r8">72 </span><span class="r11">Figure~</span><span class="r13">\ref{fig:performance}</span><span class="r11"> </span><span class="r7">                                              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">73 </span><span class="r11">depicts the resulting performance for all three strategies; in each case, </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">we show the median performance,</span><span class="r7">                                            </span>
+<span class="r7">  </span><span class="r8">74 </span><span class="r11">with corridors around the bold curves indicating first and third </span><span class="r13">quartiles</span><span class="r11">.</span>
+<span class="r7">     </span><span class="r11">The top part of Figure~</span><span class="r13">\ref{fig:performance}</span><span class="r7">                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;quartiles&#x27;</span><span class="r14">. Suggestions: quarterlies,  </span>
+<span class="r14">quarrels,  quadrilles,  quarters,  quartos. Occurrences in text: </span><span class="r18">2</span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r7">  </span><span class="r8">75 </span><span class="r11">gives the performance relative to a hypothetical offline optimum {</span><span class="r9">\em</span><span class="r11"> </span><span class="r7">     </span>
+<span class="r7">     </span><span class="r11">without</span><span class="r13">}</span><span class="r11"> robot failures, which is extremely fragile:</span><span class="r7">                       </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8">76 </span><span class="r11">as this solution is only a tree, {</span><span class="r9">\em</span><span class="r11"> any</span><span class="r13">}</span><span class="r11"> robot failure or uneven </span><span class="r7">        </span>
+<span class="r7">     </span><span class="r11">distribution will immediately disconnect it.</span><span class="r7">                               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: No italic correction </span><span class="r15">(</span><span class="r14">`\</span><span class="r21">/</span><span class="r14">&#x27;</span><span class="r15">)</span><span class="r14"> found.</span>
+<span class="r7">  </span><span class="r8">77 </span><span class="r11">The ratio of </span><span class="r13">0.3215 </span><span class="r11">(corresponding to the performance of a </span><span class="r7">                </span>
+<span class="r7">     </span><span class="r11">3.11-approximation algorithm for relay placement)</span><span class="r7">                          </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+<span class="r7">  </span><span class="r8">78 </span><span class="r11">is also indicated for better reference. The bottom part of </span><span class="r7">                </span>
+<span class="r7">     </span><span class="r11">Figure~</span><span class="r13">\ref{fig:performance}</span><span class="r11"> gives the relative performance,</span><span class="r7">               </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">CleverrefCheck</span><span class="r15">]</span><span class="r14"> Prefer using cleveref&#x27;s \cref or \Cref instead of native </span>
+<span class="r14">\ref.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8">81 </span><span class="r11">sudden disconnection due to fatal robot failure events, indicating </span><span class="r7">        </span>
+<span class="r7">     </span><span class="r11">excellent</span><span class="r7">                                                                  </span>
+<span class="r7">  </span><span class="r8">82 </span><span class="r11">ability to adapt. </span><span class="r12">%overall absolute deterioration is almost exclusively</span><span class="r7">    </span>
+<span class="r7">  </span><span class="r8">83 </span><span class="r12">%due to a diminishing number of live robots, which cannot be prevented by </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r12">any strategy.</span><span class="r7">                                                              </span>
+<span class="r7">  </span><span class="r8">84 </span><span class="r7">                                                                           </span>
+<span class="r7">  </span><span class="r8">85 </span><span class="r11">Comparing the individual strategy components, the results show that leader </span>
+<span class="r7">     </span><span class="r11">forces already produce decent swarm behavior,</span><span class="r7">                              </span>
+<span class="r7">  </span><span class="r8">86 </span><span class="r11">with </span><span class="r13">survivability</span><span class="r11"> four times higher than for the base forces.</span><span class="r7">             </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;survivability&#x27;</span><span class="r14">. Suggestions: </span>
+<span class="r14">serviceability,  survivable,  suitability,  survivalist,  sociability. </span>
+<span class="r14">Occurrences in text: </span><span class="r18">1</span>
+<span class="r7">  </span><span class="r8">87 </span><span class="r11">Without robot losses, it reaches about </span><span class="r13">30</span><span class="r9">\%</span><span class="r11"> of the length of the </span><span class="r7">          </span>
+<span class="r7">     </span><span class="r11">hypothetical optimum, which is quite close to the theoretical</span><span class="r7">              </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">SIUNITX</span><span class="r15">]</span><span class="r14"> Use siunitx to get nice and uniform numbers </span><span class="r15">(</span><span class="r14">\num</span><span class="r15">{}</span><span class="r14"> at least for </span>
+<span class="r14">&gt;=</span><span class="r18">10</span><span class="r14"> </span><span class="r18">000</span><span class="r15">)</span><span class="r14"> and units </span><span class="r15">(</span><span class="r14">\SI</span><span class="r15">{}{}</span><span class="r14"> for all sizes</span><span class="r15">)</span><span class="r14">.</span>
+
+<span class="r4">────────────────────────────── </span><span class="r5">/</span><span class="r6">06-Conclusion.tex</span><span class="r4"> ──────────────────────────────</span>
+
+<span class="r7">  </span><span class="r8">0 </span><span class="r9">\section</span><span class="r11">{Conclusion}</span><span class="r7">                                                        </span>
+<span class="r7">  </span><span class="r8">1 </span><span class="r13">\</span><span class="r9">label</span><span class="r11">{sec:conclusion}</span><span class="r7">                                                      </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">chktex</span><span class="r15">]</span><span class="r14"> Warning: Delete this space to maintain correct pagereferences.</span>
+<span class="r16">...</span>
+<span class="r7">  </span><span class="r8"> 8 </span><span class="r11">One of them is to extend our methods to heterogeneous</span><span class="r7">                      </span>
+<span class="r7">  </span><span class="r8"> 9 </span><span class="r11">swarms with different kinds of robots. In that setting, an even more </span><span class="r7">      </span>
+<span class="r7">     </span><span class="r11">structured, hierarchical</span><span class="r7">                                                   </span>
+<span class="r7">  </span><span class="r8">10 </span><span class="r11">approach may be able to combine the strengths of centralized methods </span><span class="r7">      </span>
+<span class="r7">  </span><span class="r8">11 </span><span class="r11">(which are better suited to keep track of unbalanced situations) with the </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">benefits</span><span class="r7">                                                                   </span>
+<span class="r7">  </span><span class="r8">12 </span><span class="r11">of decentralized mechanisms (which are more robust against failure of key </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">components).</span><span class="r7">                                                               </span>
+<span class="r7">  </span><span class="r8">13 </span><span class="r11">Clearly, this looks promising in scenarios in </span><span class="r13">inhomogeneous</span><span class="r11"> environments, </span><span class="r7"> </span>
+<span class="r7">     </span><span class="r11">in which</span><span class="r7">                                                                   </span>
+<span class="r14">&gt;&gt;&gt; </span><span class="r15">[</span><span class="r14">aspell</span><span class="r15">]</span><span class="r14"> Check spelling of word </span><span class="r17">&#x27;inhomogeneous&#x27;</span><span class="r14">. Suggestions: in </span>
+<span class="r14">homogeneous,  in-homogeneous,  homogeneous,  inharmonious,  indigenous. </span>
+<span class="r14">Occurrences in text: </span><span class="r18">1</span>
+</pre>
+    </code>
+</body>
+</html>

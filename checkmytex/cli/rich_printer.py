@@ -127,10 +127,11 @@ class RichPrinter:
         analysis: AnalyzedDocument,
         shorten: typing.Optional[int] = 5,
         problem_handler: typing.Optional[typing.Callable[[Problem], None]] = None,
+        console: typing.Optional[Console] = None,
     ):
         self.problem_handler = problem_handler
         self.analysis = analysis
-        self.console = Console(record=True)
+        self.console = Console(record=True) if console is None else console
         self.shorten = shorten
         self.file_prefix = os.path.commonpath(list(self.analysis.list_files()))
 

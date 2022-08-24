@@ -40,7 +40,7 @@ Let us use \importantterm here.
         report = engine.analyze(document)
         print(document.get_text())
         self.assertEqual(len(report.problems), 1)
-        start, end  = report.problems[0].origin.get_file_span()
+        start, end = report.problems[0].origin.get_file_span()
         self.assertEqual(start, 176)
         self.assertEqual(end, 189)
         self.assertEqual(source[start:end], "ImportantTerm")

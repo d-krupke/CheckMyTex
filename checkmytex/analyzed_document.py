@@ -94,5 +94,5 @@ class AnalyzedDocument:
     def serialize(self):
         return {
             "document": self.document.serialize(),
-            "problems": [p.serialize() for p in self.problems]
+            "problems": [p.serialize() for p in self.problems],
         }
