@@ -27,7 +27,7 @@ class DocumentAnalyzer:
     Simple class to return the files and its problems of a latex document.
     """
 
-    def __init__(self, log=print):
+    def __init__(self, log: object = print) -> object:
         self.log = log
         self.checker = []
         self.rules = []

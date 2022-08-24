@@ -4,7 +4,7 @@ A main file to execute CheckMyTex with CLI.
 import json
 
 from checkmytex.cli import InteractiveCli, log, parse_arguments
-from checkmytex.cli.rich_printer import RichPrinter
+from checkmytex.cli.rich_printer import ProblemHandler, RichPrinter
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
     IgnoreIncludegraphics,
@@ -18,6 +18,7 @@ from checkmytex.filtering import (
 )
 from checkmytex.latex_document import LatexDocument
 from checkmytex.latex_document.parser import LatexParser
+from checkmytex.utils import Editor
 
 
 def main():
@@ -54,8 +55,12 @@ def main():
                 json.dump(analyzed_document.serialize(), f)
             return
         if args.html:
-            RichPrinter(analyzed_document).save(args.html)
-        InteractiveCli(analyzed_document, whitelist, just_print=args.print)
+            RichPrinter(analyzed_document).to_html(args.html)
+        else:
+            analyzed_document.set_on_false_positive_cb(lambda p: whitelist.add(p))
+            rp = RichPrinter(analyzed_document)
+            rp.problem_handler = ProblemHandler(analyzed_document, Editor(), rp.console)
+            rp.print()
     except KeyError as key_error:
         print("Error:", str(key_error))
 

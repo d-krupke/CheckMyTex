@@ -9,8 +9,10 @@ class OptionPrompt:
     A simple helper for getting an input from multiple options.
     """
 
-    def __init__(self, front="\033[94m", end=":\033[0m"):
+    def __init__(self, read=input, write=print, front="", end=""):
         self._options = {}
+        self._read = read
+        self._write = write
         self._front = front
         self._end = end
         self._texts = []
@@ -44,14 +46,14 @@ class OptionPrompt:
         :return: None
         """
         for key, help_text in self._help.items():
-            print(f"[{key}] {help_text}")
+            self._write(f"[{key}] {help_text}")
 
     def _is_valid_option(self, option):
         return option in self._options or option in self._help_options
 
     def _input(self):
         text = ",".join(self._texts)
-        return input(f"{self._front}{text}{self._end}")
+        return self._read(f"{self._front}{text}{self._end}")
 
     def __call__(self, *args, **kwargs):
         finished = False

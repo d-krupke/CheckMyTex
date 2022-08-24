@@ -1,18 +1,134 @@
 import os.path
 import typing
+import webbrowser
 from collections import defaultdict
 
 from rich.console import Console
 from rich.markup import escape
+from rich.pretty import pprint
 from rich.syntax import Syntax
 from rich.table import Table
 
 from checkmytex import AnalyzedDocument
 from checkmytex.finding import Problem
+from checkmytex.utils import Editor, OptionPrompt
+
+
+class ProblemHandler:
+    def __init__(self, document: AnalyzedDocument, editor: Editor, console: Console):
+        self.analyzed_document = document
+        self.editor = editor
+        self.console = console
+        self._skip_file = None
+
+    def _skip_all(self, problem):
+        self.analyzed_document.remove_similar(problem)
+        return True
+
+    def _whitelist_problem(self, problem):
+        self.analyzed_document.mark_as_false_positive(problem)
+        return True
+
+    def _ignore_all(self, problem):
+        self.analyzed_document.remove_with_rule(problem.rule)
+        return True
+
+    def _edit(self, problem: Problem):
+        f = problem.origin.get_file()
+        line = problem.origin.get_file_line()
+        self.editor.open(file=f, line=line)
+        return True
+
+    def _next_file(self, problem):
+        self._skip_file = problem.origin.get_file()
+        return True
+
+    def _look_up(self, problem):
+        webbrowser.open(problem.look_up_url)
+        return False
+
+    def _print_details(self, problem: Problem):
+        pprint(problem.serialize())
+        return False
+
+    def find(self, problem: Problem):
+        self.console.log("Use this find-utility to compare with other occurrences.")
+        pattern = self.console.input("Find pattern (regex):")
+        if pattern:
+            self.console.log("Searching in text...")
+            for origin in self.analyzed_document.document.find_in_text(pattern):
+                print(origin)
+                l = origin.get_source_line()
+                self.console.print(
+                    escape(
+                        f"{origin.get_file()}[{origin.get_file_line()}] {self.analyzed_document.document.get_file_content(origin.get_file(), origin.get_file_line())}"
+                    )
+                )
+            self.console.log("Searching in source...")
+            for origin in self.analyzed_document.document.find_in_source(pattern):
+                print(origin)
+                l = origin.get_source_line()
+                self.console.print(
+                    escape(
+                        f"{origin.get_file()}[{origin.get_file_line()}] {self.analyzed_document.document.get_file_content(origin.get_file(), origin.get_file_line())}"
+                    )
+                )
+        return False
+
+    def __call__(self, problem: Problem):
+        if problem.origin.get_file() == self._skip_file:
+            return
+        prompt = OptionPrompt(
+            lambda s: self.console.input(escape(s + ":")),
+            lambda s: self.console.print(escape(s)),
+        )
+        prompt.add_option(
+            "s", "[s]kip", lambda p: True, help_="Skip to the next problem."
+        )
+        prompt.add_option(
+            "S", "[S]kip all", self._skip_all, help_="Skip all similar problems."
+        )
+        prompt.add_option(
+            "w", "[w]hitelist", self._whitelist_problem, help_="Mark as false positive."
+        )
+        prompt.add_option(
+            "I",
+            "[I]gnore all",
+            self._ignore_all,
+            help_="Skip over all problems of this rule.",
+        )
+        prompt.add_option(
+            "n", "[n]ext file", self._next_file, help_="Skip to next file."
+        )
+        prompt.add_option("x", None, lambda p: exit(0), help_="Exit.")
+        prompt.add_option("exit", None, lambda p: exit(0))
+        prompt.add_option("q", None, lambda p: exit(0))
+        prompt.add_option(
+            "e",
+            "[e]dit",
+            self._edit,
+            help_="Open editor ($EDITOR) to fix this problem.",
+        )
+        prompt.add_option(
+            "f",
+            "[f]ind",
+            self.find,
+            help_="Quickly search the documents text and source.",
+        )
+        prompt.add_option("?", None, self._print_details, help_="Print details.")
+        if problem.look_up_url:
+            prompt.add_option("l", "[l]ook up", self._look_up)
+        prompt(problem)
 
 
 class RichPrinter:
-    def __init__(self, analysis: AnalyzedDocument, shorten: typing.Optional[int] = 5):
+    def __init__(
+        self,
+        analysis: AnalyzedDocument,
+        shorten: typing.Optional[int] = 5,
+        problem_handler: typing.Optional[typing.Callable[[Problem], None]] = None,
+    ):
+        self.problem_handler = problem_handler
         self.analysis = analysis
         self.console = Console(record=True)
         self.shorten = shorten
@@ -26,12 +142,16 @@ class RichPrinter:
             self.print_file(filename)
         self.print_orphaned_problems()
 
-    def save(self, path):
+    def to_html(self, path):
+        self.print()
         self.console.save_html(path)
 
     def print_orphaned_problems(self):
+        problems = self.analysis.get_orphaned_problems()
+        if not problems:
+            return
         self.console.rule("Other problems")
-        for prob in self.analysis.get_orphaned_problems():
+        for prob in problems:
             self.print_problem(prob)
 
     def print_rule_count(self):
@@ -66,7 +186,9 @@ class RichPrinter:
         self.console.print(table)
 
     def print_file(self, filename: str):
+        self.console.print()
         self.console.rule(filename[len(self.file_prefix) :])
+        self.console.print()
         last_printed_line = -1
         problematic_lines = list(
             set(
@@ -128,5 +250,7 @@ class RichPrinter:
 
     def print_problem(self, problem: Problem):
         self.console.print(
-            escape(f">>> [{problem.tool}] {problem.message}"), style="red"
+            escape(f">>> [{problem.tool}] {problem.message}"), style="red on white"
         )
+        if self.problem_handler is not None:
+            self.problem_handler(problem)
