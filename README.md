@@ -25,7 +25,7 @@ This tool has a fancy HTML-output (like other tools), but its primary intention 
 1. Thanks to colored output, the highlighting works just as nice in CLI as in HTML. No need to switch to your browser.
 2. The CLI can use your favourite editor (currently, only (n)vim and nano have full support) without switching context.
 
-An example output can be seen [here](./example_output.html). The CLI version looks
+An example output can be seen [here](https://htmlpreview.github.io/?https://github.com/d-krupke/CheckMyTex/blob/main/example_output.html). The CLI version looks
 nearly identical (thanks to [rich](https://rich.readthedocs.io/en/stable/introduction.html), but you are iteratively asked how to deal with each problem.
 
 ## What does CheckMyTex currently check for you?
