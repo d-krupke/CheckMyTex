@@ -40,12 +40,14 @@ setup(
     ],
     install_requires=[
         "pyspellchecker>=0.6.3",
-        "flachtex>=0.3.6",
+        "flachtex>=0.3.7",
         "yalafi>=1.3.0",
         "proselint>=0.13.0",
         "rich>=12.5.1",
     ],
-    entry_points={"console_scripts": ["checkmytex=checkmytex.__main__:main"],},
+    entry_points={
+        "console_scripts": ["checkmytex=checkmytex.__main__:main"],
+    },
     python_requires=">=3.7",
     include_package_data=True,
     zip_safe=False,

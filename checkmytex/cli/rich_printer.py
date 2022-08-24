@@ -198,7 +198,6 @@ class RichPrinter:
             )
         )
         problematic_lines.sort()
-        print(problematic_lines)
         for l in problematic_lines:
             if self.shorten is not None:
                 l_ = max(last_printed_line + 1, l - self.shorten)
