@@ -8,6 +8,7 @@ import re
 import typing
 
 from .detex import DetexedText
+from .indexed_string import TextPosition
 from .origin import Origin, OriginPointer
 from .source import FilePosition, LatexSource
 
@@ -107,11 +108,11 @@ class LatexDocument:
         :param end: (Exclusive) end either as position or line+column
         :return: Origin of the part.
         """
+        source = self.sources.flat_source
+        begin: TextPosition = source.get_detailed_position(begin)
+        end: TextPosition = source.get_detailed_position(end)
         if begin > end:
             raise ValueError("End is before begin.")
-        source = self.sources.flat_source
-        begin = source.get_detailed_position(begin)
-        end = source.get_detailed_position(end)
         if end.index - begin.index > 1000:  # reduce very large ranges.
             logging.getLogger("CheckMyTex").info(f"Reducing long range {begin}-{end}.")
             begin = source.get_detailed_position(end.index - 1000)

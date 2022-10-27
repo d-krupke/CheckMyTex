@@ -2,13 +2,13 @@
 
 A tool to comfortably check complex LaTeX documents, e.g., dissertations, for common errors.
 There are already pretty good correction tools for LaTex, e.g., [TeXtidote](https://github.com/sylvainhalle/textidote),
-[YaLafi](https://github.com/matze-dd/YaLafi) (of which we use the tex2text engine), 
+[YaLafi](https://github.com/matze-dd/YaLafi) (of which we use the tex2text engine),
 or [LaTeXBuddy](https://gitlab.com/LaTeXBuddy/LaTeXBuddy) (in which I was
 involved and of which I copied some things), but they had shortcomings with complex documents, and they also did not
 fit my workflow. CheckMyTex builds upon YaLafi, but provides a simple CLI with some additional magic and tricks to deal
 with hopefully any document. The primary difference to its main contenders is the focus on CLI and whitelists.
 
-> :warning: Your terminal needs to support rich (should be most terminals)!  
+> :warning: Your terminal needs to support rich (should be most terminals)!
 
 Primary concepts are
 
@@ -100,7 +100,6 @@ For each problem, you will be asked what to do
 - _look up_ will google the problem for you (if available). E.g., you can check for rare technical terms.
 - _find_ allows to search with a regular expression for further occurrences. Use this, e.g., to find a uniform spelling.
 - _?_ provides further information of the problem. Primarily for debugging and fine-tuning.
-
 
 Whitelisted problems are by default saved in `.whitelist.txt` (document root) and are human-readable.
 You can copy it to use also for other documents or change the path using the `-w` argument with a path when calling
@@ -230,6 +229,7 @@ This tool is still under development but already usable. Just expect some imperf
 
 ## Changes
 
+- 0.10.2: Making project pep compliant.
 - 0.10.1: Also the interactive mode is now using rich.
 - 0.10.0: Beautiful HTML-output using _rich_. Interactive CLI will follow soon.
 - 0.9.0: Fundamental refactoring and JSON-ouput.

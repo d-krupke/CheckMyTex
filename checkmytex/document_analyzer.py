@@ -3,6 +3,7 @@ Module for checking a latex document by applying a set of checker and filter.
 """
 import logging
 import typing
+import traceback
 
 from checkmytex.filtering.filter import Filter
 from checkmytex.finding.problem import Problem
@@ -27,7 +28,7 @@ class DocumentAnalyzer:
     Simple class to return the files and its problems of a latex document.
     """
 
-    def __init__(self, log: object = print) -> object:
+    def __init__(self, log: typing.Callable = print):
         self.log = log
         self.checker = []
         self.rules = []
@@ -102,5 +103,5 @@ class DocumentAnalyzer:
                 raise ae
             except Exception as e:
                 logging.getLogger("CheckMyTex").error(
-                    f"Exception using {checker}: {e}."
+                    f"Exception using {checker}: {e}.\n{traceback.format_exc()}"
                 )

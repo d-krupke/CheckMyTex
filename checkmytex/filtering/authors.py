@@ -36,6 +36,8 @@ class IgnoreLikelyAuthorNames(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
+                if problem.origin is None:
+                    raise ValueError(f"Error: Problem ({problem}) has no origin.")
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()

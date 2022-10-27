@@ -104,7 +104,8 @@ class CheckSpell(Checker):
                 continue
             if self.spell.unknown([word]):
                 begin = match.start("word")
-                for p in self._create_word_problems(word, begin, document, text):
+                p = self._create_word_problems(word, begin, document, text)
+                if p is not None:
                     yield p
 
     def _create_word_problems(self, word, begin, document, text):
@@ -113,13 +114,14 @@ class CheckSpell(Checker):
             if len(word_element) < 2 or not self.spell.unknown([word_element]):
                 continue
             origin = document.get_simplified_origin_of_text(begin, begin + len(word))
+            candidates = self.spell.candidates(word_element)
             candidates = [
                 c for c in self.spell.candidates(word_element) if c != word_element
-            ]
+            ] if candidates else []  # candidates can be none
             context = text[max(0, begin - 20) : min(len(text), begin + len(word) + 20)]
             url = f"https://www.google.com/search?q={urllib.parse.quote(word)}"
             msg = f"Spelling '{word}'. Candidates: {candidates}."
-            yield Problem(
+            return Problem(  # only one problem per word, even if composite
                 origin=origin,
                 message=msg,
                 long_id=f"SPELL-{word}",
@@ -128,7 +130,6 @@ class CheckSpell(Checker):
                 rule="SPELLING",
                 look_up_url=url,
             )
-            return  # only one problem per word, even if composite
 
     def is_available(self) -> bool:
         return True

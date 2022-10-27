@@ -95,16 +95,16 @@ def simplify_text_range(
     :param positions: An iterable of inclusive text positions.
     :return: A range that contains a part of the input. The end is exclusive.
     """
-    positions = [p for p in positions if p]  # remove potential nones
-    if not positions:
+    positions_ = [p for p in positions if p is not None]  # remove potential nones
+    if not positions_:
         return None
-    max_line = max(p.line for p in positions)
-    last_line = [p for p in positions if p.line == max_line]
+    max_line = max(p.line for p in positions_)
+    last_line = [p for p in positions_ if p.line == max_line]
     if len(last_line) == 1:
-        if len([p for p in positions if p.line == max_line - 1]) <= 1:
+        if len([p for p in positions_ if p.line == max_line - 1]) <= 1:
             return last_line[0], last_line[0].virtual_next()
         # use the line before, which is longer
-        last_line = [p for p in positions if p.line == max_line - 1]
+        last_line = [p for p in positions_ if p.line == max_line - 1]
     return min(last_line), max(last_line).virtual_next()
 
 
