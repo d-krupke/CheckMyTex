@@ -74,7 +74,10 @@ class LatexSource:
         else:
             focus_on_file = files[-1]
         origins = [o for o in origins if o.path == focus_on_file]
-        file_begin, file_end = simplify_text_range(o.position for o in origins)
+        file_range = simplify_text_range(o.position for o in origins)
+        if file_range is None:
+            raise ValueError(f"Could not determine origin of '{begin} -- {end}'.")
+        file_begin, file_end = file_range
         return (
             FilePosition(focus_on_file, file_begin),
             FilePosition(focus_on_file, file_end),

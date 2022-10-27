@@ -4,8 +4,8 @@ import typing
 
 from rich.console import Console
 
+from checkmytex.cli.rich_printer import ProblemHandler, RichPrinter
 from checkmytex.document_analyzer import DocumentAnalyzer
-from checkmytex.cli.rich_printer import RichPrinter, ProblemHandler
 from checkmytex.filtering.whitelist import Whitelist
 from checkmytex.latex_document.parser import LatexParser
 from checkmytex.utils.editor import Editor

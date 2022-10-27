@@ -242,7 +242,12 @@ class RichPrinter:
         if text[-1] == "\n":
             text = text[:-1]
         syntax = Syntax(
-            text, "latex", start_line=begin, line_numbers=True, word_wrap=True, tab_size=1
+            text,
+            "latex",
+            start_line=begin,
+            line_numbers=True,
+            word_wrap=True,
+            tab_size=1,
         )
         for l, b, e in highlights:
             syntax.stylize_range("white on red", (1 + l - begin, b), (1 + l - begin, e))

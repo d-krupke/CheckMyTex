@@ -2,7 +2,7 @@
 A main file to execute CheckMyTex with CLI.
 """
 
-from checkmytex.cli import parse_arguments, cli
+from checkmytex.cli import cli, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
     IgnoreIncludegraphics,

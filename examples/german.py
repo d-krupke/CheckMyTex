@@ -3,7 +3,7 @@ A main file modified to check german tex files. Not as powerful as the
 english version.
 """
 
-from checkmytex.cli import parse_arguments, cli
+from checkmytex.cli import cli, parse_arguments
 from checkmytex.document_analyzer import DocumentAnalyzer
 from checkmytex.filtering import (
     IgnoreIncludegraphics,
@@ -19,9 +19,9 @@ from checkmytex.finding import (
     AspellChecker,
     CheckSpell,
     ChkTex,
+    Cleveref,
     Languagetool,
     SiUnitx,
-    Cleveref,
     UniformNpHard,
 )
 
