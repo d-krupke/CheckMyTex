@@ -114,9 +114,10 @@ class CheckSpell(Checker):
             if len(word_element) < 2 or not self.spell.unknown([word_element]):
                 continue
             origin = document.get_simplified_origin_of_text(begin, begin + len(word))
+            candidates = self.spell.candidates(word_element)
             candidates = [
                 c for c in self.spell.candidates(word_element) if c != word_element
-            ]
+            ] if candidates else []  # candidates can be none
             context = text[max(0, begin - 20) : min(len(text), begin + len(word) + 20)]
             url = f"https://www.google.com/search?q={urllib.parse.quote(word)}"
             msg = f"Spelling '{word}'. Candidates: {candidates}."
