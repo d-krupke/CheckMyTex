@@ -22,7 +22,7 @@ class AspellChecker(Checker):
     def _get_words(
         self, document: LatexDocument
     ) -> typing.Dict[str, typing.List[Origin]]:
-        word_occurrences: typing.Dict[str, typing.List[Origin]] = dict()
+        word_occurrences: typing.Dict[str, typing.List[Origin]] = {}
         word_regex = re.compile(r"(^|[\s(-])(?P<word>[^\s-]+)")
         text = document.get_text()
         is_word = re.compile(r"[A-Z]?[a-z]+-?[A-Z]?[a-z]+", re.UNICODE)
@@ -115,9 +115,11 @@ class CheckSpell(Checker):
                 continue
             origin = document.get_simplified_origin_of_text(begin, begin + len(word))
             candidates = self.spell.candidates(word_element)
-            candidates = [
-                c for c in self.spell.candidates(word_element) if c != word_element
-            ] if candidates else []  # candidates can be none
+            candidates = (
+                [c for c in self.spell.candidates(word_element) if c != word_element]
+                if candidates
+                else []
+            )  # candidates can be none
             context = text[max(0, begin - 20) : min(len(text), begin + len(word) + 20)]
             url = f"https://www.google.com/search?q={urllib.parse.quote(word)}"
             msg = f"Spelling '{word}'. Candidates: {candidates}."
@@ -130,6 +132,7 @@ class CheckSpell(Checker):
                 rule="SPELLING",
                 look_up_url=url,
             )
+        return None
 
     def is_available(self) -> bool:
         return True

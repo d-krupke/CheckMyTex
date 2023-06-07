@@ -7,7 +7,7 @@ import subprocess
 
 
 def _number_of_lines(file_path: str) -> int:
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         return len(file.readlines())
 
 

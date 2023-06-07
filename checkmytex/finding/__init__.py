@@ -1,6 +1,7 @@
 """
 A collection of tools (or their wrappers) to find problems in a latex document.
 """
+# flake8: noqa F401
 from .abstract_checker import Checker
 from .chktex import ChkTex
 from .cleveref import Cleveref

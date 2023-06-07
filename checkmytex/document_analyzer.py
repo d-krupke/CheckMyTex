@@ -2,8 +2,8 @@
 Module for checking a latex document by applying a set of checker and filter.
 """
 import logging
-import typing
 import traceback
+import typing
 
 from checkmytex.filtering.filter import Filter
 from checkmytex.finding.problem import Problem

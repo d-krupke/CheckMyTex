@@ -4,7 +4,7 @@ import typing
 import unittest
 
 import flachtex
-from flachtex import FileFinder, TraceableString
+from flachtex import FileFinder
 from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
 from flachtex.rules import ChangesRule, TodonotesRule
 from flachtex.rules.skip_rules import RegexSkipRule
@@ -42,7 +42,7 @@ class LatexParser:
         yalafi_opts: typing.Optional[typing.Dict] = None,
     ):
         self._ff = file_finder
-        self.file_finder = FileFinder() if not file_finder else file_finder
+        self.file_finder = file_finder if file_finder else FileFinder()
         self._yalafi_opts = yalafi_opts
 
     def newcommand(self, name: int, num_parameters: int, definition: str):
@@ -97,10 +97,10 @@ class TestSource(unittest.TestCase):
         parser = LatexParser(FileFinder(file_system=files))
         sources = parser.parse_source("main.tex")
         for i in range(10):
-            self.assertEqual(sources.investigate_origin(i).position.index, i)
+            assert sources.investigate_origin(i).position.index == i
             o = sources.get_simplified_origin_range(i, i + 1)
-            self.assertEqual(o[0].position.index, i)
-            self.assertEqual(o[1].position.index, i + 1)
+            assert o[0].position.index == i
+            assert o[1].position.index == i + 1
 
 
 class TestLatexDocument(unittest.TestCase):
@@ -111,10 +111,10 @@ class TestLatexDocument(unittest.TestCase):
         for i in range(10):
             origin = document.get_simplified_origin_of_source(i, i + 1)
             print(i, origin)
-            self.assertEqual(origin.begin.file.position.index, i)
-            self.assertEqual(origin.end.file.position.index, i)
+            assert origin.begin.file.position.index == i
+            assert origin.end.file.position.index == i
         for i in range(10):
             origin = document.get_simplified_origin_of_text(i, i + 1)
             print(i, origin)
-            self.assertEqual(origin.begin.file.position.index, i)
-            self.assertEqual(origin.end.file.position.index, i)
+            assert origin.begin.file.position.index == i
+            assert origin.end.file.position.index == i

@@ -82,8 +82,7 @@ class AnalyzedDocument:
         """
         List all files of the document.
         """
-        for file_path in self.document.files():
-            yield file_path
+        yield from self.document.files()
 
     def get_file_content(self, file_name: str) -> str:
         """

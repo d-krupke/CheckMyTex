@@ -1,9 +1,7 @@
 import unittest
 
-from flachtex import FileFinder
-
-from checkmytex.latex_document import LatexDocument, Origin
 from checkmytex.latex_document.parser import LatexParser
+from flachtex import FileFinder
 
 
 class LatexDocumentTest(unittest.TestCase):
@@ -11,34 +9,33 @@ class LatexDocumentTest(unittest.TestCase):
         sources = {"/main.tex": "0123\n\tBCD\nXYZ\n"}
         parser = LatexParser(file_finder=FileFinder("/", sources))
         document = parser.parse("/main.tex")
-        self.assertEqual(document.get_source(), sources["/main.tex"])
-        self.assertEqual(document.get_text(), sources["/main.tex"])
+        assert document.get_source() == sources["/main.tex"]
+        assert document.get_text() == sources["/main.tex"]
         for i in range(4):
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
-            self.assertEqual(o1, o2)
+            assert o1 == o2
         for i in range(5, 8):
             j = i - 5
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
-            self.assertEqual(o1, o2)
+            assert o1 == o2
 
     def test_2(self):
-
         sources = {"/main.tex": "0123\n\\input{sub.tex}\nXYZ\n", "/sub.tex": "ABC\n"}
         parser = LatexParser(file_finder=FileFinder("/", sources))
         document = parser.parse("/main.tex")
         for i in range(4):
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
-            self.assertEqual(o1, o2)
+            assert o1 == o2
         for i in range(5, 8):
             j = i - 5
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
-            self.assertEqual(o1, o2)
-            self.assertEqual(o1.get_file(), "/sub.tex")
-            self.assertEqual(o1.get_file_span(), (j, j + 1))
+            assert o1 == o2
+            assert o1.get_file() == "/sub.tex"
+            assert o1.get_file_span() == (j, j + 1)
 
     def test_3(self):
         sources = {
@@ -55,12 +52,10 @@ class LatexDocumentTest(unittest.TestCase):
                 key = f"{f}{i}"
                 p = document.get_text().find(key)
                 origin = document.get_simplified_origin_of_source(p, p + 1)
-                self.assertEqual(
-                    origin, document.get_simplified_origin_of_text(p, p + 1)
-                )
-                self.assertEqual(origin.get_file(), "/" + f + ".tex")
-                self.assertEqual(origin.get_file_span()[0], 3 * i)
-                self.assertEqual(origin.get_file_line(), i)
+                assert origin == document.get_simplified_origin_of_text(p, p + 1)
+                assert origin.get_file() == "/" + f + ".tex"
+                assert origin.get_file_span()[0] == 3 * i
+                assert origin.get_file_line() == i
 
     def test_4(self):
         sources = {
@@ -87,5 +82,5 @@ class LatexDocumentTest(unittest.TestCase):
                     pos_end = 3 * i + 1
                 p = document.get_text().find(key)
                 origin = document.get_simplified_origin_of_source(p, p + 1)
-                self.assertEqual(origin.get_file(), file)
-                self.assertEqual(origin.get_file_span(), (pos_begin, pos_end))
+                assert origin.get_file() == file
+                assert origin.get_file_span() == (pos_begin, pos_end)

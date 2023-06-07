@@ -37,7 +37,8 @@ class IgnoreLikelyAuthorNames(Filter):
         for problem in problems:
             if problem.rule == "SPELLING":
                 if problem.origin is None:
-                    raise ValueError(f"Error: Problem ({problem}) has no origin.")
+                    msg = f"Error: Problem ({problem}) has no origin."
+                    raise ValueError(msg)
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()
@@ -76,10 +77,10 @@ class IgnoreWordsFromBibliography(Filter):
     def _collect_bibtexs(self, document: LatexDocument):
         bibtex = ""
         for path in _find_bibtex_paths(document):
-            with open(path, "r") as file:
+            with open(path) as file:
                 bibtex += "\n".join(file.readlines())
         for path in self._paths:
-            with open(path, "r") as file:
+            with open(path) as file:
                 bibtex += "\n".join(file.readlines())
         return bibtex
 

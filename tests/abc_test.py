@@ -2,21 +2,11 @@ import re
 import typing
 import unittest
 
-from flachtex import FileFinder
-
 from checkmytex import DocumentAnalyzer, LatexDocument
 from checkmytex.cli.rich_printer import RichPrinter
-from checkmytex.filtering import (
-    IgnoreIncludegraphics,
-    IgnoreLikelyAuthorNames,
-    IgnoreRefs,
-    IgnoreRepeatedWords,
-    IgnoreSpellingWithMath,
-    IgnoreWordsFromBibliography,
-    MathMode,
-)
 from checkmytex.finding import Checker, Problem
 from checkmytex.latex_document.parser import LatexParser
+from flachtex import FileFinder
 
 
 class AbcChecker(Checker):
@@ -78,11 +68,11 @@ class AbcTest(unittest.TestCase):
         engine = DocumentAnalyzer()
         engine.add_checker(AbcChecker(check_ranges=False))
         analysis = engine.analyze(document)
-        self.assertEqual(
-            document.get_text(),
-            "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC.",
+        assert (
+            document.get_text()
+            == "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC."
         )
-        self.assertEqual(len(analysis.problems), 3)
+        assert len(analysis.problems) == 3
         for problem in analysis.problems:
             f_range = problem.origin.get_file_span()
             print(
@@ -101,11 +91,11 @@ class AbcTest(unittest.TestCase):
         engine.add_checker(AbcChecker(check_ranges=False))
         analysis = engine.analyze(document)
         print(analysis.serialize())
-        self.assertEqual(
-            document.get_text(),
-            "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC.",
+        assert (
+            document.get_text()
+            == "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC."
         )
-        self.assertEqual(len(analysis.problems), 3)
+        assert len(analysis.problems) == 3
         for problem in analysis.problems:
             f_range = problem.origin.get_file_span()
             print(

@@ -8,6 +8,6 @@ Equipped with this, we can easily apply some established tools such as
 chktex or languagetool on the whole document and transform their reports into
 a uniform report on individual files and lines.
 """
-
+# flake8: noqa F401
 from .latex_document import LatexDocument
 from .origin import Origin

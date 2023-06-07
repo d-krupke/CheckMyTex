@@ -192,10 +192,10 @@ class RichPrinter:
         self.console.print()
         last_printed_line = -1
         problematic_lines = list(
-            set(
+            {
                 prob.origin.get_file_line()
                 for prob in self.analysis.get_problems(filename)
-            )
+            }
         )
         problematic_lines.sort()
         for l in problematic_lines:

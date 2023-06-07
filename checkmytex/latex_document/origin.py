@@ -21,12 +21,14 @@ class OriginPointer:
 
     def __eq__(self, other):
         if not isinstance(other, OriginPointer):
-            raise ValueError("Can only compare positions.")
+            msg = "Can only compare positions."
+            raise ValueError(msg)
         return self.file == other.file
 
     def __lt__(self, other):
         if not isinstance(other, OriginPointer):
-            raise ValueError("Can only compare positions.")
+            msg = "Can only compare positions."
+            raise ValueError(msg)
         return self.source < other.source
 
     def __repr__(self):
@@ -85,7 +87,8 @@ class Origin:
 
     def __eq__(self, other):
         if not isinstance(other, Origin):
-            raise ValueError("Can only compare origins.")
+            msg = "Can only compare origins."
+            raise ValueError(msg)
         return self.begin == other.begin and self.end == other.end
 
     def serialize(self) -> typing.Dict:

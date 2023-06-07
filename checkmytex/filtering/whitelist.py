@@ -2,9 +2,9 @@ import os
 import re
 import typing
 
-from checkmytex.filtering.filter import Filter
-from checkmytex.finding.problem import Problem
-from checkmytex.latex_document import LatexDocument
+from ..finding.problem import Problem
+from ..latex_document import LatexDocument
+from .filter import Filter
 
 
 class Whitelist(Filter):
@@ -28,7 +28,8 @@ class Whitelist(Filter):
 
     def __contains__(self, item: Problem):
         if not isinstance(item, Problem):
-            raise ValueError("Can only check for problems")
+            msg = "Can only check for problems"
+            raise ValueError(msg)
         return item.short_id.strip() in self._shortkeys
 
     def load(self, path: str) -> None:
@@ -39,7 +40,7 @@ class Whitelist(Filter):
         :return: None
         """
         regex = re.compile(r"^(?P<key>\w+)\s*#?(?P<comment>(.*$)|($))")
-        with open(path, "r") as file:
+        with open(path) as file:
             for line in file.readlines():
                 match = regex.fullmatch(line.strip())
                 if match:

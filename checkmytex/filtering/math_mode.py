@@ -67,9 +67,8 @@ class MathMode(Filter):
 
     def _problem_fits_rule(self, problem):
         for tool, rules in self.rules.items():
-            if problem.tool == tool:
-                if not rules or problem.rule in rules:
-                    return True
+            if problem.tool == tool and (not rules or problem.rule in rules):
+                return True
         return False
 
     def _problem_applies(self, problem):

@@ -1,10 +1,9 @@
 import unittest
 
-from flachtex import FileFinder
-
 from checkmytex import DocumentAnalyzer
 from checkmytex.finding import CheckSpell
 from checkmytex.latex_document.parser import LatexParser
+from flachtex import FileFinder
 
 
 class CheckerTest(unittest.TestCase):
@@ -38,11 +37,11 @@ Let us use \importantterm here.
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
         print(document.get_text())
-        self.assertEqual(len(report.problems), 1)
+        assert len(report.problems) == 1
         start, end = report.problems[0].origin.get_file_span()
-        self.assertEqual(start, 176)
-        self.assertEqual(end, 189)
-        self.assertEqual(source[start:end], "ImportantTerm")
+        assert start == 176
+        assert end == 189
+        assert source[start:end] == "ImportantTerm"
 
     def test_2(self):
         source = r"""
@@ -73,10 +72,10 @@ Let us use \importantterm{}bla here.
         engine = DocumentAnalyzer()
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
-        self.assertEqual(len(report.problems), 1)
+        assert len(report.problems) == 1
         start, end = report.problems[0].origin.get_file_span()
         # print(document.get_text())
         print(source[start:end])
-        self.assertEqual(start, 469)
-        self.assertEqual(end, 472)
-        self.assertEqual(source[start:end], "bla")
+        assert start == 469
+        assert end == 472
+        assert source[start:end] == "bla"

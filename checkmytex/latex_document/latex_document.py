@@ -3,7 +3,6 @@ The LatexDocument provides easy access to the latex document to be fed to
 a checker and to trace the checker's report back to the original document.
 """
 import logging
-import os.path
 import re
 import typing
 
@@ -48,7 +47,8 @@ class LatexDocument:
         :return: Compiled text as (unicode) string.
         """
         if not self.detexed_text:
-            raise ValueError("No detex available!")
+            msg = "No detex available!"
+            raise ValueError(msg)
         return str(self.detexed_text.text)
 
     def get_file_content(self, path: str, line: typing.Optional[int] = None) -> str:
@@ -76,7 +76,8 @@ class LatexDocument:
         begin = self.detexed_text.get_detailed_position(begin)
         end = self.detexed_text.get_detailed_position(end)
         if begin >= end:
-            raise ValueError("Incorrect range. End before begin.")
+            msg = "Incorrect range. End before begin."
+            raise ValueError(msg)
         begin_source = self.detexed_text.get_position_in_source(begin.index)
         end_source = self.detexed_text.get_position_in_source(end.index - 1) + 1
         assert begin_source < end_source
@@ -112,7 +113,8 @@ class LatexDocument:
         begin: TextPosition = source.get_detailed_position(begin)
         end: TextPosition = source.get_detailed_position(end)
         if begin > end:
-            raise ValueError("End is before begin.")
+            msg = "End is before begin."
+            raise ValueError(msg)
         if end.index - begin.index > 1000:  # reduce very large ranges.
             logging.getLogger("CheckMyTex").info(f"Reducing long range {begin}-{end}.")
             begin = source.get_detailed_position(end.index - 1000)

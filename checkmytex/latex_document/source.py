@@ -3,7 +3,6 @@ Container for the LaTeX-sources.
 """
 
 import typing
-import unittest
 
 from flachtex import TraceableString
 
@@ -34,8 +33,8 @@ class LatexSource:
         self, source: TraceableString, structure: typing.Dict[str, typing.Dict]
     ):
         self.flat_source: IndexedText = IndexedText(source)
-        self.files: typing.Dict[str, IndexedText] = dict()
-        self.includes: typing.Dict[str, typing.List[str]] = dict()
+        self.files: typing.Dict[str, IndexedText] = {}
+        self.includes: typing.Dict[str, typing.List[str]] = {}
         for path, data in structure.items():
             self.files[path] = IndexedText(data["content"])
             self.includes[path] = list(data["includes"])
@@ -76,7 +75,8 @@ class LatexSource:
         origins = [o for o in origins if o.path == focus_on_file]
         file_range = simplify_text_range(o.position for o in origins)
         if file_range is None:
-            raise ValueError(f"Could not determine origin of '{begin} -- {end}'.")
+            msg = f"Could not determine origin of '{begin} -- {end}'."
+            raise ValueError(msg)
         file_begin, file_end = file_range
         return (
             FilePosition(focus_on_file, file_begin),
