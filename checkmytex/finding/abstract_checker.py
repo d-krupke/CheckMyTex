@@ -8,7 +8,7 @@ from .problem import Problem
 
 
 class Checker(abc.ABC):
-    def __init__(self, log=print):
+    def __init__(self, log: typing.Callable = print):
         self.log = log
 
     @abc.abstractmethod

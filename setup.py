@@ -39,8 +39,8 @@ setup(
         "checkmytex.filtering",
     ],
     install_requires=[
-        "pyspellchecker>=0.6.3",
-        "flachtex>=0.3.7",
+        "pyspellchecker==0.7.2",
+        "flachtex>=0.3.11",
         "yalafi>=1.3.0",
         "proselint>=0.13.0",
         "rich>=12.5.1",

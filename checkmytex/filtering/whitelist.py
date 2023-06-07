@@ -1,6 +1,6 @@
-import os
 import re
 import typing
+from pathlib import Path
 
 from ..finding.problem import Problem
 from ..latex_document import LatexDocument
@@ -12,7 +12,11 @@ class Whitelist(Filter):
     Managing the whitelist, skipped problems, and ignored rules.
     """
 
-    def __init__(self, path: str = None, on_add=None):
+    def __init__(
+        self,
+        path: typing.Optional[str] = None,
+        on_add: typing.Optional[typing.Callable[[Problem], None]] = None,
+    ):
         """
         :param path: File to initialize the whitelist from. If you do not want
         the new problems to be automatically appended, use `load` instead.
@@ -23,7 +27,7 @@ class Whitelist(Filter):
         self._whitelist: typing.Dict[str, str] = {}
         self._on_add = on_add
         self._path = path
-        if path and os.path.exists(path):
+        if path is not None and Path(path).exists():
             self.load(path)
 
     def __contains__(self, item: Problem):
@@ -40,7 +44,7 @@ class Whitelist(Filter):
         :return: None
         """
         regex = re.compile(r"^(?P<key>\w+)\s*#?(?P<comment>(.*$)|($))")
-        with open(path) as file:
+        with Path(path).open() as file:
             for line in file.readlines():
                 match = regex.fullmatch(line.strip())
                 if match:
@@ -57,7 +61,7 @@ class Whitelist(Filter):
         :param path: Path to write.
         :return: None
         """
-        with open(path, "w") as file:
+        with Path(path).open("w") as file:
             for key, comment in self._whitelist.items():
                 file.write(f"{key} # {comment}\n")
 
@@ -69,7 +73,7 @@ class Whitelist(Filter):
             if problem not in self:
                 yield problem
 
-    def add(self, problem: Problem, comment: str = None) -> None:
+    def add(self, problem: Problem, comment: typing.Optional[str] = None) -> None:
         """
         Adds a problem to the whitelist. If the whitelist is initiated
         from a file, the problem will directly be appended to the file.
@@ -91,7 +95,7 @@ class Whitelist(Filter):
             self._save_problem(problem, comment)
 
     def _save_problem(self, problem, comment):
-        with open(self._path, "a") as file:
+        with Path(self._path).open("a") as file:
             file.write(
                 f"{problem.short_id} # {comment if comment else problem.long_id}\n"
             )

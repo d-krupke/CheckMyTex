@@ -28,22 +28,28 @@ class Languagetool(Checker):
             "THE_SUPERLATIVE",  # not true in computer science and math where we can have, e.g., multiple equivalent extremal solutions.
         ]
 
-    def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        self.log("Running Langugagetool...")
+    def _get_languagetool_json(self, document: LatexDocument) -> dict:
         result, err, ex = self._run(
             f"{shutil.which('languagetool')} --json -l {self._lang} "
             f"--disable {','.join(self.disable_rules)}",
             input=document.get_text(),
         )
         if err:
-            self.log("Errors while running Languagetool: '{err}'")
-        try:
-            # sometimes, languagetool outputs some logs, so we search for the largest string.
-            # We could also try to go through all lines until one parses successfully.
-            data = json.loads(max([l for l in result.split("\n") if "{" in l], key=len))
-        except json.JSONDecodeError as de:
-            print("Bad JSON:", result)
-            raise
+            self.log(err)
+        lines = result.split("\n")
+        lines.sort(key=len, reverse=True)
+        for line in lines:
+            try:
+                return json.loads(line)
+            except json.JSONDecodeError:
+                continue
+        self.log("ERROR: Could not read output of languagetool!")
+        self.log(result)
+        return {}
+
+    def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
+        self.log("Running Langugagetool...")
+        data = self._get_languagetool_json(document=document)
         for problem in data["matches"]:
             try:
                 look_up_url = problem["rule"]["urls"][0]["value"]

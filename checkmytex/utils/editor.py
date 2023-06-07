@@ -4,10 +4,11 @@ line number after (sequential) changes in the file.
 """
 import os
 import subprocess
+from pathlib import Path
 
 
 def _number_of_lines(file_path: str) -> int:
-    with open(file_path) as file:
+    with Path(file_path).open() as file:
         return len(file.readlines())
 
 
@@ -48,7 +49,7 @@ class Editor:
         :return: Change in line number.
         """
         n_lines_before = _number_of_lines(file)
-        offset = self.offsets.get(file, 0) if self.remember_offsets else 0
+        offset: int = self.offsets.get(file, 0) if self.remember_offsets else 0
         cmd = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
         subprocess.call(cmd, shell=True)
         n_lines_after = _number_of_lines(file)

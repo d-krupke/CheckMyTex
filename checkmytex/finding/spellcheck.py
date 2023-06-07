@@ -15,7 +15,7 @@ from .problem import Problem
 
 
 class AspellChecker(Checker):
-    def __init__(self, lang="en_US"):
+    def __init__(self, lang: str = "en_US"):
         super().__init__()
         self.lang = lang
 
@@ -86,7 +86,7 @@ class AspellChecker(Checker):
 
 
 class CheckSpell(Checker):
-    def __init__(self, lang="en"):
+    def __init__(self, lang: str = "en"):
         super().__init__()
         self.spell = SpellChecker(distance=1, language=lang)
         # self._word_finder = re.compile(r"")

@@ -6,3 +6,5 @@ further rules and refinements.
 from .analyzed_document import AnalyzedDocument
 from .document_analyzer import DocumentAnalyzer
 from .latex_document import LatexDocument
+
+__all__ = (AnalyzedDocument, DocumentAnalyzer, LatexDocument)

@@ -78,10 +78,10 @@ class LatexDocument:
         if begin >= end:
             msg = "Incorrect range. End before begin."
             raise ValueError(msg)
-        begin_source = self.detexed_text.get_position_in_source(begin.index)
-        end_source = self.detexed_text.get_position_in_source(end.index - 1) + 1
-        assert begin_source < end_source
-        origin = self.get_simplified_origin_of_source(begin_source, end_source)
+        begin_source_idx = self.detexed_text.get_position_in_source(begin.index)
+        end_source_idx = self.detexed_text.get_position_in_source(end.index - 1) + 1
+        assert begin_source_idx < end_source_idx
+        origin = self.get_simplified_origin_of_source(begin_source_idx, end_source_idx)
         origin.begin.text = begin
         origin.end.text = end
         return origin

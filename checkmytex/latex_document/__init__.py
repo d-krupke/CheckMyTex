@@ -11,3 +11,5 @@ a uniform report on individual files and lines.
 # flake8: noqa F401
 from .latex_document import LatexDocument
 from .origin import Origin
+
+__all__ = (LatexDocument, Origin)

@@ -5,11 +5,8 @@ import logging
 import traceback
 import typing
 
-from checkmytex.filtering.filter import Filter
-from checkmytex.finding.problem import Problem
-from checkmytex.latex_document import LatexDocument
-
 from .analyzed_document import AnalyzedDocument
+from .filtering.filter import Filter
 from .finding import (
     Checker,
     CheckSpell,
@@ -20,7 +17,9 @@ from .finding import (
     SiUnitx,
     UniformNpHard,
 )
+from .finding.problem import Problem
 from .finding.spellcheck import AspellChecker
+from .latex_document import LatexDocument
 
 
 class DocumentAnalyzer:

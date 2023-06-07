@@ -1,7 +1,7 @@
 import typing
 
-from checkmytex.latex_document.indexed_string import TextPosition
-from checkmytex.latex_document.source import FilePosition
+from .indexed_string import TextPosition
+from .source import FilePosition
 
 
 class OriginPointer:
