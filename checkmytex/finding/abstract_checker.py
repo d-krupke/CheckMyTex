@@ -20,6 +20,7 @@ class Checker(abc.ABC):
         pass
 
     def _run(self, cmd: str, input=None) -> typing.Tuple[str, str, int]:
+        self.log("EXEC:", cmd)
         with subprocess.Popen(
             cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
         ) as proc:

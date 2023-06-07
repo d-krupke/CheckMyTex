@@ -75,17 +75,16 @@ class ChkTex(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Running chktex...")
-        result, _, exitcode = self._run(
+        result, err, exitcode = self._run(
             f"chktex -f '{self._format_str}'", document.get_source()
         )
-        if not exitcode:
-            results = result.split("\n")
-            for result in results:
-                parsed = self._parser.fullmatch(result)
-                if parsed:
-                    yield _extract_problem(parsed, document)
-        else:
-            print(f"Error: chktex returned with error code {exitcode}.")
+        if err:
+            self.log("checktex returned an error: '{err}'")
+        results = result.split("\n")
+        for result in results:
+            parsed = self._parser.fullmatch(result)
+            if parsed:
+                yield _extract_problem(parsed, document)
 
     def is_available(self) -> bool:
         return bool(shutil.which("chktex"))

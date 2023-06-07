@@ -35,7 +35,15 @@ class Languagetool(Checker):
             f"--disable {','.join(self.disable_rules)}",
             input=document.get_text(),
         )
-        data = json.loads(result)
+        if err:
+            self.log("Errors while running Languagetool: '{err}'")
+        try:
+            # sometimes, languagetool outputs some logs, so we search for the largest string.
+            # We could also try to go through all lines until one parses successfully.
+            data = json.loads(max([l for l in result.split("\n") if "{" in l], key=len))
+        except json.JSONDecodeError as de:
+            print("Bad JSON:", result)
+            raise
         for problem in data["matches"]:
             try:
                 look_up_url = problem["rule"]["urls"][0]["value"]

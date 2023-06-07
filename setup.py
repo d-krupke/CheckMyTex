@@ -16,7 +16,7 @@ def readme():
 
 setup(
     name="CheckMyTex",
-    version="0.10.2",
+    version="0.10.3",
     description="A simple tool for checking complex LaTeX documents, e.g., dissertations.",
     long_description=readme(),
     long_description_content_type="text/markdown",
