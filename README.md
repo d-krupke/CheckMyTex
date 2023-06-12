@@ -277,6 +277,7 @@ imperfections. Ideas are welcome.
 
 ## Changes
 
+- 0.10.5: Fixing `--print` option.
 - 0.10.4: Fixing exception when $EDITOR is not set.
 - 0.10.3: Making project slightly more robust.
 - 0.10.2: Making project pep compliant.

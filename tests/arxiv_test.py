@@ -93,3 +93,12 @@ class ArxivTest(unittest.TestCase):
         main_path = os.path.join(path_folder, "main.tex")
         download(url, path_folder, main_path)
         analyze(main_path)
+
+    def test_6(self):
+        if not bool(shutil.which("languagetool")):
+            return
+        url = "https://arxiv.org/e-print/2305.16303"
+        path_folder = "test_document_6"
+        main_path = os.path.join(path_folder, "main.tex")
+        download(url, path_folder, main_path)
+        analyze(main_path)

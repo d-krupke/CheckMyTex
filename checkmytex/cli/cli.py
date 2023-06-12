@@ -30,11 +30,19 @@ def cli(
             RichPrinter(analyzed_document).to_html(args.html)
         else:
             analyzed_document.set_on_false_positive_cb(lambda p: whitelist.add(p))
-            rp = RichPrinter(
-                analyzed_document,
-                problem_handler=ProblemHandler(analyzed_document, Editor(), console),
-                console=console,
-            )
+            if args.print:
+                    rp = RichPrinter(
+                    analyzed_document,
+                    problem_handler=lambda p: None,
+                    console=console,
+                )
+            else:
+                ph = ProblemHandler(analyzed_document, Editor(), console)
+                rp = RichPrinter(
+                    analyzed_document,
+                    problem_handler=ph,
+                    console=console,
+                )
             rp.print()
     except KeyError as key_error:
         console.log("Error:", str(key_error))
