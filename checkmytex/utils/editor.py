@@ -2,6 +2,7 @@
 Provides a class to open editors at specific lines and try to guess the
 line number after (sequential) changes in the file.
 """
+import logging
 import os
 import subprocess
 from pathlib import Path
@@ -10,6 +11,9 @@ from pathlib import Path
 def _number_of_lines(file_path: str) -> int:
     with Path(file_path).open() as file:
         return len(file.readlines())
+
+
+_log = logging.getLogger(__name__)
 
 
 class Editor:
@@ -33,6 +37,9 @@ class Editor:
         self.editor = editor if editor else os.environ.get("EDITOR")
         self.offsets = {}
         self.remember_offsets = remember_offsets
+        if not self.editor:
+            _log.error("No editor found. Please set $EDITOR.")
+            return
         if pattern:
             self.editor_pattern = pattern
         else:
@@ -48,6 +55,9 @@ class Editor:
         :param line: Line number
         :return: Change in line number.
         """
+        if not self.editor:
+            _log.error("No editor found. Please set $EDITOR.")
+            return 0
         n_lines_before = _number_of_lines(file)
         offset: int = self.offsets.get(file, 0) if self.remember_offsets else 0
         cmd = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
