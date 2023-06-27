@@ -26,6 +26,8 @@ class Languagetool(Checker):
             "COMMA_PARENTHESIS_WHITESPACE",
             # Also not reliable in detexed text.
             "THE_SUPERLATIVE",  # not true in computer science and math where we can have, e.g., multiple equivalent extremal solutions.
+            # Consecutive spaces are not reliable in detexed text.
+            "CONSECUTIVE_SPACES",
         ]
 
     def _get_languagetool_json(self, document: LatexDocument) -> dict:

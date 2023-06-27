@@ -128,3 +128,20 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea
+test_document_1
+test_document_2
+test_document_3
+test_document_4
+test_document_5
+test_document_6
+tests/test_document_1.tar.gz
+tests/test_document_2.tar.gz
+tests/test_document_3.tar.gz
+tests/test_document_4.tar.gz
+tests/test_document_5.tar.gz
+test_document_1.tar.gz
+test_document_2.tar.gz
+test_document_3.tar.gz
+test_document_4.tar.gz
+test_document_5.tar.gz
+test_document_6.tar.gz
