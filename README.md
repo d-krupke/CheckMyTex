@@ -83,7 +83,7 @@ these should be available via yours systems package manages, e.g. `pacman`,
 
 ```shell
 brew install --cask mactex  # install a tex distribution
-brew install languagtool  # install the grammar checker languagetool
+brew install languagetool  # install the grammar checker languagetool
 brew install aspell  # install a dictionary
 ```
 
