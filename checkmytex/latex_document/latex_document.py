@@ -7,6 +7,8 @@ import logging
 import re
 import typing
 
+from flachtex import TraceableString
+
 from .detex import DetexedText
 from .indexed_string import TextPosition
 from .origin import Origin, OriginPointer
@@ -33,7 +35,7 @@ class LatexDocument:
         """
         return self.sources.file_names
 
-    def get_source(self, line=None) -> str:
+    def get_source(self, line=None) -> str|TraceableString:
         """
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
@@ -74,17 +76,17 @@ class LatexDocument:
         :param end: Index or line&offset. Exclusive.
         :return:
         """
-        begin = self.detexed_text.get_detailed_position(begin)
-        end = self.detexed_text.get_detailed_position(end)
-        if begin >= end:
+        begin_ = self.detexed_text.get_detailed_position(begin)
+        end_ = self.detexed_text.get_detailed_position(end)
+        if begin_ >= end_:
             msg = "Incorrect range. End before begin."
             raise ValueError(msg)
-        begin_source_idx = self.detexed_text.get_position_in_source(begin.index)
-        end_source_idx = self.detexed_text.get_position_in_source(end.index - 1) + 1
+        begin_source_idx = self.detexed_text.get_position_in_source(begin_.index)
+        end_source_idx = self.detexed_text.get_position_in_source(end_.index - 1) + 1
         assert begin_source_idx < end_source_idx
         origin = self.get_simplified_origin_of_source(begin_source_idx, end_source_idx)
-        origin.begin.text = begin
-        origin.end.text = end
+        origin.begin.text = begin_
+        origin.end.text = end_
         return origin
 
     def get_source_context(self, origin: Origin, n: int = 20) -> str:
@@ -111,25 +113,26 @@ class LatexDocument:
         :return: Origin of the part.
         """
         source = self.sources.flat_source
-        begin: TextPosition = source.get_detailed_position(begin)
-        end: TextPosition = source.get_detailed_position(end)
-        if begin > end:
+        begin_: TextPosition = source.get_detailed_position(begin)
+        end_: TextPosition = source.get_detailed_position(end)
+        if begin_ > end_:
             msg = "End is before begin."
             raise ValueError(msg)
-        if end.index - begin.index > 1000:  # reduce very large ranges.
-            logging.getLogger("CheckMyTex").info(f"Reducing long range {begin}-{end}.")
-            begin = source.get_detailed_position(end.index - 1000)
-        assert begin < end
-        r = self.sources.get_simplified_origin_range(begin.index, end.index)
+        if end_.index - begin_.index > 1000:  # reduce very large ranges.
+            logging.getLogger("CheckMyTex").info(f"Reducing long range {begin_}-{end_}.")
+            begin_ = source.get_detailed_position(end_.index - 1000)
+        assert begin_ < end_
+        r = self.sources.get_simplified_origin_range(begin_.index, end_.index)
+        assert r is not None
         assert isinstance(r[0], FilePosition)
-        return Origin(OriginPointer(r[0], begin), OriginPointer(r[1], end))
+        return Origin(OriginPointer(r[0], begin_), OriginPointer(r[1], end_))
 
     def find_in_text(self, pattern: str) -> typing.Iterable[Origin]:
         for match in re.finditer(pattern, self.get_text()):
             yield self.get_simplified_origin_of_text(match.start(), match.end())
 
     def find_in_source(self, pattern: str) -> typing.Iterable[Origin]:
-        for match in re.finditer(pattern, self.get_source()):
+        for match in re.finditer(pattern, str(self.get_source())):
             yield self.get_simplified_origin_of_source(match.start(), match.end())
 
     def serialize(self) -> typing.Dict:

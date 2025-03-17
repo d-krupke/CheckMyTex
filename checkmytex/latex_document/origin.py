@@ -62,6 +62,7 @@ class Origin:
     def get_text_span(self) -> typing.Optional[typing.Tuple[int, int]]:
         if self.begin.text is None:
             return None
+        assert self.end.text is not None
         return self.begin.text.index, self.end.text.index
 
     def get_source_span(self) -> typing.Tuple[int, int]:
@@ -71,6 +72,7 @@ class Origin:
         return self.begin.file.position.index, self.end.file.position.index
 
     def get_text_line(self) -> int:
+        assert self.begin.text is not None
         return self.begin.text.line
 
     def get_source_line(self) -> int:
