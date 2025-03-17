@@ -2,6 +2,7 @@
 The LatexDocument provides easy access to the latex document to be fed to
 a checker and to trace the checker's report back to the original document.
 """
+
 import logging
 import re
 import typing

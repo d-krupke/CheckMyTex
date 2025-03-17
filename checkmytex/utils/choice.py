@@ -1,6 +1,7 @@
 """
 Provides a simple class for CLI option prompt.
 """
+
 import typing
 
 

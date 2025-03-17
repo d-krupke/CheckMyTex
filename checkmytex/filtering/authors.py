@@ -1,6 +1,7 @@
 """
 Provides some filters to lessen reported spelling errors on author names.
 """
+
 import os
 import re
 import typing

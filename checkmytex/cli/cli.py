@@ -31,7 +31,7 @@ def cli(
         else:
             analyzed_document.set_on_false_positive_cb(lambda p: whitelist.add(p))
             if args.print:
-                    rp = RichPrinter(
+                rp = RichPrinter(
                     analyzed_document,
                     problem_handler=lambda p: None,
                     console=console,

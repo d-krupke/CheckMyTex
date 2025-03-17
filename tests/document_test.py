@@ -48,7 +48,7 @@ class LatexDocumentTest(unittest.TestCase):
         parser = LatexParser(file_finder=FileFinder("/", sources))
         document = parser.parse("/main.tex")
         for f in ["A", "B", "C"]:
-            for i in range(0, 3):
+            for i in range(3):
                 key = f"{f}{i}"
                 p = document.get_text().find(key)
                 origin = document.get_simplified_origin_of_source(p, p + 1)
@@ -68,7 +68,7 @@ class LatexDocumentTest(unittest.TestCase):
         parser = LatexParser(file_finder=FileFinder("/", sources))
         document = parser.parse("/main.tex")
         for f in ["A", "B", "C"]:
-            for i in range(0, 3):
+            for i in range(3):
                 key = f"{f}{i}"
                 if key == "B0":
                     continue

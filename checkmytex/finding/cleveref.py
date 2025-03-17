@@ -1,6 +1,7 @@
 """
 Finding usages of raw \\ref
 """
+
 import re
 import typing
 

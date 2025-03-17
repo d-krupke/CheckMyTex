@@ -80,10 +80,7 @@ class Origin:
         return self.begin.file.position.line
 
     def __repr__(self):
-        return (
-            f"{self.get_file()}"
-            f"[{self.begin.file.position}-{self.end.file.position}]"
-        )
+        return f"{self.get_file()}[{self.begin.file.position}-{self.end.file.position}]"
 
     def __eq__(self, other):
         if not isinstance(other, Origin):

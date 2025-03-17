@@ -57,20 +57,18 @@ class IndexedText:
         if isinstance(i, TextPosition):
             if i.index is not None:
                 return self.get_detailed_position(i.index)
-            elif i.line is not None and i.line_offset is not None:
+            if i.line is not None and i.line_offset is not None:
                 return self.get_detailed_position((i.line, i.line_offset))
-            else:
-                msg = f"Position {i} insufficiently defined."
-                raise ValueError(msg)
+            msg = f"Position {i} insufficiently defined."
+            raise ValueError(msg)
         if isinstance(i, int):
             i = min(i, len(self._content))
             line = bisect(self._index, i) - 1
             line_offset = i - self._index[line]
             return TextPosition(i, line, line_offset)
-        else:
-            if i[0] >= self.num_lines():
-                return self.get_detailed_position(len(self._content))
-            return TextPosition(self._index[i[0]] + i[1], i[0], i[1])
+        if i[0] >= self.num_lines():
+            return self.get_detailed_position(len(self._content))
+        return TextPosition(self._index[i[0]] + i[1], i[0], i[1])
 
     def num_lines(self):
         return len(self._index)

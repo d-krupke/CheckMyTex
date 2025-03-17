@@ -16,9 +16,9 @@ class AnalyzedDocument:
     def __init__(self, document: LatexDocument, problems: typing.Iterable[Problem]):
         self.document = document
         self.problems = list(problems)
-        self._on_false_positive: typing.Optional[
-            typing.Callable[[Problem], None]
-        ] = None
+        self._on_false_positive: typing.Optional[typing.Callable[[Problem], None]] = (
+            None
+        )
 
     def set_on_false_positive_cb(
         self, on_false_positive: typing.Callable[[Problem], None]

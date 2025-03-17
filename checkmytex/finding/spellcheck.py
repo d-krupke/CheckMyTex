@@ -1,6 +1,7 @@
 """
 Modules for spellchecking.
 """
+
 import re
 import shutil
 import typing

@@ -1,6 +1,7 @@
 """
 Parsing the arguments from CLI.
 """
+
 import argparse
 import os
 import sys

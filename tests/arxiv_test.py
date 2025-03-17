@@ -1,8 +1,8 @@
-import os
 import shutil
 import tarfile
 import unittest
 import urllib.request
+from pathlib import Path
 
 from checkmytex import DocumentAnalyzer
 from checkmytex.cli.rich_printer import RichPrinter
@@ -19,6 +19,7 @@ from checkmytex.latex_document.parser import LatexParser
 
 
 def analyze(path):
+    path = str(path)
     parser = LatexParser()
     latex_document = parser.parse(path)
     engine = DocumentAnalyzer()
@@ -39,13 +40,17 @@ def analyze(path):
 
 
 def download(url, extract_to, main_file):
-    if not os.path.isdir(main_file):
+    def tex_file_filter(tarinfo, path):
+        if tarinfo.name.endswith(".tex"):
+            return tarinfo
+        return None
+
+    if not Path(main_file).is_dir():
         path_tar = extract_to + ".tar.gz"
         urllib.request.urlretrieve(url, path_tar)
         assert tarfile.is_tarfile(path_tar)
-        tar = tarfile.open(path_tar)
-        tar.extractall(extract_to)
-        tar.close()
+        with tarfile.open(path_tar) as tar:
+            tar.extractall(extract_to, filter=tex_file_filter)
 
 
 class ArxivTest(unittest.TestCase):
@@ -54,7 +59,7 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/1505.03116"
         path_folder = "test_document_1"
-        main_path = os.path.join(path_folder, "main.tex")
+        main_path = Path(path_folder) / "main.tex"
         download(url, path_folder, main_path)
         analyze(main_path)
 
@@ -63,7 +68,7 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/2203.07444"
         path_folder = "test_document_2"
-        main_path = os.path.join(path_folder, "survey.tex")
+        main_path = Path(path_folder) / "survey.tex"
         download(url, path_folder, main_path)
         analyze(main_path)
 
@@ -72,7 +77,7 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/2103.14599"
         path_folder = "test_document_3"
-        main_path = os.path.join(path_folder, "main.tex")
+        main_path = Path(path_folder) / "main.tex"
         download(url, path_folder, main_path)
         analyze(main_path)
 
@@ -81,7 +86,7 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/2204.10836"
         path_folder = "test_document_4"
-        main_path = os.path.join(path_folder, "main.tex")
+        main_path = Path(path_folder) / "main.tex"
         download(url, path_folder, main_path)
         analyze(main_path)
 
@@ -90,7 +95,7 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/1604.06057"
         path_folder = "test_document_5"
-        main_path = os.path.join(path_folder, "main.tex")
+        main_path = Path(path_folder) / "main.tex"
         download(url, path_folder, main_path)
         analyze(main_path)
 
@@ -99,6 +104,6 @@ class ArxivTest(unittest.TestCase):
             return
         url = "https://arxiv.org/e-print/2305.16303"
         path_folder = "test_document_6"
-        main_path = os.path.join(path_folder, "main.tex")
+        main_path = Path(path_folder) / "main.tex"
         download(url, path_folder, main_path)
         analyze(main_path)

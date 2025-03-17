@@ -2,6 +2,7 @@
 Provides a class to open editors at specific lines and try to guess the
 line number after (sequential) changes in the file.
 """
+
 import logging
 import os
 import subprocess

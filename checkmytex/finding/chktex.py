@@ -2,6 +2,7 @@
 Wrapping chktex (LaTeX linter, part of LaTeX distribution).
 https://www.nongnu.org/chktex/
 """
+
 import re
 import shutil
 import typing

@@ -1,6 +1,7 @@
 """
 Module for checking a latex document by applying a set of checker and filter.
 """
+
 import logging
 import traceback
 import typing
