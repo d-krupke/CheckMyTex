@@ -1,6 +1,6 @@
 import shutil
 import tarfile
-import unittest
+
 import urllib.request
 from pathlib import Path
 
@@ -53,7 +53,7 @@ def download(url, extract_to, main_file):
             tar.extractall(extract_to, filter=tex_file_filter)
 
 
-class ArxivTest(unittest.TestCase):
+class TestArxiv:
     def test_1(self):
         if not bool(shutil.which("languagetool")):
             return

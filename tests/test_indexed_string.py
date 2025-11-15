@@ -1,9 +1,7 @@
-import unittest
-
 from checkmytex.latex_document.indexed_string import IndexedText
 
 
-class IndexedStringTest(unittest.TestCase):
+class TestIndexedString:
     def test_1(self):
         text = "123\n456\n789"
         inds = IndexedText(text)

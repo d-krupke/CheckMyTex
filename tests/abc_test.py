@@ -1,6 +1,6 @@
 import re
 import typing
-import unittest
+
 
 from checkmytex import DocumentAnalyzer, LatexDocument
 from checkmytex.cli.rich_printer import RichPrinter
@@ -46,7 +46,7 @@ class AbcChecker(Checker):
             )
 
 
-class AbcTest(unittest.TestCase):
+class TestAbc:
     def test_1(self):
         files = {
             "/main.tex": "This is a test with ABC.\nSecond line. Also here an ABC."

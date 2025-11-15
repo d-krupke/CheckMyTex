@@ -1,10 +1,8 @@
-import unittest
-
 from checkmytex.latex_document.parser import LatexParser
 from flachtex import FileFinder
 
 
-class LatexDocumentTest(unittest.TestCase):
+class TestLatexDocument:
     def test_1(self):
         sources = {"/main.tex": "0123\n\tBCD\nXYZ\n"}
         parser = LatexParser(file_finder=FileFinder("/", sources))
