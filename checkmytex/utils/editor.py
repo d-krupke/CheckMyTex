@@ -5,6 +5,7 @@ line number after (sequential) changes in the file.
 
 import logging
 import os
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -50,19 +51,38 @@ class Editor:
 
     def open(self, file: str, line: int) -> int:
         """
-        Open file in editor at line. If file has changed, try to guess
-         position.
-        :param file: Path to file
-        :param line: Line number
-        :return: Change in line number.
+        Open file in editor at line. If file has changed, try to guess position.
+
+        Args:
+            file: Path to file
+            line: Line number
+
+        Returns:
+            Change in line number
+
+        Raises:
+            subprocess.SubprocessError: If editor command fails
         """
         if not self.editor:
             _log.error("No editor found. Please set $EDITOR.")
             return 0
+
         n_lines_before = _number_of_lines(file)
         offset: int = self.offsets.get(file, 0) if self.remember_offsets else 0
-        cmd = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
-        subprocess.call(cmd, shell=True)
+
+        # Format the command string
+        cmd_str = self.editor_pattern.format(
+            e=self.editor, f=file, l=line + 1 + offset
+        )
+
+        # Use shlex.split to safely parse the command and execute without shell=True
+        try:
+            cmd_list = shlex.split(cmd_str)
+            subprocess.call(cmd_list, shell=False)
+        except (subprocess.SubprocessError, OSError, ValueError) as e:
+            _log.error(f"Failed to open editor: {e}")
+            return 0
+
         n_lines_after = _number_of_lines(file)
         offset += n_lines_after - n_lines_before
         self.offsets[file] = offset

@@ -29,7 +29,7 @@ class MathMode(Filter):
         self.ranges: typing.List[typing.Tuple[int, int]] = []
         self.rules = rules
 
-    def _find_simple_math(self, source):
+    def _find_simple_math(self, source) -> typing.List[typing.Tuple[int, int]]:
         regex = re.compile(
             r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
         )
@@ -38,14 +38,14 @@ class MathMode(Filter):
             end = match.end("math")
             self.ranges.append((begin, end))
 
-    def _find_line_math(self, source):
+    def _find_line_math(self, source) -> typing.List[typing.Tuple[int, int]]:
         regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
         for match in regex.finditer(source):
             begin = match.start()
             end = match.end()
             self.ranges.append((begin, end))
 
-    def _find_environments(self, source, env):
+    def _find_environments(self, source, env) -> typing.List[typing.Tuple[int, int]]:
         regex = re.compile(
             r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
             re.MULTILINE | re.DOTALL,
@@ -65,13 +65,13 @@ class MathMode(Filter):
         self._find_environments(source, "align\\*")
         self._find_environments(source, "array")
 
-    def _problem_fits_rule(self, problem):
+    def _problem_fits_rule(self, problem) -> bool:
         for tool, rules in self.rules.items():
             if problem.tool == tool and (not rules or problem.rule in rules):
                 return True
         return False
 
-    def _problem_applies(self, problem):
+    def _problem_applies(self, problem) -> bool:
         if not self._problem_fits_rule(problem):
             return False
         begin = problem.origin.begin.source.index

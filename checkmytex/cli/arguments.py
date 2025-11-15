@@ -8,7 +8,7 @@ import sys
 import typing
 
 
-def create_default_argument_parser():
+def create_default_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="CheckMyTex: A simple tool for checking your LaTeX."
     )

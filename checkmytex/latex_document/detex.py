@@ -1,5 +1,4 @@
 import typing
-import unittest
 
 from yalafi.tex2txt import Options, tex2txt
 
@@ -25,10 +24,3 @@ class DetexedText(IndexedText):
         """
         pos = self.get_detailed_position(index)
         return self._charmap[pos.index] - 1  # the map is somehow starting at 1
-
-
-class TestDetex(unittest.TestCase):
-    def test_single_line(self):
-        detex = DetexedText("0123456789")
-        for i in range(10):
-            assert detex.get_position_in_source(i) == i

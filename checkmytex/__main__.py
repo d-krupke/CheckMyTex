@@ -16,11 +16,10 @@ from checkmytex.filtering import (
 )
 
 
-def main():
+def main() -> None:
     """
     A main function, such that it can also be called with different entry
     points
-    :return: None
     """
     args = parse_arguments()
     engine = DocumentAnalyzer()

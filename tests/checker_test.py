@@ -1,12 +1,10 @@
-import unittest
-
 from checkmytex import DocumentAnalyzer
 from checkmytex.finding import CheckSpell
 from checkmytex.latex_document.parser import LatexParser
 from flachtex import FileFinder
 
 
-class CheckerTest(unittest.TestCase):
+class TestChecker:
     def test_1(self):
         source = r"""
 \documentclass{article}

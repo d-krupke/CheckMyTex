@@ -75,7 +75,7 @@ class AnalyzedDocument:
             return problems
         return self.problems
 
-    def get_orphaned_problems(self):
+    def get_orphaned_problems(self) -> typing.List[Problem]:
         return [p for p in self.problems if not p.origin]
 
     def list_files(self) -> typing.Iterable[str]:
@@ -90,7 +90,7 @@ class AnalyzedDocument:
         """
         return self.document.get_file_content(file_name)
 
-    def serialize(self):
+    def serialize(self) -> dict:
         return {
             "document": self.document.serialize(),
             "problems": [p.serialize() for p in self.problems],

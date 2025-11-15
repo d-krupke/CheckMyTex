@@ -1,10 +1,9 @@
-import unittest
-
 import flachtex
+
 from checkmytex.latex_document.parser import LatexParser
 
 
-class TestSource(unittest.TestCase):
+class TestSource:
     def test_single_line(self):
         files = {"main.tex": "0123456789"}
         parser = LatexParser(flachtex.FileFinder(file_system=files))
@@ -17,18 +16,16 @@ class TestSource(unittest.TestCase):
             assert o[1].position.index == i + 1
 
 
-class TestLatexDocument(unittest.TestCase):
+class TestLatexDocument:
     def test_single_line(self):
         files = {"main.tex": "0123456789"}
         parser = LatexParser(flachtex.FileFinder(file_system=files))
         document = parser.parse("main.tex")
         for i in range(10):
             origin = document.get_simplified_origin_of_source(i, i + 1)
-            print(i, origin)
             assert origin.begin.file.position.index == i
             assert origin.end.file.position.index == i + 1
         for i in range(10):
             origin = document.get_simplified_origin_of_text(i, i + 1)
-            print(i, origin)
             assert origin.begin.file.position.index == i
             assert origin.end.file.position.index == i + 1

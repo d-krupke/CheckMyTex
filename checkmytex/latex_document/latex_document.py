@@ -35,7 +35,7 @@ class LatexDocument:
         """
         return self.sources.file_names
 
-    def get_source(self, line=None) -> str|TraceableString:
+    def get_source(self, line=None) -> typing.Union[str, TraceableString]:
         """
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
@@ -83,7 +83,9 @@ class LatexDocument:
             raise ValueError(msg)
         begin_source_idx = self.detexed_text.get_position_in_source(begin_.index)
         end_source_idx = self.detexed_text.get_position_in_source(end_.index - 1) + 1
-        assert begin_source_idx < end_source_idx
+        if begin_source_idx >= end_source_idx:
+            msg = f"Invalid source range: begin ({begin_source_idx}) >= end ({end_source_idx})"
+            raise ValueError(msg)
         origin = self.get_simplified_origin_of_source(begin_source_idx, end_source_idx)
         origin.begin.text = begin_
         origin.end.text = end_
@@ -121,10 +123,16 @@ class LatexDocument:
         if end_.index - begin_.index > 1000:  # reduce very large ranges.
             logging.getLogger("CheckMyTex").info(f"Reducing long range {begin_}-{end_}.")
             begin_ = source.get_detailed_position(end_.index - 1000)
-        assert begin_ < end_
+        if begin_ >= end_:
+            msg = f"Invalid range after reduction: begin ({begin_}) >= end ({end_})"
+            raise ValueError(msg)
         r = self.sources.get_simplified_origin_range(begin_.index, end_.index)
-        assert r is not None
-        assert isinstance(r[0], FilePosition)
+        if r is None:
+            msg = f"Could not find origin for range ({begin_.index}, {end_.index})"
+            raise RuntimeError(msg)
+        if not isinstance(r[0], FilePosition):
+            msg = f"Expected FilePosition but got {type(r[0])}"
+            raise TypeError(msg)
         return Origin(OriginPointer(r[0], begin_), OriginPointer(r[1], end_))
 
     def find_in_text(self, pattern: str) -> typing.Iterable[Origin]:
