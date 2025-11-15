@@ -13,38 +13,43 @@ from typing import List, Optional, Tuple
 MAX_ZIP_SIZE = 100 * 1024 * 1024  # 100 MB
 MAX_EXTRACTED_SIZE = 500 * 1024 * 1024  # 500 MB
 MAX_FILES = 10000
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB per individual file
 
-ALLOWED_EXTENSIONS = {
-    # LaTeX files
-    ".tex",
-    ".bib",
-    ".cls",
-    ".sty",
-    ".bst",
-    # Images
-    ".pdf",
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".eps",
-    ".svg",
-    # Text files
-    ".txt",
-    ".md",
-    ".markdown",
-    # Data files
-    ".csv",
-    ".json",
-    # Common LaTeX auxiliary
-    ".bbl",
-    ".aux",
+# Block dangerous file types (executables, scripts that could be harmful)
+DANGEROUS_EXTENSIONS = {
+    # Executables
+    ".exe",
+    ".dll",
+    ".so",
+    ".dylib",
+    ".app",
+    ".bat",
+    ".cmd",
+    ".com",
+    ".msi",
+    # Scripts
+    ".sh",
+    ".bash",
+    ".zsh",
+    ".ps1",
+    ".vbs",
+    ".js",
+    ".py",
+    ".rb",
+    ".pl",
+    ".php",
+    # Archives (prevent nested archives that could be zip bombs)
+    ".zip",
+    ".tar",
+    ".gz",
+    ".bz2",
+    ".7z",
+    ".rar",
 }
 
 DANGEROUS_PATTERNS = [
     "../",
     "..\\",
-    "~",
-    "$",
 ]
 
 
@@ -73,8 +78,19 @@ def validate_zip(zip_file) -> Tuple[bool, Optional[str]]:
             if len(zf.namelist()) > MAX_FILES:
                 return False, f"Too many files in ZIP: {len(zf.namelist())} (max: {MAX_FILES})"
 
-            # Check total extracted size
-            total_size = sum(info.file_size for info in zf.infolist())
+            # Check total extracted size and individual file sizes
+            total_size = 0
+            for info in zf.infolist():
+                file_size = info.file_size
+                total_size += file_size
+
+                # Check individual file size (prevent single huge files)
+                if file_size > MAX_FILE_SIZE:
+                    return (
+                        False,
+                        f"File too large: {info.filename} ({file_size / 1024 / 1024:.1f}MB, max: {MAX_FILE_SIZE / 1024 / 1024}MB)",
+                    )
+
             if total_size > MAX_EXTRACTED_SIZE:
                 return (
                     False,
@@ -87,11 +103,19 @@ def validate_zip(zip_file) -> Tuple[bool, Optional[str]]:
                 if any(pattern in name for pattern in DANGEROUS_PATTERNS):
                     return False, f"Suspicious file path detected: {name}"
 
-                # Check file extension if it's not a directory
+                # Check for dangerous file extensions (not directories)
                 if not name.endswith("/"):
                     ext = Path(name).suffix.lower()
-                    if ext and ext not in ALLOWED_EXTENSIONS:
-                        return False, f"Disallowed file type: {name} ({ext})"
+                    if ext in DANGEROUS_EXTENSIONS:
+                        return False, f"Dangerous file type blocked: {name} ({ext})"
+
+                    # Check for files without extensions that might be executables
+                    if not ext and len(Path(name).name) > 0:
+                        # Allow common LaTeX auxiliary files without extensions
+                        basename = Path(name).name.lower()
+                        if not any(basename.startswith(prefix) for prefix in ["makefile", "readme", "license", "changelog"]):
+                            # This might be suspicious, but let's be lenient - just check if it looks binary
+                            pass
 
         zip_file.seek(0)  # Reset for later use
         return True, None

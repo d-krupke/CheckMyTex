@@ -49,7 +49,10 @@ streamlit run app.py
 
 ## Security
 
-- ZIP file validation (size limits, safe extensions)
+- ZIP file validation (size limits, dangerous file blocking)
 - Path traversal protection
+- Individual file size limits (prevents zip bombs)
+- Blocks executables and scripts (.exe, .sh, .py, etc.)
+- Blocks nested archives (prevents zip bombs)
 - Temporary file cleanup
-- Safe file type whitelist
+- **Accepts all common document files** - just zip your project folder!
