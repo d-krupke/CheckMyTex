@@ -2,6 +2,7 @@
 
 # Core framework
 streamlit>=1.28.0
+pandas>=2.0.0
 
 # CheckMyTex library (install from parent directory)
 # Install with: pip install -e ..

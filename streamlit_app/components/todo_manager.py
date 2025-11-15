@@ -12,10 +12,8 @@ from utils.export import export_todos
 
 def render_todo_manager() -> None:
     """Render the todo list manager with export options."""
-    st.header("📋 Todo List")
-
     if "todos" not in st.session_state or not st.session_state.todos:
-        st.info("No items in your todo list yet. Add problems from the viewer above!")
+        st.info("📝 No items in your todo list yet. Add problems from the Problems tab!")
         return
 
     todos: list[TodoItem] = st.session_state.todos
@@ -25,7 +23,7 @@ def render_todo_manager() -> None:
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("Total Items", len(todos))
+        st.metric("Total", len(todos))
     with col2:
         high_priority = sum(1 for t in todos if t.priority == "high")
         st.metric("High Priority", high_priority)
@@ -35,6 +33,8 @@ def render_todo_manager() -> None:
     with col4:
         completed = sum(1 for t in todos if t.status == "completed")
         st.metric("Completed", completed)
+
+    st.divider()
 
     # Filter and sort options
     col1, col2, col3 = st.columns(3)

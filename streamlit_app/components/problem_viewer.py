@@ -1,28 +1,25 @@
-"""Problem viewer component using Rich HTML output with Streamlit actions."""
+"""Problem viewer component with clean Streamlit-native design."""
 
 from __future__ import annotations
 
-import io
-from typing import List
+from collections import defaultdict
+from typing import Dict, List
 
+import pandas as pd
 import streamlit as st
 from checkmytex import AnalyzedDocument
-from checkmytex.cli.rich_printer import RichPrinter
 from checkmytex.finding import Problem
-from rich.console import Console
 
 from models.todo_item import TodoItem
 
 
 def render_problem_viewer(analyzed_document: AnalyzedDocument) -> None:
     """
-    Render the problem viewer using Rich HTML with interactive Streamlit buttons.
+    Render the problem viewer with clean Streamlit-native components.
 
     Args:
         analyzed_document: The analyzed LaTeX document
     """
-    st.header("🔍 Problems Found")
-
     problems = analyzed_document.problems
 
     if not problems:
@@ -37,200 +34,236 @@ def render_problem_viewer(analyzed_document: AnalyzedDocument) -> None:
     if "whitelisted_problems" not in st.session_state:
         st.session_state.whitelisted_problems = set()
 
-    # Statistics
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Problems", len(problems))
-    with col2:
-        st.metric("In Todo List", len(st.session_state.todos))
-    with col3:
-        st.metric("Skipped", len(st.session_state.skipped_problems))
-    with col4:
-        st.metric("Whitelisted", len(st.session_state.whitelisted_problems))
+    # Overview section
+    st.subheader("📊 Overview")
 
-    # Filters
-    st.subheader("🔧 Filters")
-    col1, col2, col3 = st.columns(3)
+    # Create summary tables
+    col1, col2 = st.columns(2)
 
     with col1:
-        show_skipped = st.checkbox("Show skipped", value=False)
+        st.markdown("**Problems by File**")
+        file_counts = {}
+        for filename in analyzed_document.list_files():
+            file_counts[filename] = len(analyzed_document.get_problems(filename))
+
+        if file_counts:
+            df_files = pd.DataFrame(
+                [(file, count) for file, count in sorted(file_counts.items(), key=lambda x: -x[1])],
+                columns=["File", "Problems"]
+            )
+            st.dataframe(df_files, use_container_width=True, hide_index=True)
+
     with col2:
-        show_whitelisted = st.checkbox("Show whitelisted", value=False)
-    with col3:
-        show_in_todos = st.checkbox("Show items in todo list", value=True)
+        st.markdown("**Problems by Type**")
+        problem_counts = defaultdict(int)
+        for prob in problems:
+            problem_counts[f"{prob.tool}: {prob.rule}"] += 1
 
-    # Generate Rich HTML overview sections
-    console = Console(record=True, width=120)
-    printer = RichPrinter(analyzed_document, shorten=5, console=console)
-
-    # Print overview sections
-    printer.print_file_overview()
-    printer.print_rule_count()
-
-    # Get HTML for overview
-    html_output = console.export_html(inline_styles=True)
-    st.components.v1.html(html_output, height=400, scrolling=True)
+        if problem_counts:
+            df_types = pd.DataFrame(
+                [(type_name, count) for type_name, count in sorted(problem_counts.items(), key=lambda x: -x[1])[:10]],
+                columns=["Type", "Count"]
+            )
+            st.dataframe(df_types, use_container_width=True, hide_index=True)
 
     st.divider()
 
-    # Display problems by file with action buttons
-    for filename in analyzed_document.list_files():
+    # Filters
+    with st.expander("🔧 Filters", expanded=False):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            show_skipped = st.checkbox("Show skipped", value=False)
+        with col2:
+            show_whitelisted = st.checkbox("Show whitelisted", value=False)
+        with col3:
+            show_in_todos = st.checkbox("Show items in todo list", value=True)
+
+    # Group problems by file and line
+    st.subheader("📝 Problems by File")
+
+    for filename in sorted(analyzed_document.list_files()):
         file_problems = analyzed_document.get_problems(filename)
 
-        with st.expander(f"📄 {filename} ({len(file_problems)} problems)", expanded=True):
-            # Render source code with Rich
-            _render_file_with_actions(filename, file_problems, analyzed_document, show_skipped, show_whitelisted, show_in_todos)
+        # Filter problems based on user preferences
+        filtered_problems = _filter_problems(
+            file_problems, show_skipped, show_whitelisted, show_in_todos
+        )
 
-    # Handle orphaned problems
-    orphaned = analyzed_document.get_orphaned_problems()
-    if orphaned:
-        with st.expander(f"⚠️ Other Problems ({len(orphaned)} problems)", expanded=False):
-            for idx, problem in enumerate(orphaned):
-                _render_problem_with_actions(problem, idx, analyzed_document, show_skipped, show_whitelisted, show_in_todos)
+        if not filtered_problems:
+            continue
+
+        # Display file header with expandable section
+        with st.expander(f"📄 **{filename}** ({len(filtered_problems)} problems)", expanded=True):
+            _render_file_problems(filename, filtered_problems, analyzed_document)
 
 
-def _render_file_with_actions(
-    filename: str,
+def _filter_problems(
     problems: List[Problem],
-    analyzed_document: AnalyzedDocument,
     show_skipped: bool,
     show_whitelisted: bool,
-    show_in_todos: bool,
-) -> None:
-    """Render a file's problems with Rich formatting and Streamlit actions."""
+    show_in_todos: bool
+) -> List[Problem]:
+    """Filter problems based on user preferences."""
+    filtered = []
+    for problem in problems:
+        problem_id = problem.short_id
+        is_skipped = problem_id in st.session_state.skipped_problems
+        is_whitelisted = problem_id in st.session_state.whitelisted_problems
+        is_in_todos = any(t.problem_id == problem_id for t in st.session_state.todos)
 
-    # Group problems by line
-    problems_by_line = {}
+        if is_skipped and not show_skipped:
+            continue
+        if is_whitelisted and not show_whitelisted:
+            continue
+        if is_in_todos and not show_in_todos:
+            continue
+
+        filtered.append(problem)
+
+    return filtered
+
+
+def _render_file_problems(
+    filename: str,
+    problems: List[Problem],
+    analyzed_document: AnalyzedDocument
+) -> None:
+    """Render problems for a single file."""
+
+    # Group by line number
+    problems_by_line = defaultdict(list)
     for problem in problems:
         line_num = problem.origin.get_file_line() if problem.origin else 0
-        if line_num not in problems_by_line:
-            problems_by_line[line_num] = []
         problems_by_line[line_num].append(problem)
 
     # Render each line group
     for line_num in sorted(problems_by_line.keys()):
         line_problems = problems_by_line[line_num]
 
-        # Check if any problem should be shown
-        should_show_any = False
-        for problem in line_problems:
-            problem_id = problem.short_id
-            is_skipped = problem_id in st.session_state.skipped_problems
-            is_whitelisted = problem_id in st.session_state.whitelisted_problems
-            is_in_todos = any(t.problem_id == problem_id for t in st.session_state.todos)
+        # Show source code context
+        st.markdown(f"**Line {line_num}**")
 
-            if is_skipped and not show_skipped:
-                continue
-            if is_whitelisted and not show_whitelisted:
-                continue
-            if is_in_todos and not show_in_todos:
-                continue
-            should_show_any = True
-            break
+        # Get context lines
+        try:
+            context_lines = []
+            for offset in range(-2, 3):
+                line_content = analyzed_document.document.get_file_content(filename, line_num + offset)
+                if line_content:
+                    prefix = "➤ " if offset == 0 else "  "
+                    context_lines.append(f"{prefix}{line_num + offset:4d} | {line_content.rstrip()}")
 
-        if not should_show_any:
-            continue
+            if context_lines:
+                st.code("\n".join(context_lines), language="latex", line_numbers=False)
+        except Exception:
+            pass
 
-        # Create a mini console for this section
-        console = Console(record=True, width=100)
-        printer = RichPrinter(analyzed_document, shorten=2, console=console, problem_handler=None)
-
-        # Print the source code context for this line
-        highlights = [
-            (
-                prob.origin.get_file_line(),
-                prob.origin.begin.file.position.line_offset,
-                prob.origin.end.file.position.line_offset,
-            )
-            for prob in line_problems
-            if prob.origin
-        ]
-
-        begin_line = max(0, line_num - 2)
-        end_line = line_num + 1
-        printer.print_source(filename, begin_line, end_line, highlights)
-
-        # Display the Rich HTML
-        html_output = console.export_html(inline_styles=True)
-        st.components.v1.html(html_output, height=150, scrolling=False)
-
-        # Add action buttons for each problem on this line
+        # Show each problem on this line
         for idx, problem in enumerate(line_problems):
-            _render_problem_with_actions(problem, idx + line_num * 1000, analyzed_document, show_skipped, show_whitelisted, show_in_todos)
+            _render_problem_card(problem, f"{filename}_{line_num}_{idx}", analyzed_document)
 
-        st.divider()
+        st.markdown("---")
 
 
-def _render_problem_with_actions(
+def _get_severity_color(tool: str, rule: str) -> str:
+    """Determine severity color based on tool and rule."""
+    tool_lower = tool.lower()
+    if "spell" in tool_lower:
+        return "🔴"  # Red for spelling
+    elif "grammar" in tool_lower or "language" in tool_lower:
+        return "🟠"  # Orange for grammar
+    elif "chktex" in tool_lower:
+        return "🟡"  # Yellow for LaTeX
+    elif "style" in tool_lower or "proselint" in tool_lower:
+        return "🔵"  # Blue for style
+    else:
+        return "⚪"  # White for others
+
+
+def _render_problem_card(
     problem: Problem,
-    idx: int,
-    analyzed_document: AnalyzedDocument,
-    show_skipped: bool,
-    show_whitelisted: bool,
-    show_in_todos: bool,
+    key_suffix: str,
+    analyzed_document: AnalyzedDocument
 ) -> None:
-    """Render a problem message with action buttons."""
+    """Render a single problem as a card with action buttons."""
     problem_id = problem.short_id
 
-    # Check if we should show this problem
+    # Check status
     is_skipped = problem_id in st.session_state.skipped_problems
     is_whitelisted = problem_id in st.session_state.whitelisted_problems
     is_in_todos = any(t.problem_id == problem_id for t in st.session_state.todos)
 
-    if is_skipped and not show_skipped:
-        return
-    if is_whitelisted and not show_whitelisted:
-        return
-    if is_in_todos and not show_in_todos:
-        return
+    # Container for the problem
+    with st.container():
+        # Header with severity indicator
+        severity = _get_severity_color(problem.tool, problem.rule)
+        status_badge = ""
+        if is_in_todos:
+            status_badge = " `📋 In Todo`"
+        elif is_skipped:
+            status_badge = " `⏭️ Skipped`"
+        elif is_whitelisted:
+            status_badge = " `✅ Whitelisted`"
 
-    # Render problem message using Rich
-    console = Console(record=True, width=100)
-    printer = RichPrinter(analyzed_document, console=console, problem_handler=None)
-    printer.print_problem(problem)
+        st.markdown(
+            f"{severity} **{problem.tool}** · `{problem.rule}`{status_badge}"
+        )
 
-    # Display the Rich HTML
-    html_output = console.export_html(inline_styles=True)
-    st.components.v1.html(html_output, height=60, scrolling=False)
+        # Message
+        st.markdown(problem.message)
 
-    # Status badge
-    if is_in_todos:
-        st.caption("📋 In Todo List")
-    elif is_skipped:
-        st.caption("⏭️ Skipped")
-    elif is_whitelisted:
-        st.caption("✅ Whitelisted")
+        # Action buttons in compact layout
+        col1, col2, col3, col4, col5, col6 = st.columns([1.5, 1, 1, 1.5, 1, 1])
 
-    # Action buttons
-    col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
+        with col1:
+            if st.button(
+                "📋 Add to Todo",
+                key=f"todo_{problem_id}_{key_suffix}",
+                disabled=is_in_todos,
+                use_container_width=True
+            ):
+                _add_to_todo(problem)
 
-    with col1:
-        if st.button("📋 Add to Todo", key=f"todo_{problem_id}_{idx}", disabled=is_in_todos):
-            _add_to_todo(problem, analyzed_document)
+        with col2:
+            if st.button(
+                "Skip",
+                key=f"skip_{problem_id}_{key_suffix}",
+                disabled=is_skipped,
+                use_container_width=True
+            ):
+                st.session_state.skipped_problems.add(problem_id)
+                st.rerun()
 
-    with col2:
-        if st.button("⏭️ Skip", key=f"skip_{problem_id}_{idx}", disabled=is_skipped):
-            st.session_state.skipped_problems.add(problem_id)
-            st.rerun()
+        with col3:
+            if st.button(
+                "Whitelist",
+                key=f"whitelist_{problem_id}_{key_suffix}",
+                disabled=is_whitelisted,
+                use_container_width=True
+            ):
+                st.session_state.whitelisted_problems.add(problem_id)
+                analyzed_document.mark_as_false_positive(problem)
+                st.rerun()
 
-    with col3:
-        if st.button("✅ Whitelist", key=f"whitelist_{problem_id}_{idx}", disabled=is_whitelisted):
-            st.session_state.whitelisted_problems.add(problem_id)
-            analyzed_document.mark_as_false_positive(problem)
-            st.rerun()
+        with col4:
+            if st.button(
+                "🚫 Ignore Rule",
+                key=f"ignore_{problem_id}_{key_suffix}",
+                use_container_width=True
+            ):
+                ignored_count = analyzed_document.remove_with_rule(problem.rule, problem.tool)
+                st.success(f"Ignored {ignored_count} problems")
+                st.rerun()
 
-    with col4:
-        if st.button("🚫 Ignore Rule", key=f"ignore_{problem_id}_{idx}"):
-            ignored_count = analyzed_document.remove_with_rule(problem.rule, problem.tool)
-            st.success(f"Ignored {ignored_count} problems with rule {problem.rule}")
-            st.rerun()
-
-    with col5:
-        if problem.look_up_url:
-            st.markdown(f"[🔍 Lookup]({problem.look_up_url})")
+        with col5:
+            if problem.look_up_url:
+                st.link_button(
+                    "🔍 Info",
+                    problem.look_up_url,
+                    use_container_width=True
+                )
 
 
-def _add_to_todo(problem: Problem, analyzed_document: AnalyzedDocument) -> None:
+def _add_to_todo(problem: Problem) -> None:
     """Add a problem to the todo list."""
     problem_id = problem.short_id
 
@@ -250,5 +283,5 @@ def _add_to_todo(problem: Problem, analyzed_document: AnalyzedDocument) -> None:
     )
 
     st.session_state.todos.append(todo)
-    st.success("✅ Added to todo list!")
+    st.toast("✅ Added to todo list!", icon="✅")
     st.rerun()

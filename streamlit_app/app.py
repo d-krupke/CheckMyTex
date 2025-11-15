@@ -17,26 +17,47 @@ from utils import run_analysis
 st.set_page_config(
     page_title="CheckMyTex - LaTeX Document Checker",
     page_icon="📝",
-    layout="wide",
-    initial_sidebar_state="expanded",
+    layout="centered",
+    initial_sidebar_state="auto",
 )
 
 # Custom CSS for better styling
 st.markdown(
     """
     <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        padding: 1rem 0;
+    /* Main styling */
+    .main {
+        padding-top: 2rem;
     }
-    .sub-header {
-        font-size: 1.2rem;
-        text-align: center;
-        color: #666;
-        margin-bottom: 2rem;
+
+    /* Problem card styling */
+    .problem-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #e74c3c;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 4px;
+    }
+
+    .problem-card.warning {
+        border-left-color: #f39c12;
+    }
+
+    .problem-card.info {
+        border-left-color: #3498db;
+    }
+
+    /* Code blocks */
+    .stCodeBlock {
+        background-color: #f5f5f5;
+    }
+
+    /* Metrics */
+    div[data-testid="metric-container"] {
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
     }
     </style>
     """,
@@ -54,39 +75,13 @@ def main():
     """Main application logic."""
 
     # Header
-    st.markdown('<div class="main-header">📝 CheckMyTex</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="sub-header">Student-Friendly LaTeX Document Checker</div>',
-        unsafe_allow_html=True,
-    )
+    st.title("📝 CheckMyTex")
+    st.caption("Student-Friendly LaTeX Document Checker")
 
-    # Sidebar
+    # Sidebar - only show filters and stats
     with st.sidebar:
-        st.image(
-            "https://raw.githubusercontent.com/streamlit/streamlit/develop/docs/_static/favicon.png",
-            width=50,
-        )
-        st.title("Navigation")
+        st.header("⚙️ Settings")
 
-        page = st.radio(
-            "Go to:",
-            ["📁 Upload & Analyze", "🔍 View Problems", "📋 Todo List", "ℹ️ About"],
-            label_visibility="collapsed",
-        )
-
-        st.divider()
-
-        # Statistics in sidebar if analyzed
-        if st.session_state.analyzed_document:
-            st.subheader("📊 Quick Stats")
-            problems = st.session_state.analyzed_document.problems
-            st.metric("Total Problems", len(problems))
-            if "todos" in st.session_state:
-                st.metric("Todo Items", len(st.session_state.todos))
-
-        st.divider()
-
-        # Reset button
         if st.button("🔄 Reset & Start Over", use_container_width=True):
             # Cleanup
             if st.session_state.extract_dir:
@@ -101,19 +96,41 @@ def main():
 
             st.rerun()
 
-    # Main content area
-    if page == "📁 Upload & Analyze":
+        # Statistics if analyzed
+        if st.session_state.analyzed_document:
+            st.divider()
+            st.header("📊 Statistics")
+            problems = st.session_state.analyzed_document.problems
+            st.metric("Total Problems", len(problems))
+            if "todos" in st.session_state:
+                st.metric("Todo Items", len(st.session_state.todos))
+            if "skipped_problems" in st.session_state:
+                st.metric("Skipped", len(st.session_state.skipped_problems))
+            if "whitelisted_problems" in st.session_state:
+                st.metric("Whitelisted", len(st.session_state.whitelisted_problems))
+
+    # Main content with tabs
+    if st.session_state.analyzed_document is None:
+        # Show upload page only
         render_upload_page()
-    elif page == "🔍 View Problems":
-        render_problems_page()
-    elif page == "📋 Todo List":
-        render_todo_page()
-    elif page == "ℹ️ About":
-        render_about_page()
+    else:
+        # Show tabs for navigation
+        tab1, tab2, tab3 = st.tabs(["🔍 Problems", "📋 Todo List", "ℹ️ About"])
+
+        with tab1:
+            render_problem_viewer(st.session_state.analyzed_document)
+
+        with tab2:
+            render_todo_manager()
+
+        with tab3:
+            render_about_page()
 
 
 def render_upload_page():
     """Render the upload and analyze page."""
+    st.header("📁 Upload & Analyze")
+
     result = render_file_upload()
 
     if result is not None:
@@ -148,7 +165,10 @@ def render_upload_page():
                 st.session_state.analyzed_document = analyzed_document
 
                 st.success(f"✅ Analysis complete! Found {len(analyzed_document.problems)} problems.")
-                st.info("👉 Go to 'View Problems' to review and manage them.")
+                st.info("👉 Switch to the 'Problems' tab to review them.")
+
+                # Force rerun to show tabs
+                st.rerun()
 
             except Exception as e:
                 st.error(f"❌ Error during analysis: {str(e)}")
@@ -158,97 +178,41 @@ def render_upload_page():
                 status_text.empty()
 
 
-def render_problems_page():
-    """Render the problems viewing page."""
-    if st.session_state.analyzed_document is None:
-        st.warning("⚠️ No document has been analyzed yet. Please upload and analyze a document first.")
-        return
-
-    render_problem_viewer(st.session_state.analyzed_document)
-
-
-def render_todo_page():
-    """Render the todo list page."""
-    render_todo_manager()
-
-
 def render_about_page():
     """Render the about page."""
-    st.header("ℹ️ About CheckMyTex")
-
     st.markdown(
         """
+        ## About CheckMyTex
+
         CheckMyTex is a comprehensive tool for checking LaTeX documents for common errors.
-        This Streamlit interface provides a student-friendly way to:
 
-        - Upload and analyze LaTeX projects
-        - Review problems with context and suggestions
-        - Build a personal todo list for fixing issues
-        - Export todos for offline work
+        ### 🎯 What it checks
 
-        ## Features
+        - **Spelling** - Detects typos and misspellings
+        - **Grammar** - Checks grammar using LanguageTool
+        - **LaTeX** - Validates LaTeX syntax with ChkTeX
+        - **Style** - Suggests improvements with Proselint
+        - **Formatting** - Checks proper use of siunitx, cleveref, etc.
 
-        ### 🔍 Comprehensive Checks
-        - **Spelling**: Detects typos and misspellings
-        - **Grammar**: Checks grammar using LanguageTool
-        - **LaTeX**: Validates LaTeX syntax with ChkTeX
-        - **Style**: Suggests improvements with Proselint
-        - **Formatting**: Checks for proper use of siunitx, cleveref, etc.
+        ### 🚀 How to use
 
-        ### 📋 Interactive Todo Management
-        - Add problems to your personal todo list
-        - Add comments and notes
-        - Set priorities (high/normal/low)
-        - Track status (pending/in progress/completed)
-        - Export to JSON, CSV, or Markdown
+        1. Upload your LaTeX project as a ZIP file
+        2. Click "Analyze Document"
+        3. Review problems in the Problems tab
+        4. Add important items to your Todo List
+        5. Export your todo list for offline work
 
-        ### 🔒 Security
-        - Secure file upload with validation
-        - Size limits to prevent abuse
-        - Whitelisted file extensions
-        - Path traversal protection
+        ### 💡 Tips
 
-        ## How to Use
+        - Add comments to remember why something needs fixing
+        - Set priorities to focus on what matters most
+        - Use the Skip and Whitelist actions to clean up the view
+        - Export your todo list regularly to track progress
 
-        1. **Upload**: ZIP your LaTeX project and upload it
-        2. **Analyze**: Click "Analyze Document" to run all checks
-        3. **Review**: Browse through problems and decide what to do
-        4. **Organize**: Add important issues to your todo list
-        5. **Export**: Download your todo list for offline work
+        ### 🔗 More Info
 
-        ## Actions Available
-
-        - **📋 Add to Todo**: Save the problem to work on later
-        - **⏭️ Skip**: Ignore this specific problem
-        - **✅ Whitelist**: Mark as false positive (won't show again)
-        - **🚫 Ignore Rule**: Ignore all problems from this rule
-        - **🔍 Lookup**: Search online for more information
-
-        ## Tips
-
-        - Start with high-priority issues
-        - Add notes to remember why you added something
-        - Use filters to focus on specific types of problems
-        - Export regularly to track your progress
-
-        ## Requirements
-
-        For the best experience, your LaTeX project should:
-        - Be a valid ZIP file (< 100MB)
-        - Contain at least one .tex file
-        - Have a clear main document (main.tex, thesis.tex, etc.)
-
-        ## Credits
-
-        Built with ❤️ using:
-        - [CheckMyTex](https://github.com/d-krupke/checkmytex) - Core analysis engine
-        - [Streamlit](https://streamlit.io/) - Web framework
-        - [LanguageTool](https://languagetool.org/) - Grammar checking
-        - [ChkTeX](https://www.nongnu.org/chktex/) - LaTeX validation
-
-        ## Version
-
-        Streamlit App v1.0.0
+        - [CheckMyTex GitHub](https://github.com/d-krupke/checkmytex)
+        - [Documentation](https://github.com/d-krupke/checkmytex#readme)
         """
     )
 
