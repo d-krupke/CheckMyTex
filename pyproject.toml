@@ -135,12 +135,9 @@ enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 strict = true
 disallow_untyped_defs = false
 
+# External packages without type stubs
 [[tool.mypy.overrides]]
-module = ["cetsp_bnb2.*"]
-disallow_untyped_defs = true
-
-[[tool.mypy.overrides]]
-module = ["numpy", "pathspec", "setuptools_scm", "hatch_fancy_pypi_readme"]
+module = ["flachtex.*", "yalafi.*"]
 ignore_missing_imports = true
 
 

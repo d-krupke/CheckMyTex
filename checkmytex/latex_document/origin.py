@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from .indexed_string import TextPosition
@@ -19,19 +21,17 @@ class OriginPointer:
         self.source = source  # position in flat source
         self.text = text  # position in detexed text
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, OriginPointer):
-            msg = "Can only compare positions."
-            raise ValueError(msg)
+            return NotImplemented
         return self.file == other.file
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
         if not isinstance(other, OriginPointer):
-            msg = "Can only compare positions."
-            raise ValueError(msg)
+            return NotImplemented
         return self.source < other.source
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"FILE:{self.file}|SOURCE:{self.source}|text::{self.text}"
 
     def serialize(self) -> typing.Dict:
@@ -47,10 +47,12 @@ class Origin:
     The origin of a part of the parse latex document.
     """
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, Origin):
+            return NotImplemented
         return (self.begin, self.end) < (other.begin, other.end)
 
-    def __init__(self, begin: OriginPointer, end: OriginPointer):
+    def __init__(self, begin: OriginPointer, end: OriginPointer) -> None:
         if begin.file.path != end.file.path:
             msg = f"Begin and end must be in the same file: {begin.file.path} != {end.file.path}"
             raise ValueError(msg)
@@ -60,7 +62,7 @@ class Origin:
             msg = f"Begin must be before end (this would be empty): {begin} >= {end}"
             raise ValueError(msg)
 
-    def get_file(self):
+    def get_file(self) -> str:
         return self.begin.file.path
 
     def get_text_span(self) -> typing.Optional[typing.Tuple[int, int]]:
@@ -89,13 +91,12 @@ class Origin:
     def get_file_line(self) -> int:
         return self.begin.file.position.line
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.get_file()}[{self.begin.file.position}-{self.end.file.position}]"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Origin):
-            msg = "Can only compare origins."
-            raise ValueError(msg)
+            return NotImplemented
         return self.begin == other.begin and self.end == other.end
 
     def serialize(self) -> typing.Dict:

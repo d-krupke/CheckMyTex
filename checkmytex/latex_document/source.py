@@ -2,6 +2,8 @@
 Container for the LaTeX-sources.
 """
 
+from __future__ import annotations
+
 import typing
 
 from flachtex import TraceableString
@@ -14,14 +16,16 @@ from checkmytex.latex_document.indexed_string import (
 
 
 class FilePosition:
-    def __init__(self, file: str, pos: TextPosition):
+    def __init__(self, file: str, pos: TextPosition) -> None:
         self.path = file  # file name/path
         self.position = pos  # position in the file
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FilePosition):
+            return NotImplemented
         return self.path == other.path and self.position == other.position
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.path}{self.position}"
 
     def serialize(self) -> typing.Dict:

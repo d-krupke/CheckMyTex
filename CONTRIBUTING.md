@@ -56,6 +56,22 @@ Run tests with coverage:
 pytest --cov=checkmytex --cov-report=term-missing
 ```
 
+Run tests across multiple Python versions with tox:
+
+```bash
+# Test all Python versions
+tox
+
+# Test specific Python version
+tox -e py311
+
+# Run linting only
+tox -e lint
+
+# Run type checking only
+tox -e type
+```
+
 ### Code Quality Tools
 
 This project uses several tools to maintain code quality:
