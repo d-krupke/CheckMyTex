@@ -51,10 +51,14 @@ class Origin:
         return (self.begin, self.end) < (other.begin, other.end)
 
     def __init__(self, begin: OriginPointer, end: OriginPointer):
-        assert begin.file.path == end.file.path
+        if begin.file.path != end.file.path:
+            msg = f"Begin and end must be in the same file: {begin.file.path} != {end.file.path}"
+            raise ValueError(msg)
         self.begin: OriginPointer = begin
         self.end: OriginPointer = end
-        assert begin < end, "This would be empty"
+        if not begin < end:
+            msg = f"Begin must be before end (this would be empty): {begin} >= {end}"
+            raise ValueError(msg)
 
     def get_file(self):
         return self.begin.file.path
@@ -62,7 +66,9 @@ class Origin:
     def get_text_span(self) -> typing.Optional[typing.Tuple[int, int]]:
         if self.begin.text is None:
             return None
-        assert self.end.text is not None
+        if self.end.text is None:
+            msg = "Inconsistent state: begin.text is set but end.text is None"
+            raise RuntimeError(msg)
         return self.begin.text.index, self.end.text.index
 
     def get_source_span(self) -> typing.Tuple[int, int]:
@@ -72,7 +78,9 @@ class Origin:
         return self.begin.file.position.index, self.end.file.position.index
 
     def get_text_line(self) -> int:
-        assert self.begin.text is not None
+        if self.begin.text is None:
+            msg = "Cannot get text line: begin.text is None"
+            raise RuntimeError(msg)
         return self.begin.text.line
 
     def get_source_line(self) -> int:

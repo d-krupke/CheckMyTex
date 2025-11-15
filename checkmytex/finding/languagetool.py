@@ -50,7 +50,7 @@ class Languagetool(Checker):
         return {}
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
-        self.log("Running Langugagetool...")
+        self.log("Running Languagetool...")
         data = self._get_languagetool_json(document=document)
         for problem in data["matches"]:
             try:

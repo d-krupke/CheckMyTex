@@ -29,7 +29,7 @@ class AspellChecker(Checker):
         is_word = re.compile(r"[A-Z]?[a-z]+-?[A-Z]?[a-z]+", re.UNICODE)
         for match in word_regex.finditer(text):
             word = match.group("word").strip()
-            if word[-1] in ":,.!?)":
+            if word and word[-1] in ":,.!?)":
                 word = word[:-1]
             if not is_word.fullmatch(word):
                 continue
@@ -99,7 +99,7 @@ class CheckSpell(Checker):
         is_word = re.compile(r"[A-Z]?[a-z]+-?[A-Z]?[a-z]+", re.UNICODE)
         for match in word_regex.finditer(text):
             word = match.group("word")
-            if word[-1] in ":,.!?)":
+            if word and word[-1] in ":,.!?)":
                 word = word[:-1]
             if not is_word.fullmatch(word):
                 continue

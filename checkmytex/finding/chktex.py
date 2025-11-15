@@ -15,9 +15,13 @@ from .problem import Problem
 
 def _extract_problem(match: re.Match, document: LatexDocument) -> Problem:
     row = int(match.group("row"))
-    assert row >= 1, "Rows seem to start at 1."
+    if row < 1:
+        msg = f"Invalid row number: {row}. Rows should start at 1."
+        raise ValueError(msg)
     col = int(match.group("col"))
-    assert col >= 1, "Columns seem to start at 1."
+    if col < 1:
+        msg = f"Invalid column number: {col}. Columns should start at 1."
+        raise ValueError(msg)
     # length = int(match.group("length"))
     message = match.group("message")
     message_type = match.group("type")
@@ -80,7 +84,7 @@ class ChkTex(Checker):
             f"chktex -f '{self._format_str}'", document.get_source()
         )
         if err:
-            self.log("checktex returned an error: '{err}'")
+            self.log(f"checktex returned an error: '{err}'")
         results = result.split("\n")
         for result in results:
             parsed = self._parser.fullmatch(result)

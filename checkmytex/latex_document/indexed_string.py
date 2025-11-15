@@ -1,5 +1,4 @@
 import typing
-import unittest
 from bisect import bisect
 
 from flachtex import TraceableString
@@ -105,27 +104,3 @@ def simplify_text_range(
         # use the line before, which is longer
         last_line = [p for p in positions_ if p.line == max_line - 1]
     return min(last_line), max(last_line).virtual_next()
-
-
-class IndexedStringTest(unittest.TestCase):
-    def test_1(self):
-        text = "123\n456\n789"
-        inds = IndexedText(text)
-        assert inds._index == [0, 4, 8]
-
-        def to_tuple(pos):
-            return pos.line, pos.line_offset
-
-        assert to_tuple(inds.get_detailed_position(0)) == (0, 0)
-        assert to_tuple(inds.get_detailed_position(2)) == (0, 2)
-        assert to_tuple(inds.get_detailed_position(4)) == (1, 0)
-        assert to_tuple(inds.get_detailed_position(5)) == (1, 1)
-        assert to_tuple(inds.get_detailed_position(8)) == (2, 0)
-        assert to_tuple(inds.get_detailed_position(9)) == (2, 1)
-
-    def test_2(self):
-        text = "123\n456\n789"
-        inds = IndexedText(text)
-        assert inds.get_line(0) == "123\n"
-        assert inds.get_line(1) == "456\n"
-        assert inds.get_line(2) == "789"

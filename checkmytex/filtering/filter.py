@@ -65,7 +65,9 @@ class IgnoreRepeatedWords(Filter):
         self.document = document
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
-        assert self.document, "Prepare has been called."
+        if not self.document:
+            msg = "prepare() must be called before filter()"
+            raise RuntimeError(msg)
         for problem in problems:
             if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
                 text = self.document.get_file_content(problem.origin.file)
