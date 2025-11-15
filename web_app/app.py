@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 import json
 
 from checkmytex import DocumentAnalyzer
-from checkmytex.cli.rich_printer import RichPrinter
+from checkmytex.cli.terminal_html_printer import TerminalHtmlPrinter
 from checkmytex.filtering import (
     IgnoreIncludegraphics,
     IgnoreLikelyAuthorNames,
@@ -87,12 +87,12 @@ async def analyze(
         latex_document = parser.parse(str(main_tex))
         analyzed_document = analyzer.analyze(latex_document)
 
-        # Generate HTML using RichPrinter
-        printer = RichPrinter(analyzed_document, shorten=5)
+        # Generate HTML using TerminalHtmlPrinter
+        printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
         html_path = temp_dir / 'report.html'
         printer.to_html(str(html_path))
 
-        # Return the HTML file directly as Rich generated it
+        # Return the terminal-styled HTML
         return FileResponse(
             html_path,
             media_type='text/html',
