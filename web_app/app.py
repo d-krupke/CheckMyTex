@@ -46,7 +46,8 @@ async def index(request: Request):
 @app.post("/analyze")
 async def analyze(
     file: UploadFile = File(...),
-    checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]')
+    checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]'),
+    filters: str = Form(default='["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]')
 ):
     """Analyze uploaded ZIP file and return HTML report."""
 
@@ -59,6 +60,12 @@ async def analyze(
         enabled_checkers = json.loads(checkers)
     except json.JSONDecodeError:
         enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
+
+    # Parse filters configuration
+    try:
+        enabled_filters = json.loads(filters)
+    except json.JSONDecodeError:
+        enabled_filters = ["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]
 
     # Create temporary directory
     temp_dir = Path(tempfile.mkdtemp(prefix='checkmytex_'))
@@ -79,8 +86,8 @@ async def analyze(
         if not main_tex:
             raise HTTPException(status_code=400, detail="No .tex file found in ZIP")
 
-        # Create analyzer with selected checkers
-        analyzer = create_analyzer(enabled_checkers)
+        # Create analyzer with selected checkers and filters
+        analyzer = create_analyzer(enabled_checkers, enabled_filters)
 
         # Parse and analyze
         parser = LatexParser()
@@ -105,16 +112,25 @@ async def analyze(
         raise HTTPException(status_code=500, detail=f"Error analyzing document: {str(e)}")
 
 
-def create_analyzer(enabled_checkers: list[str] = None) -> DocumentAnalyzer:
-    """Create a DocumentAnalyzer with configurable checkers.
+def create_analyzer(
+    enabled_checkers: list[str] = None,
+    enabled_filters: list[str] = None
+) -> DocumentAnalyzer:
+    """Create a DocumentAnalyzer with configurable checkers and filters.
 
     Args:
         enabled_checkers: List of checker names to enable.
                          Valid values: 'aspell', 'languagetool', 'chktex',
                                       'siunitx', 'cleveref', 'proselint', 'nphard'
+        enabled_filters: List of filter names to enable.
+                        Valid values: 'includegraphics', 'refs', 'repeated',
+                                     'mathmode', 'authornames', 'bibliography'
     """
     if enabled_checkers is None:
         enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
+
+    if enabled_filters is None:
+        enabled_filters = ["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]
 
     analyzer = DocumentAnalyzer()
 
@@ -164,13 +180,24 @@ def create_analyzer(enabled_checkers: list[str] = None) -> DocumentAnalyzer:
         except Exception:
             pass
 
-    # Add filters (always enabled for best results)
-    analyzer.add_filter(IgnoreIncludegraphics())
-    analyzer.add_filter(IgnoreRefs())
-    analyzer.add_filter(IgnoreRepeatedWords())
-    analyzer.add_filter(MathMode())
-    analyzer.add_filter(IgnoreLikelyAuthorNames())
-    analyzer.add_filter(IgnoreWordsFromBibliography())
+    # Add filters based on configuration
+    if "includegraphics" in enabled_filters:
+        analyzer.add_filter(IgnoreIncludegraphics())
+
+    if "refs" in enabled_filters:
+        analyzer.add_filter(IgnoreRefs())
+
+    if "repeated" in enabled_filters:
+        analyzer.add_filter(IgnoreRepeatedWords())
+
+    if "mathmode" in enabled_filters:
+        analyzer.add_filter(MathMode())
+
+    if "authornames" in enabled_filters:
+        analyzer.add_filter(IgnoreLikelyAuthorNames())
+
+    if "bibliography" in enabled_filters:
+        analyzer.add_filter(IgnoreWordsFromBibliography())
 
     return analyzer
 

@@ -219,6 +219,32 @@
         .checkbox-label:hover {
             color: #667eea;
         }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-disclaimer {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -284,6 +310,45 @@
                 </div>
             </div>
 
+            <div class="config-section">
+                <h3>🔍 Configure Filters</h3>
+                <p class="config-subtitle">Select filters to reduce false positives</p>
+
+                <div class="config-grid">
+                    <div class="config-group">
+                        <h4>Ignore Patterns</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="includegraphics" checked>
+                            <span>Includegraphics</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="refs" checked>
+                            <span>References</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="repeated" checked>
+                            <span>Repeated Words</span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Context-Aware</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="mathmode" checked>
+                            <span>Math Mode</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="authornames" checked>
+                            <span>Author Names</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="bibliography" checked>
+                            <span>Bibliography Words</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" id="submitBtn" disabled>
                 Analyze Document
             </button>
@@ -304,6 +369,17 @@
                 <li>Style and formatting</li>
                 <li>Proper use of siunitx, cleveref, etc.</li>
             </ul>
+        </div>
+
+        <div class="footer">
+            <div>
+                ⭐ <a href="https://github.com/d-krupke/CheckMyTex" target="_blank">CheckMyTex on GitHub</a> -
+                Made with ❤️ by the LaTeX community
+            </div>
+            <div class="footer-disclaimer">
+                This tool provides automated suggestions. Always review results carefully and use your judgment.
+                No warranty is provided for the accuracy or completeness of checks.
+            </div>
         </div>
     </div>
 
@@ -368,6 +444,11 @@
             const checkers = Array.from(document.querySelectorAll('input[name="checker"]:checked'))
                 .map(cb => cb.value);
             formData.append('checkers', JSON.stringify(checkers));
+
+            // Collect selected filters
+            const filters = Array.from(document.querySelectorAll('input[name="filter"]:checked'))
+                .map(cb => cb.value);
+            formData.append('filters', JSON.stringify(filters));
 
             try {
                 const response = await fetch('/analyze', {
