@@ -43,6 +43,12 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/licenses")
+async def licenses(request: Request):
+    """Show licenses page."""
+    return templates.TemplateResponse("licenses.html", {"request": request})
+
+
 @app.post("/analyze")
 async def analyze(
     file: UploadFile = File(...),
