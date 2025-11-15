@@ -315,7 +315,7 @@ class TerminalHtmlPrinter:
         # Merge overlapping ranges
         if not highlights:
             escaped = html.escape(line_content)
-            return self._apply_latex_highlighting(escaped)
+            return escaped
 
         # Sort ranges and merge overlapping ones
         sorted_ranges = sorted(highlights)
@@ -332,10 +332,10 @@ class TerminalHtmlPrinter:
         pos = 0
 
         for start, end in merged:
-            # Add text before highlight
+            # Add text before highlight (plain, no syntax highlighting to preserve positions)
             if pos < start:
                 before = html.escape(line_content[pos:start])
-                result.append(self._apply_latex_highlighting(before))
+                result.append(before)
 
             # Add highlighted text
             highlight_text = html.escape(line_content[start:end])
@@ -345,7 +345,7 @@ class TerminalHtmlPrinter:
         # Add remaining text
         if pos < len(line_content):
             after = html.escape(line_content[pos:])
-            result.append(self._apply_latex_highlighting(after))
+            result.append(after)
 
         return ''.join(result)
 
