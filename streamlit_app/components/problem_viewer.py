@@ -110,8 +110,8 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
         filename = "Unknown"
         line_num = 0
 
-    # Create Rich console
-    console = Console(record=True, width=100, force_terminal=True, force_interactive=False)
+    # Create Rich console - use wider console for better display
+    console = Console(record=True, width=120, force_terminal=True, force_interactive=False)
 
     # Print file header
     console.rule(f"[bold]{filename}[/bold]", style="blue")
@@ -191,26 +191,10 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
     console.print(table)
 
     # Export to HTML and display
-    html_output = console.export_html(inline_styles=True, code_format="<pre style='font-family: Menlo, Monaco, \"Courier New\", monospace; white-space: pre; background-color: #272822; padding: 1em; border-radius: 4px;'>{code}</pre>")
+    html_output = console.export_html(inline_styles=True)
 
-    # Custom CSS to make it look even better
-    custom_css = """
-    <style>
-    .rich-output {
-        background-color: #1e1e1e;
-        padding: 1.5rem;
-        border-radius: 8px;
-        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-    </style>
-    """
-
-    st.markdown(custom_css, unsafe_allow_html=True)
-    st.markdown('<div class="rich-output">', unsafe_allow_html=True)
-    st.components.v1.html(html_output, height=600, scrolling=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Display without scrollbox - let it flow naturally
+    st.components.v1.html(html_output, height=700, scrolling=False)
 
 
 def _render_action_buttons(problem: Problem, analyzed_document: AnalyzedDocument, idx: int, total: int):

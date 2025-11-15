@@ -17,7 +17,7 @@ from utils import run_analysis
 st.set_page_config(
     page_title="CheckMyTex - LaTeX Document Checker",
     page_icon="📝",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="auto",
 )
 
