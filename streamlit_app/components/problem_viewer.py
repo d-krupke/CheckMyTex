@@ -193,8 +193,33 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
     # Export to HTML and display
     html_output = console.export_html(inline_styles=True)
 
+    # Wrap in dark-themed container to match terminal aesthetic
+    styled_html = f"""
+    <style>
+        .rich-terminal {{
+            background-color: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+            overflow-x: auto;
+        }}
+        /* Override Streamlit's default white background for code */
+        .rich-terminal pre {{
+            background-color: transparent !important;
+        }}
+        /* Ensure text is visible on dark background */
+        .rich-terminal body {{
+            background-color: #1e1e1e !important;
+            color: #f8f8f2 !important;
+        }}
+    </style>
+    <div class="rich-terminal">
+        {html_output}
+    </div>
+    """
+
     # Display without scrollbox - let it flow naturally
-    st.components.v1.html(html_output, height=700, scrolling=False)
+    st.components.v1.html(styled_html, height=700, scrolling=False)
 
 
 def _render_action_buttons(problem: Problem, analyzed_document: AnalyzedDocument, idx: int, total: int):
@@ -274,7 +299,7 @@ def _next_problem(current_idx: int, total: int):
 
 def _show_summary(all_problems: List[Problem]):
     """Show summary when all problems are reviewed."""
-    console = Console(record=True, width=100)
+    console = Console(record=True, width=100, force_terminal=True)
 
     # Summary table
     table = Table(title="Review Summary", show_header=True)
@@ -288,9 +313,27 @@ def _show_summary(all_problems: List[Problem]):
 
     console.print(table)
 
-    # Export and display
+    # Export and display with dark styling
     html_output = console.export_html(inline_styles=True)
-    st.components.v1.html(html_output, height=250, scrolling=False)
+
+    styled_html = f"""
+    <style>
+        .rich-terminal {{
+            background-color: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+        }}
+        .rich-terminal pre {{
+            background-color: transparent !important;
+        }}
+    </style>
+    <div class="rich-terminal">
+        {html_output}
+    </div>
+    """
+
+    st.components.v1.html(styled_html, height=300, scrolling=False)
 
 
 def _add_to_todo(problem: Problem) -> None:
