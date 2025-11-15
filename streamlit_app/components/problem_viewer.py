@@ -202,6 +202,7 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
             border-radius: 8px;
             font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
             overflow-x: auto;
+            margin: 0;
         }}
         /* Override Streamlit's default white background for code */
         .rich-terminal pre {{
@@ -218,8 +219,8 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
     </div>
     """
 
-    # Display without scrollbox - let it flow naturally
-    st.components.v1.html(styled_html, height=700, scrolling=False)
+    # Use markdown to avoid iframe white box
+    st.markdown(styled_html, unsafe_allow_html=True)
 
 
 def _render_action_buttons(problem: Problem, analyzed_document: AnalyzedDocument, idx: int, total: int):
@@ -323,6 +324,7 @@ def _show_summary(all_problems: List[Problem]):
             padding: 1.5rem;
             border-radius: 8px;
             font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+            margin: 0;
         }}
         .rich-terminal pre {{
             background-color: transparent !important;
@@ -333,7 +335,7 @@ def _show_summary(all_problems: List[Problem]):
     </div>
     """
 
-    st.components.v1.html(styled_html, height=300, scrolling=False)
+    st.markdown(styled_html, unsafe_allow_html=True)
 
 
 def _add_to_todo(problem: Problem) -> None:
