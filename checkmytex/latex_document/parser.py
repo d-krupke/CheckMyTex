@@ -40,7 +40,7 @@ class LatexParser:
         self.file_finder = file_finder if file_finder else flachtex.FileFinder()
         self._yalafi_opts = yalafi_opts
 
-    def newcommand(self, name: int, num_parameters: int, definition: str):
+    def newcommand(self, name: int, num_parameters: int, definition: str) -> None:
         pass
 
     def _find_command_definitions(self, path) -> NewCommandSubstitution:

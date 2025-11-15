@@ -94,7 +94,7 @@ class Whitelist(Filter):
         if self._path:
             self._save_problem(problem, comment)
 
-    def _save_problem(self, problem, comment):
+    def _save_problem(self, problem, comment) -> None:
         with Path(self._path).open("a") as file:
             file.write(
                 f"{problem.short_id} # {comment if comment else problem.long_id}\n"

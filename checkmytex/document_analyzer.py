@@ -33,10 +33,9 @@ class DocumentAnalyzer:
         self.checker = []
         self.rules = []
 
-    def setup_default(self):
+    def setup_default(self) -> None:
         """
         Setup default checker.
-        :return: None
         """
         self.log("Using default modules.")
         aspell = AspellChecker()
@@ -95,13 +94,30 @@ class DocumentAnalyzer:
         return AnalyzedDocument(latex_document, problems)
 
     def _find_problems(self, latex_document: LatexDocument) -> typing.Iterable[Problem]:
+        """Find problems using all configured checkers.
+
+        Continues checking with other checkers even if one fails.
+
+        Args:
+            latex_document: The document to analyze
+
+        Yields:
+            Problems found by checkers
+
+        Note:
+            Exceptions from individual checkers are logged but don't stop analysis
+        """
         for checker in self.checker:
             try:
                 for problem in checker.check(latex_document):
                     yield problem
-            except AssertionError as ae:
-                raise ae
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError, KeyError) as e:
+                # Expected errors from checker logic
                 logging.getLogger("CheckMyTex").error(
-                    f"Exception using {checker}: {e}.\n{traceback.format_exc()}"
+                    f"Checker {checker} failed with {type(e).__name__}: {e}"
+                )
+            except Exception as e:  # noqa: BLE001
+                # Unexpected errors - log full traceback for debugging
+                logging.getLogger("CheckMyTex").error(
+                    f"Unexpected exception in {checker}: {e}\n{traceback.format_exc()}"
                 )

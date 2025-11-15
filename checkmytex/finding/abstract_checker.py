@@ -1,4 +1,5 @@
 import abc
+import shlex
 import subprocess
 import typing
 
@@ -19,20 +20,56 @@ class Checker(abc.ABC):
     def is_available(self) -> bool:
         pass
 
-    def _run(self, cmd: str, input=None) -> typing.Tuple[str, str, int]:
+    def _run(
+        self, cmd: str, input: typing.Optional[str] = None
+    ) -> typing.Tuple[str, str, int]:
+        """
+        Execute a shell command.
+
+        NOTE: This method uses shell=True which can be a security risk if cmd
+        contains untrusted input. All commands should be constructed from
+        trusted sources only. Future work should migrate to list-based commands.
+
+        Args:
+            cmd: Command string to execute
+            input: Optional stdin input
+
+        Returns:
+            Tuple of (stdout, stderr, exit_code)
+
+        Raises:
+            subprocess.SubprocessError: If command execution fails
+            UnicodeDecodeError: If output cannot be decoded as UTF-8
+        """
         self.log("EXEC:", cmd)
-        with subprocess.Popen(
-            cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
-        ) as proc:
-            if input:
-                out, err = proc.communicate(str(input).replace("\t", " ").encode())
-            else:
-                out, err = proc.communicate()
-            return (
-                out.decode() if out else "",
-                err.decode() if err else "",
-                proc.wait(),
-            )
+        try:
+            with subprocess.Popen(
+                cmd,
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,  # Capture stderr properly
+            ) as proc:
+                input_bytes = None
+                if input:
+                    input_bytes = str(input).replace("\t", " ").encode("utf-8")
+
+                try:
+                    out, err = proc.communicate(input=input_bytes, timeout=300)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    out, err = proc.communicate()
+                    msg = f"Command timed out after 300 seconds: {cmd}"
+                    raise subprocess.SubprocessError(msg) from None
+
+                return (
+                    out.decode("utf-8") if out else "",
+                    err.decode("utf-8") if err else "",
+                    proc.returncode,
+                )
+        except (OSError, ValueError) as e:
+            msg = f"Failed to execute command '{cmd}': {e}"
+            raise subprocess.SubprocessError(msg) from e
 
     def needs_detex(self):
         return False
