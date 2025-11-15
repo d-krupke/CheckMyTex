@@ -92,52 +92,9 @@ async def analyze(
         html_path = temp_dir / 'report.html'
         printer.to_html(str(html_path))
 
-        # Wrap Rich HTML in terminal-styled container
-        rich_html = html_path.read_text(encoding='utf-8')
-
-        # Extract the content between <body> tags
-        import re
-        body_match = re.search(r'<body>(.*)</body>', rich_html, re.DOTALL)
-        if body_match:
-            content = body_match.group(1)
-        else:
-            content = rich_html
-
-        # Create dark-themed centered HTML wrapper
-        terminal_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheckMyTex Report</title>
-    <style>
-        body {{
-            background-color: #0d1117;
-            margin: 0;
-            padding: 20px;
-        }}
-
-        .content-wrapper {{
-            max-width: 1400px;
-            margin: 0 auto;
-            background-color: #0d1117;
-        }}
-    </style>
-</head>
-<body>
-    <div class="content-wrapper">
-{content}
-    </div>
-</body>
-</html>"""
-
-        # Write the wrapped HTML
-        final_html_path = temp_dir / 'final_report.html'
-        final_html_path.write_text(terminal_html, encoding='utf-8')
-
-        # Return the styled HTML file
+        # Return the HTML file directly as Rich generated it
         return FileResponse(
-            final_html_path,
+            html_path,
             media_type='text/html',
             filename='checkmytex_report.html'
         )
