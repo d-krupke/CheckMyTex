@@ -60,7 +60,7 @@ class TerminalHtmlPrinter:
         }
 
         body {
-            background-color: #1e1e1e;
+            background-color: #0d1117;
             color: #d4d4d4;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
@@ -69,8 +69,12 @@ class TerminalHtmlPrinter:
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .title {
@@ -91,8 +95,13 @@ class TerminalHtmlPrinter:
 
         .separator {
             color: #4fc1ff;
-            margin: 20px 0;
+            margin: 30px 0 20px 0;
             text-align: center;
+            padding: 10px;
+            background-color: #252525;
+            border-top: 2px solid #404040;
+            border-bottom: 2px solid #404040;
+            font-weight: bold;
         }
 
         table {
@@ -129,15 +138,18 @@ class TerminalHtmlPrinter:
         }
 
         .code-block {
-            background-color: #1e1e1e;
+            background-color: #252525;
             margin: 15px 0;
-            padding: 10px;
-            overflow-x: auto;
+            padding: 15px;
+            border: 1px solid #404040;
+            border-radius: 4px;
         }
 
         .code-line {
             display: flex;
-            white-space: pre;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 2px;
         }
 
         .line-number {
@@ -146,25 +158,31 @@ class TerminalHtmlPrinter:
             padding-right: 12px;
             user-select: none;
             min-width: 50px;
+            flex-shrink: 0;
         }
 
         .line-content {
             color: #d4d4d4;
             flex: 1;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         .highlight {
             background-color: #5a1e1e;
             color: #ffffff;
+            padding: 0 2px;
+            border-radius: 2px;
         }
 
         .problem {
             color: #f48771;
             font-weight: bold;
             margin: 8px 0 8px 62px;
-            padding: 6px;
-            background-color: #2d2d2d;
-            border-left: 3px solid #f48771;
+            padding: 8px 12px;
+            background-color: #2a2a2a;
+            border-left: 4px solid #f48771;
+            border-radius: 2px;
         }
 
         .ellipsis {
