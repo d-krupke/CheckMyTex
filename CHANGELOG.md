@@ -8,8 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Streamlit Web Interface**: Student-friendly web interface for interactive document checking
+  - Secure ZIP file upload with validation
+  - Interactive problem viewer with action buttons
+  - Todo list manager with comments and priorities
+  - Export capabilities (JSON, CSV, Markdown)
+  - Progress tracking during analysis
+  - Comprehensive security features for file handling
 - Modern build system using PEP 621 (pyproject.toml)
-- Type hints for public API functions
+- Type hints for public API functions and magic methods
 - PEP 561 compliance with py.typed marker file
 - Coverage reporting with pytest-cov
 - Dependabot configuration for automated dependency updates
@@ -21,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - EditorConfig for consistent code formatting across editors
 - `from __future__ import annotations` to critical modules for modern type hints
 - Badges to README (PyPI, CI status, Python versions, license, code style)
+- `__version__` attribute in package `__init__.py`
 
 ### Changed
 - **BREAKING**: Minimum Python version raised to 3.8
@@ -42,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Corrected pre-commit mypy file path patterns
 - Updated Python version targets in tool configurations
+- Made pytest-cov optional (removed from default pytest config)
+- Improved comparison protocol in magic methods (use NotImplemented)
 
 ## [0.10.5] - Previous Release
 

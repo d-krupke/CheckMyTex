@@ -19,6 +19,24 @@ the focus on CLI and whitelists.
 
 > :warning: Your terminal needs to support rich (should be most terminals)!
 
+## Interfaces
+
+CheckMyTex provides two interfaces:
+
+### 1. 💻 Command Line Interface (CLI)
+The traditional terminal-based interface for power users and automation.
+
+### 2. 🌐 Streamlit Web Interface (NEW!)
+A student-friendly web interface for interactive document checking. Perfect for:
+- Students new to LaTeX
+- Collaborative document review
+- Building todo lists for fixing issues
+- Visual problem browsing
+
+**[See Streamlit App Documentation](streamlit_app/README.md)**
+
+## Primary Features
+
 Primary concepts are
 
 - not just listing problems but also their exact locations,
