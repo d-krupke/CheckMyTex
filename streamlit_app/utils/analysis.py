@@ -19,7 +19,7 @@ from checkmytex.filtering import (
 from checkmytex.finding import (
     AspellChecker,
     CheckSpell,
-    ChkTeX,
+    ChkTex,
     Cleveref,
     Languagetool,
     Proselint,
@@ -69,7 +69,7 @@ def create_default_analyzer(
 
     if progress_callback:
         progress_callback("Adding LaTeX checkers...")
-    analyzer.add_checker(ChkTeX())
+    analyzer.add_checker(ChkTex())
     analyzer.add_checker(SiUnitx())
     analyzer.add_checker(UniformNpHard())
     analyzer.add_checker(Cleveref())
