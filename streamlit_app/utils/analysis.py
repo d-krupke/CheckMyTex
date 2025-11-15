@@ -7,11 +7,12 @@ from typing import Callable, Optional
 
 from checkmytex import DocumentAnalyzer
 from checkmytex.filtering import (
-    Authors,
     Filter,
-    FilterGraphicsPath,
-    FilterLabels,
-    FilterRepeatedWords,
+    IgnoreIncludegraphics,
+    IgnoreLikelyAuthorNames,
+    IgnoreRefs,
+    IgnoreRepeatedWords,
+    IgnoreWordsFromBibliography,
     MathMode,
     Whitelist,
 )
@@ -84,12 +85,12 @@ def create_default_analyzer(
     if progress_callback:
         progress_callback("Adding filters...")
 
-    analyzer.add_filter(FilterGraphicsPath())
-    analyzer.add_filter(FilterLabels())
-    analyzer.add_filter(FilterRepeatedWords())
+    analyzer.add_filter(IgnoreIncludegraphics())
+    analyzer.add_filter(IgnoreRefs())
+    analyzer.add_filter(IgnoreRepeatedWords())
     analyzer.add_filter(MathMode())
-    analyzer.add_filter(Authors.IgnoreLikelyAuthorNames())
-    analyzer.add_filter(Authors.IgnoreWordsFromBibliography())
+    analyzer.add_filter(IgnoreLikelyAuthorNames())
+    analyzer.add_filter(IgnoreWordsFromBibliography())
 
     if whitelist_path and whitelist_path.exists():
         whitelist = Whitelist(str(whitelist_path))
