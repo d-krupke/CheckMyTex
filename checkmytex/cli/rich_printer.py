@@ -133,13 +133,24 @@ class RichPrinter:
     ):
         self.problem_handler = problem_handler
         self.analysis = analysis
-        self.console = Console(record=True) if console is None else console
+        self.console = (
+            Console(
+                record=True,
+                force_terminal=True,
+                force_interactive=False,
+                width=120,
+            )
+            if console is None
+            else console
+        )
         self.shorten = shorten
         self.file_prefix = os.path.commonpath(list(self.analysis.list_files()))
 
     def print(self):
-        self.console.print("CheckMyTex", style="bold italic")
+        self.console.print("CheckMyTex", style="bold italic cyan")
+        self.console.print()
         self.print_file_overview()
+        self.console.print()
         self.print_rule_count()
         for filename in self.analysis.list_files():
             self.print_file(filename)
@@ -153,15 +164,15 @@ class RichPrinter:
         problems = self.analysis.get_orphaned_problems()
         if not problems:
             return
-        self.console.rule("Other problems")
+        self.console.rule("Other problems", style="blue")
         for prob in problems:
             self.print_problem(prob)
 
     def print_rule_count(self):
-        table = Table(title="Problems by type", expand=True)
-        table.add_column("Tool", justify="left")
-        table.add_column("Rule", justify="left")
-        table.add_column("Count", justify="right")
+        table = Table(title="Problems by type", expand=True, border_style="blue")
+        table.add_column("Tool", justify="left", style="cyan")
+        table.add_column("Rule", justify="left", style="magenta")
+        table.add_column("Count", justify="right", style="green")
         problem_counts = defaultdict(lambda: defaultdict(lambda: 0))
         for prob in self.analysis.get_problems():
             problem_counts[prob.tool][prob.rule] += 1
@@ -176,9 +187,9 @@ class RichPrinter:
         self.console.print(table)
 
     def print_file_overview(self):
-        table = Table(title="Problems by file", expand=True)
-        table.add_column("File", justify="left")
-        table.add_column("Count", justify="right")
+        table = Table(title="Problems by file", expand=True, border_style="blue")
+        table.add_column("File", justify="left", style="cyan")
+        table.add_column("Count", justify="right", style="green")
         for file in self.analysis.list_files():
             table.add_row(
                 escape(str(file[len(self.file_prefix) :])),
@@ -190,7 +201,7 @@ class RichPrinter:
 
     def print_file(self, filename: str):
         self.console.print()
-        self.console.rule(filename[len(self.file_prefix) :])
+        self.console.rule(filename[len(self.file_prefix) :], style="blue")
         self.console.print()
         last_printed_line = -1
         problematic_lines = list(
@@ -250,14 +261,16 @@ class RichPrinter:
             line_numbers=True,
             word_wrap=True,
             tab_size=1,
+            theme="monokai",
+            background_color="default",
         )
         for l, b, e in highlights:
-            syntax.stylize_range("white on red", (1 + l - begin, b), (1 + l - begin, e))
+            syntax.stylize_range("bold yellow on red", (1 + l - begin, b), (1 + l - begin, e))
         self.console.print(syntax)
 
     def print_problem(self, problem: Problem):
         self.console.print(
-            escape(f">>> [{problem.tool}] {problem.message}"), style="red on white"
+            escape(f">>> [{problem.tool}] {problem.message}"), style="bold red"
         )
         if self.problem_handler is not None:
             self.problem_handler(problem)

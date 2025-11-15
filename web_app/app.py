@@ -6,9 +6,10 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
+import json
 
 from checkmytex import DocumentAnalyzer
 from checkmytex.cli.rich_printer import RichPrinter
@@ -43,12 +44,21 @@ async def index(request: Request):
 
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(
+    file: UploadFile = File(...),
+    checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]')
+):
     """Analyze uploaded ZIP file and return HTML report."""
 
     # Validate file
     if not file.filename.endswith('.zip'):
         raise HTTPException(status_code=400, detail="Please upload a ZIP file")
+
+    # Parse checkers configuration
+    try:
+        enabled_checkers = json.loads(checkers)
+    except json.JSONDecodeError:
+        enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
 
     # Create temporary directory
     temp_dir = Path(tempfile.mkdtemp(prefix='checkmytex_'))
@@ -69,8 +79,8 @@ async def analyze(file: UploadFile = File(...)):
         if not main_tex:
             raise HTTPException(status_code=400, detail="No .tex file found in ZIP")
 
-        # Create analyzer
-        analyzer = create_analyzer()
+        # Create analyzer with selected checkers
+        analyzer = create_analyzer(enabled_checkers)
 
         # Parse and analyze
         parser = LatexParser()
@@ -95,32 +105,66 @@ async def analyze(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error analyzing document: {str(e)}")
 
 
-def create_analyzer() -> DocumentAnalyzer:
-    """Create a DocumentAnalyzer with default configuration."""
+def create_analyzer(enabled_checkers: list[str] = None) -> DocumentAnalyzer:
+    """Create a DocumentAnalyzer with configurable checkers.
+
+    Args:
+        enabled_checkers: List of checker names to enable.
+                         Valid values: 'aspell', 'languagetool', 'chktex',
+                                      'siunitx', 'cleveref', 'proselint', 'nphard'
+    """
+    if enabled_checkers is None:
+        enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
+
     analyzer = DocumentAnalyzer()
 
-    # Add checkers
-    try:
-        analyzer.add_checker(AspellChecker())
-    except Exception:
-        analyzer.add_checker(CheckSpell())
+    # Add checkers based on configuration
+    if "aspell" in enabled_checkers:
+        try:
+            analyzer.add_checker(AspellChecker())
+        except Exception:
+            try:
+                analyzer.add_checker(CheckSpell())
+            except Exception:
+                pass
 
-    try:
-        analyzer.add_checker(Languagetool())
-    except Exception:
-        pass
+    if "languagetool" in enabled_checkers:
+        try:
+            analyzer.add_checker(Languagetool())
+        except Exception:
+            pass
 
-    analyzer.add_checker(ChkTex())
-    analyzer.add_checker(SiUnitx())
-    analyzer.add_checker(UniformNpHard())
-    analyzer.add_checker(Cleveref())
+    if "chktex" in enabled_checkers:
+        try:
+            analyzer.add_checker(ChkTex())
+        except Exception:
+            pass
 
-    try:
-        analyzer.add_checker(Proselint())
-    except Exception:
-        pass
+    if "siunitx" in enabled_checkers:
+        try:
+            analyzer.add_checker(SiUnitx())
+        except Exception:
+            pass
 
-    # Add filters
+    if "nphard" in enabled_checkers:
+        try:
+            analyzer.add_checker(UniformNpHard())
+        except Exception:
+            pass
+
+    if "cleveref" in enabled_checkers:
+        try:
+            analyzer.add_checker(Cleveref())
+        except Exception:
+            pass
+
+    if "proselint" in enabled_checkers:
+        try:
+            analyzer.add_checker(Proselint())
+        except Exception:
+            pass
+
+    # Add filters (always enabled for best results)
     analyzer.add_filter(IgnoreIncludegraphics())
     analyzer.add_filter(IgnoreRefs())
     analyzer.add_filter(IgnoreRepeatedWords())

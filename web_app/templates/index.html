@@ -167,6 +167,58 @@
         .error.active {
             display: block;
         }
+
+        .config-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .config-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .config-group h4 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-label:hover {
+            color: #667eea;
+        }
     </style>
 </head>
 <body>
@@ -183,6 +235,53 @@
                 <div style="color: #999; font-size: 14px;">ZIP file (max 100MB)</div>
                 <input type="file" name="file" id="fileInput" accept=".zip">
                 <div class="file-name" id="fileName"></div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔧 Configure Checks</h3>
+                <p class="config-subtitle">Select which tools to run on your document</p>
+
+                <div class="config-grid">
+                    <div class="config-group">
+                        <h4>Spelling & Grammar</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="aspell" checked>
+                            <span>Aspell (Spelling)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="languagetool" checked>
+                            <span>LanguageTool (Grammar)</span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>LaTeX Checks</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="chktex" checked>
+                            <span>ChkTeX (Syntax)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="siunitx" checked>
+                            <span>SiUnitx (Units)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="cleveref" checked>
+                            <span>Cleveref (References)</span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Style Checks</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="proselint" checked>
+                            <span>Proselint (Style)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="nphard" checked>
+                            <span>Uniform NP-Hard</span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" id="submitBtn" disabled>
@@ -264,6 +363,11 @@
 
             const formData = new FormData();
             formData.append('file', file);
+
+            // Collect selected checkers
+            const checkers = Array.from(document.querySelectorAll('input[name="checker"]:checked'))
+                .map(cb => cb.value);
+            formData.append('checkers', JSON.stringify(checkers));
 
             try {
                 const response = await fetch('/analyze', {
