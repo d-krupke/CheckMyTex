@@ -103,7 +103,7 @@ async def analyze(
         else:
             content = rich_html
 
-        # Create terminal-styled HTML
+        # Create dark-themed centered HTML wrapper
         terminal_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -111,109 +111,22 @@ async def analyze(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CheckMyTex Report</title>
     <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
         body {{
-            background-color: #1e1e1e;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            color: #d4d4d4;
+            background-color: #0d1117;
+            margin: 0;
             padding: 20px;
-            line-height: 1.6;
         }}
 
-        .terminal-container {{
+        .content-wrapper {{
             max-width: 1400px;
             margin: 0 auto;
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }}
-
-        .terminal-header {{
-            background: linear-gradient(to bottom, #3c3c3c, #2d2d2d);
-            padding: 12px 16px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            align-items: center;
-        }}
-
-        .terminal-buttons {{
-            display: flex;
-            gap: 8px;
-        }}
-
-        .terminal-button {{
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }}
-
-        .terminal-button.close {{
-            background-color: #ff5f56;
-        }}
-
-        .terminal-button.minimize {{
-            background-color: #ffbd2e;
-        }}
-
-        .terminal-button.maximize {{
-            background-color: #27c93f;
-        }}
-
-        .terminal-title {{
-            flex: 1;
-            text-align: center;
-            color: #b4b4b4;
-            font-size: 13px;
-            font-weight: 500;
-        }}
-
-        .terminal-content {{
-            padding: 20px;
-            background-color: #1e1e1e;
-            overflow-x: auto;
-        }}
-
-        pre {{
-            margin: 0;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-        }}
-
-        code {{
-            font-family: inherit;
-        }}
-
-        /* Override any white backgrounds from Rich */
-        .terminal-content * {{
-            background-color: transparent !important;
-        }}
-
-        .terminal-content pre,
-        .terminal-content code {{
-            background-color: transparent !important;
+            background-color: #0d1117;
         }}
     </style>
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="terminal-header">
-            <div class="terminal-buttons">
-                <div class="terminal-button close"></div>
-                <div class="terminal-button minimize"></div>
-                <div class="terminal-button maximize"></div>
-            </div>
-            <div class="terminal-title">CheckMyTex Analysis Report</div>
-            <div style="width: 60px;"></div>
-        </div>
-        <div class="terminal-content">
+    <div class="content-wrapper">
 {content}
-        </div>
     </div>
 </body>
 </html>"""
