@@ -21,13 +21,21 @@ class MathMode(Filter):
     to ignore these in our regular expressions.
     """
 
-    def __init__(self, rules: typing.Dict[str, typing.Optional[typing.List]]):
+    def __init__(
+        self, rules: typing.Optional[typing.Dict[str, typing.Optional[typing.List]]] = None
+    ):
         """
         :param rules: Specify which tools and rules (None for all) should be
-        ignored in math mode.
+        ignored in math mode. Defaults to filtering spelling, grammar, and style
+        issues in math mode.
         """
         self.ranges: typing.List[typing.Tuple[int, int]] = []
-        self.rules = rules
+        # Default: ignore spelling, grammar, and style issues in math mode
+        self.rules = (
+            rules
+            if rules is not None
+            else {"SPELLING": None, "languagetool": None, "Proselint": None}
+        )
 
     def _find_simple_math(self, source) -> typing.List[typing.Tuple[int, int]]:
         regex = re.compile(

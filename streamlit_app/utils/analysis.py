@@ -87,8 +87,8 @@ def create_default_analyzer(
 
     analyzer.add_filter(IgnoreIncludegraphics())
     analyzer.add_filter(IgnoreRefs())
-    analyzer.add_filter(IgnoreRepeatedWords(["problem", "problems"]))
-    analyzer.add_filter(MathMode())
+    analyzer.add_filter(IgnoreRepeatedWords())  # Uses default: ["problem", "problems"]
+    analyzer.add_filter(MathMode())  # Uses default: SPELLING, languagetool, Proselint
     analyzer.add_filter(IgnoreLikelyAuthorNames())
     analyzer.add_filter(IgnoreWordsFromBibliography())
 
