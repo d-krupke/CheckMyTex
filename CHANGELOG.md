@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Streamlit Web Interface**: Student-friendly web interface for interactive document checking
-  - Secure ZIP file upload with validation
-  - Interactive problem viewer with action buttons
-  - Todo list manager with comments and priorities
-  - Export capabilities (JSON, CSV, Markdown)
-  - Progress tracking during analysis
-  - Comprehensive security features for file handling
+- **FastAPI Web Interface**: Modern web interface for document checking
+  - Secure ZIP file upload with size validation
+  - Configurable checkers and filters via UI
+  - Terminal-styled HTML output with syntax highlighting
+  - Inline character-level error highlighting
+  - Open-source attribution and licensing information
+  - Clean, responsive design
 - Modern build system using PEP 621 (pyproject.toml)
 - Type hints for public API functions and magic methods
 - PEP 561 compliance with py.typed marker file

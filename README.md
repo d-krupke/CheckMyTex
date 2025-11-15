@@ -26,14 +26,14 @@ CheckMyTex provides two interfaces:
 ### 1. 💻 Command Line Interface (CLI)
 The traditional terminal-based interface for power users and automation.
 
-### 2. 🌐 Streamlit Web Interface (NEW!)
-A student-friendly web interface for interactive document checking. Perfect for:
-- Students new to LaTeX
-- Collaborative document review
-- Building todo lists for fixing issues
-- Visual problem browsing
+### 2. 🌐 Web Interface (NEW!)
+A user-friendly web interface for document checking. Perfect for:
+- Easy document upload and analysis
+- Configurable checkers and filters
+- Clean, terminal-styled HTML output
+- No installation required for end users
 
-**[See Streamlit App Documentation](streamlit_app/README.md)**
+**[See Web App Documentation](web_app/README.md)**
 
 ## Primary Features
 
