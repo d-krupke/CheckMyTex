@@ -190,37 +190,37 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
 
     console.print(table)
 
-    # Export to HTML and display
+    # Export to HTML - include full document structure
     html_output = console.export_html(inline_styles=True)
 
-    # Wrap in dark-themed container to match terminal aesthetic
-    styled_html = f"""
-    <style>
-        .rich-terminal {{
-            background-color: #1e1e1e;
-            padding: 1.5rem;
-            border-radius: 8px;
-            font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
-            overflow-x: auto;
-            margin: 0;
-        }}
-        /* Override Streamlit's default white background for code */
-        .rich-terminal pre {{
-            background-color: transparent !important;
-        }}
-        /* Ensure text is visible on dark background */
-        .rich-terminal body {{
-            background-color: #1e1e1e !important;
-            color: #f8f8f2 !important;
-        }}
-    </style>
-    <div class="rich-terminal">
+    # Create complete HTML with proper dark background
+    full_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{
+                background-color: #1e1e1e;
+                color: #f8f8f2;
+                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+                padding: 1.5rem;
+                margin: 0;
+                overflow-x: auto;
+            }}
+            pre {{
+                background-color: transparent !important;
+                margin: 0;
+            }}
+        </style>
+    </head>
+    <body>
         {html_output}
-    </div>
+    </body>
+    </html>
     """
 
-    # Use markdown to avoid iframe white box
-    st.markdown(styled_html, unsafe_allow_html=True)
+    # Display with proper height
+    st.components.v1.html(full_html, height=700, scrolling=False)
 
 
 def _render_action_buttons(problem: Problem, analyzed_document: AnalyzedDocument, idx: int, total: int):
@@ -317,25 +317,31 @@ def _show_summary(all_problems: List[Problem]):
     # Export and display with dark styling
     html_output = console.export_html(inline_styles=True)
 
-    styled_html = f"""
-    <style>
-        .rich-terminal {{
-            background-color: #1e1e1e;
-            padding: 1.5rem;
-            border-radius: 8px;
-            font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
-            margin: 0;
-        }}
-        .rich-terminal pre {{
-            background-color: transparent !important;
-        }}
-    </style>
-    <div class="rich-terminal">
+    # Create complete HTML with proper dark background
+    full_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{
+                background-color: #1e1e1e;
+                color: #f8f8f2;
+                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+                padding: 1.5rem;
+                margin: 0;
+            }}
+            pre {{
+                background-color: transparent !important;
+            }}
+        </style>
+    </head>
+    <body>
         {html_output}
-    </div>
+    </body>
+    </html>
     """
 
-    st.markdown(styled_html, unsafe_allow_html=True)
+    st.components.v1.html(full_html, height=300, scrolling=False)
 
 
 def _add_to_todo(problem: Problem) -> None:
