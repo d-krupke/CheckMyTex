@@ -92,9 +92,139 @@ async def analyze(
         html_path = temp_dir / 'report.html'
         printer.to_html(str(html_path))
 
-        # Return the HTML file
+        # Wrap Rich HTML in terminal-styled container
+        rich_html = html_path.read_text(encoding='utf-8')
+
+        # Extract the content between <body> tags
+        import re
+        body_match = re.search(r'<body>(.*)</body>', rich_html, re.DOTALL)
+        if body_match:
+            content = body_match.group(1)
+        else:
+            content = rich_html
+
+        # Create terminal-styled HTML
+        terminal_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckMyTex Report</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+
+        body {{
+            background-color: #1e1e1e;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }}
+
+        .terminal-container {{
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }}
+
+        .terminal-header {{
+            background: linear-gradient(to bottom, #3c3c3c, #2d2d2d);
+            padding: 12px 16px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            align-items: center;
+        }}
+
+        .terminal-buttons {{
+            display: flex;
+            gap: 8px;
+        }}
+
+        .terminal-button {{
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }}
+
+        .terminal-button.close {{
+            background-color: #ff5f56;
+        }}
+
+        .terminal-button.minimize {{
+            background-color: #ffbd2e;
+        }}
+
+        .terminal-button.maximize {{
+            background-color: #27c93f;
+        }}
+
+        .terminal-title {{
+            flex: 1;
+            text-align: center;
+            color: #b4b4b4;
+            font-size: 13px;
+            font-weight: 500;
+        }}
+
+        .terminal-content {{
+            padding: 20px;
+            background-color: #1e1e1e;
+            overflow-x: auto;
+        }}
+
+        pre {{
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }}
+
+        code {{
+            font-family: inherit;
+        }}
+
+        /* Override any white backgrounds from Rich */
+        .terminal-content * {{
+            background-color: transparent !important;
+        }}
+
+        .terminal-content pre,
+        .terminal-content code {{
+            background-color: transparent !important;
+        }}
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <div class="terminal-button close"></div>
+                <div class="terminal-button minimize"></div>
+                <div class="terminal-button maximize"></div>
+            </div>
+            <div class="terminal-title">CheckMyTex Analysis Report</div>
+            <div style="width: 60px;"></div>
+        </div>
+        <div class="terminal-content">
+{content}
+        </div>
+    </div>
+</body>
+</html>"""
+
+        # Write the wrapped HTML
+        final_html_path = temp_dir / 'final_report.html'
+        final_html_path.write_text(terminal_html, encoding='utf-8')
+
+        # Return the styled HTML file
         return FileResponse(
-            html_path,
+            final_html_path,
             media_type='text/html',
             filename='checkmytex_report.html'
         )
