@@ -190,36 +190,41 @@ def _render_problem_with_rich(problem: Problem, analyzed_document: AnalyzedDocum
 
     console.print(table)
 
-    # Export to HTML - include full document structure
+    # Export to HTML
     html_output = console.export_html(inline_styles=True)
 
-    # Create complete HTML with proper dark background
+    # Wrap in complete HTML document with dark body to eliminate white box
     full_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="utf-8">
         <style>
-            body {{
+            html, body {{
                 background-color: #1e1e1e;
-                color: #f8f8f2;
-                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
-                padding: 1.5rem;
                 margin: 0;
+                padding: 0;
+            }}
+            .rich-terminal {{
+                background-color: #1e1e1e;
+                padding: 1.5rem;
+                border-radius: 8px;
+                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
                 overflow-x: auto;
             }}
-            pre {{
+            .rich-terminal pre {{
                 background-color: transparent !important;
-                margin: 0;
             }}
         </style>
     </head>
     <body>
-        {html_output}
+        <div class="rich-terminal">
+            {html_output}
+        </div>
     </body>
     </html>
     """
 
-    # Display with proper height
     st.components.v1.html(full_html, height=700, scrolling=False)
 
 
@@ -317,26 +322,33 @@ def _show_summary(all_problems: List[Problem]):
     # Export and display with dark styling
     html_output = console.export_html(inline_styles=True)
 
-    # Create complete HTML with proper dark background
+    # Wrap in complete HTML document with dark body
     full_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="utf-8">
         <style>
-            body {{
+            html, body {{
                 background-color: #1e1e1e;
-                color: #f8f8f2;
-                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
-                padding: 1.5rem;
                 margin: 0;
+                padding: 0;
             }}
-            pre {{
+            .rich-terminal {{
+                background-color: #1e1e1e;
+                padding: 1.5rem;
+                border-radius: 8px;
+                font-family: 'Monaco', 'Menlo', 'Courier New', 'Consolas', monospace;
+            }}
+            .rich-terminal pre {{
                 background-color: transparent !important;
             }}
         </style>
     </head>
     <body>
-        {html_output}
+        <div class="rich-terminal">
+            {html_output}
+        </div>
     </body>
     </html>
     """
