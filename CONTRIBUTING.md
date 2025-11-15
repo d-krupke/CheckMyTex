@@ -50,9 +50,13 @@ Run the test suite with pytest:
 pytest
 ```
 
-Run tests with coverage:
+Run tests with coverage (requires `pytest-cov` from dev dependencies):
 
 ```bash
+# Install dev dependencies if not already installed
+pip install -e ".[dev]"
+
+# Run with coverage
 pytest --cov=checkmytex --cov-report=term-missing
 ```
 
