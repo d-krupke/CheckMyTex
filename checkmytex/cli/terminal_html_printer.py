@@ -262,7 +262,15 @@ class TerminalHtmlPrinter:
                 self.html_parts.append('        <div class="ellipsis">...</div>')
 
             problems = self.analysis.get_problems(filename, line_num)
-            self._add_code_block(filename, start_line, line_num + 1, line_num, problems)
+
+            # Get highlight ranges for this line
+            highlights = [
+                (prob.origin.begin.file.position.line_offset,
+                 prob.origin.end.file.position.line_offset)
+                for prob in problems
+            ]
+
+            self._add_code_block(filename, start_line, line_num + 1, line_num, highlights, problems)
             last_printed_line = line_num
 
     def _add_code_block(
@@ -271,6 +279,7 @@ class TerminalHtmlPrinter:
         start_line: int,
         end_line: int,
         highlight_line: int,
+        highlights: list[tuple[int, int]],
         problems: list[Problem]
     ) -> None:
         """Add a code block with line numbers."""
@@ -281,15 +290,16 @@ class TerminalHtmlPrinter:
             if line_content and line_content.endswith('\n'):
                 line_content = line_content[:-1]
 
-            escaped_content = html.escape(line_content) if line_content else ''
-            highlighted_content = self._apply_latex_highlighting(escaped_content)
-
-            if line_idx == highlight_line:
-                self.html_parts.append(f'            <div class="code-line highlight">')
-            else:
-                self.html_parts.append(f'            <div class="code-line">')
-
+            self.html_parts.append(f'            <div class="code-line">')
             self.html_parts.append(f'                <span class="line-number">{line_idx}</span>')
+
+            # Apply highlights if this is the problem line
+            if line_idx == highlight_line and line_content:
+                highlighted_content = self._highlight_ranges(line_content, highlights)
+            else:
+                escaped_content = html.escape(line_content) if line_content else ''
+                highlighted_content = self._apply_latex_highlighting(escaped_content)
+
             self.html_parts.append(f'                <span class="line-content">{highlighted_content}</span>')
             self.html_parts.append('            </div>')
 
@@ -299,6 +309,45 @@ class TerminalHtmlPrinter:
             self.html_parts.append(f'        <div class="problem">{msg}</div>')
 
         self.html_parts.append('        </div>')
+
+    def _highlight_ranges(self, line_content: str, highlights: list[tuple[int, int]]) -> str:
+        """Highlight specific character ranges in a line."""
+        # Merge overlapping ranges
+        if not highlights:
+            escaped = html.escape(line_content)
+            return self._apply_latex_highlighting(escaped)
+
+        # Sort ranges and merge overlapping ones
+        sorted_ranges = sorted(highlights)
+        merged = [sorted_ranges[0]]
+        for start, end in sorted_ranges[1:]:
+            last_start, last_end = merged[-1]
+            if start <= last_end:
+                merged[-1] = (last_start, max(end, last_end))
+            else:
+                merged.append((start, end))
+
+        # Build the highlighted string
+        result = []
+        pos = 0
+
+        for start, end in merged:
+            # Add text before highlight
+            if pos < start:
+                before = html.escape(line_content[pos:start])
+                result.append(self._apply_latex_highlighting(before))
+
+            # Add highlighted text
+            highlight_text = html.escape(line_content[start:end])
+            result.append(f'<span class="highlight">{highlight_text}</span>')
+            pos = end
+
+        # Add remaining text
+        if pos < len(line_content):
+            after = html.escape(line_content[pos:])
+            result.append(self._apply_latex_highlighting(after))
+
+        return ''.join(result)
 
     def _apply_latex_highlighting(self, content: str) -> str:
         """Apply basic LaTeX syntax highlighting."""
