@@ -1,5 +1,9 @@
-flachtex>=0.3.4
+# CheckMyTex Runtime Dependencies
+# For development dependencies, use: pip install -e ".[dev]"
+# All dependencies are managed in pyproject.toml
+
+flachtex>=0.3.13
 proselint>=0.13.0
-pyspellchecker>=0.6.3
+pyspellchecker>=0.7.2
 rich>=12.5.1
 yalafi>=1.3.0

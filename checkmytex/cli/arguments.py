@@ -2,10 +2,12 @@
 Parsing the arguments from CLI.
 """
 
+from __future__ import annotations
+
 import argparse
-import os
 import sys
 import typing
+from pathlib import Path
 
 
 def create_default_argument_parser() -> argparse.ArgumentParser:
@@ -37,6 +39,6 @@ def parse_arguments(
     if args.w:
         args.whitelist = args.w
     else:
-        path = os.path.dirname(args.path[0])
-        args.whitelist = os.path.join(path, ".whitelist.txt")
+        path = Path(args.path[0]).parent
+        args.whitelist = str(path / ".whitelist.txt")
     return args

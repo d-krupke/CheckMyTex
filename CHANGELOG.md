@@ -14,8 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Coverage reporting with pytest-cov
 - Dependabot configuration for automated dependency updates
 - CHANGELOG.md for tracking project changes
+- CONTRIBUTING.md with comprehensive development guidelines
 - Support for Python 3.11 and 3.12 in CI/CD
 - Optional dependency groups (dev, test) in pyproject.toml
+- Tox configuration for multi-version testing
+- EditorConfig for consistent code formatting across editors
+- `from __future__ import annotations` to critical modules for modern type hints
+- Badges to README (PyPI, CI status, Python versions, license, code style)
 
 ### Changed
 - **BREAKING**: Minimum Python version raised to 3.8
@@ -26,9 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modernized PyPI publishing workflow to use `python -m build`
 - Fixed mypy and ruff configuration paths (src → checkmytex)
 - Deprecated setup.py (kept for backward compatibility)
+- Modernized path handling to use pathlib instead of os.path
+- Updated requirements.txt to match pyproject.toml versions
+- Enhanced README with modern structure and links to documentation
 
 ### Removed
 - Removed irrelevant pre-commit hooks (cmake-format, PyBind capitalization checks)
+- Removed direct os.path usage in favor of pathlib
 
 ### Fixed
 - Corrected pre-commit mypy file path patterns

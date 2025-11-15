@@ -2,9 +2,11 @@
 Provides some filters to lessen reported spelling errors on author names.
 """
 
-import os
+from __future__ import annotations
+
 import re
 import typing
+from pathlib import Path
 
 from yalafi.tex2txt import Options, tex2txt
 
@@ -56,11 +58,11 @@ def _find_bibtex_paths(document: LatexDocument) -> typing.List[str]:
         in_file = document.get_simplified_origin_of_source(
             match.start("path"), match.end("path")
         ).get_file()
-        path = os.path.join(os.path.dirname(in_file), bib_file)
-        if os.path.isfile(path):
-            paths.add(path)
-        elif os.path.isfile(path + ".bib"):
-            paths.add(path + ".bib")
+        path = Path(in_file).parent / bib_file
+        if path.is_file():
+            paths.add(str(path))
+        elif path.with_suffix(".bib").is_file():
+            paths.add(str(path.with_suffix(".bib")))
     return paths
 
 

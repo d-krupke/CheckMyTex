@@ -2,6 +2,8 @@
 Provides a container for an analyzed document, i.e., parsed document and found errors.
 """
 
+from __future__ import annotations
+
 import typing
 
 from checkmytex.finding.problem import Problem

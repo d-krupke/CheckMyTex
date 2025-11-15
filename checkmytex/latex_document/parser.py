@@ -1,6 +1,8 @@
-import os
+from __future__ import annotations
+
 import re
 import typing
+from pathlib import Path
 
 import flachtex
 from flachtex.command_substitution import NewCommandSubstitution, find_new_commands
@@ -43,13 +45,13 @@ class LatexParser:
     def newcommand(self, name: int, num_parameters: int, definition: str) -> None:
         pass
 
-    def _find_command_definitions(self, path) -> NewCommandSubstitution:
+    def _find_command_definitions(self, path: str) -> NewCommandSubstitution:
         """
         Parse the document once independently to extract new commands.
         :param path:
         :return:
         """
-        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+        preprocessor = flachtex.Preprocessor(str(Path(path).parent))
         preprocessor.file_finder = self.file_finder
         doc = preprocessor.expand_file(path)
         cmds = find_new_commands(doc)
@@ -64,8 +66,8 @@ class LatexParser:
         if project_root:
             self.file_finder.set_root(project_root)
         else:
-            self.file_finder.set_root(os.path.dirname(path))
-        preprocessor = flachtex.Preprocessor(os.path.dirname(path))
+            self.file_finder.set_root(str(Path(path).parent))
+        preprocessor = flachtex.Preprocessor(str(Path(path).parent))
         preprocessor.file_finder = self.file_finder
         preprocessor.skip_rules.append(TodonotesRule())
         preprocessor.skip_rules.append(_IgnoreRule())
