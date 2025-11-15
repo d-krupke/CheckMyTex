@@ -16,7 +16,7 @@ def cli(
     args: argparse.Namespace,
     whitelist: Whitelist,
     latex_parser: typing.Optional[LatexParser] = None,
-):
+) -> None:
     console = Console(record=True)
     try:
         latex_parser = latex_parser if latex_parser is not None else LatexParser()

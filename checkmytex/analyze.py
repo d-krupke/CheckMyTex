@@ -9,8 +9,9 @@ def analyze(
     path: str,
     checker: typing.Iterable[Checker],
     problem_filter: typing.Iterable[Filter],
-    log=print,
-):
+    log: typing.Callable[[str], None] = print,
+) -> typing.Any:  # Returns AnalyzedDocument but avoid circular import
+    """Analyze a LaTeX document for problems using specified checkers and filters."""
     doc_checker = DocumentAnalyzer(log=log)
     for c in checker:
         doc_checker.add_checker(c)

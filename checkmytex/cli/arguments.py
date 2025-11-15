@@ -21,7 +21,9 @@ def create_default_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def parse_arguments(parser: typing.Optional[argparse.ArgumentParser] = None):
+def parse_arguments(
+    parser: typing.Optional[argparse.ArgumentParser] = None,
+) -> argparse.Namespace:
     """
     Parse CLI arguments.
     :param log: A logging function.

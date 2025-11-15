@@ -1,15 +1,92 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0", "setuptools-scm>=8.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "CheckMyTex"
+version = "0.10.5"
+description = "A simple tool for checking complex LaTeX documents, e.g., dissertations."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Dominik Krupke", email = "krupke@ibr.cs.tu-bs.de"},
+]
+keywords = ["LaTeX", "spell-check", "grammar-check", "document-quality"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pyspellchecker>=0.7.2",
+    "flachtex>=0.3.13",
+    "yalafi>=1.3.0",
+    "proselint>=0.13.0",
+    "rich>=12.5.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/d-krupke/checkmytex"
+Repository = "https://github.com/d-krupke/checkmytex"
+Issues = "https://github.com/d-krupke/checkmytex/issues"
+
+[project.scripts]
+checkmytex = "checkmytex.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["checkmytex*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+checkmytex = ["py.typed"]
 
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config", "--cov=checkmytex", "--cov-report=term-missing", "--cov-report=xml"]
 xfail_strict = true
 filterwarnings = ["error"]
 log_cli_level = "info"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["checkmytex"]
+branch = true
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
 
 [tool.ruff]
 select = [
@@ -41,16 +118,16 @@ extend-ignore = [
     "PT004",   # Incorrect, just usefixtures instead.
     "RUF009",  # Too easy to get a false positive
 ]
-target-version = "py37"
-src = ["src"]
+target-version = "py38"
+src = ["checkmytex"]
 unfixable = ["T20", "F841"]
 exclude = []
 
 
 [tool.mypy]
-files = ["src", "tests"]
-mypy_path = ["$MYPY_CONFIG_FILE_DIR/src"]
-python_version = "3.7"
+files = ["checkmytex", "tests"]
+mypy_path = ["$MYPY_CONFIG_FILE_DIR/checkmytex"]
+python_version = "3.8"
 warn_unused_configs = true
 show_error_codes = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
@@ -67,7 +144,7 @@ ignore_missing_imports = true
 
 
 [tool.pylint]
-py-version = "3.7"
+py-version = "3.8"
 jobs = "0"
 reports.output-format = "colorized"
 similarities.ignore-imports = "yes"

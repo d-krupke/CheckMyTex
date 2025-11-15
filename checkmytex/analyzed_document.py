@@ -13,7 +13,9 @@ class AnalyzedDocument:
     An analyzed document. Contains the document and the problems found for it.
     """
 
-    def __init__(self, document: LatexDocument, problems: typing.Iterable[Problem]):
+    def __init__(
+        self, document: LatexDocument, problems: typing.Iterable[Problem]
+    ) -> None:
         self.document = document
         self.problems = list(problems)
         self._on_false_positive: typing.Optional[typing.Callable[[Problem], None]] = (
@@ -22,14 +24,14 @@ class AnalyzedDocument:
 
     def set_on_false_positive_cb(
         self, on_false_positive: typing.Callable[[Problem], None]
-    ):
+    ) -> None:
         """
         Set a callback for when a problem is marked as false positive. This allows
         you, e.g., to save this for later iterations.
         """
         self._on_false_positive = on_false_positive
 
-    def mark_as_false_positive(self, problem: Problem):
+    def mark_as_false_positive(self, problem: Problem) -> None:
         """
         Mark a problem as false positive. All occurrences of this problem will be removed.
         """
