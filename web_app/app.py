@@ -235,13 +235,11 @@ async def analyze(
                     detail=f"Analysis took too long (timeout: {ANALYSIS_TIMEOUT}s)"
                 )
 
-            # Generate HTML report
+            # Generate HTML report in memory (no need to write to disk)
             printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
-            html_path = temp_dir / 'report.html'
-            printer.to_html(str(html_path))
-
-            # Read the HTML content before temp directory is cleaned up
-            html_content = html_path.read_text(encoding='utf-8')
+            printer.html_parts = []
+            printer._generate_html()
+            html_content = '\n'.join(printer.html_parts)
 
             # Log success
             duration = (datetime.now() - start_time).total_seconds()
