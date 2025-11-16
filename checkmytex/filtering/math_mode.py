@@ -85,9 +85,7 @@ class MathMode(Filter):
             return False
         begin = problem.origin.begin.source.index
         end = problem.origin.end.source.index
-        if not any(r[0] <= begin <= end <= r[1] for r in self.ranges):
-            return False
-        return True
+        return any(r[0] <= begin <= end <= r[1] for r in self.ranges)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:

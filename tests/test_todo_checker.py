@@ -176,32 +176,9 @@ This is the results section.
         # Should find both TODOs
         assert len(problems) == 2
 
-        # Check that the TODO comment is near "Add more details"
-        todo_comment = [p for p in problems if "TODO" in p.rule][0]
-        # The origin should be somewhere in the Introduction section
-        # Get the text at the origin
-        origin_text = document.get_source()[
-            todo_comment.origin.begin.source.index : todo_comment.origin.end.source.index
-        ]
-
-        # Print debug info
-        print("\nTODO comment problem:")
-        print(f"  Message: {todo_comment.message}")
-        print(f"  Context: {todo_comment.context}")
-        print(f"  Origin text: {origin_text[:100]}")
-        print(f"  Origin position: {todo_comment.origin.begin.source.index}")
-
-        # Check that the \todo command is near "Fix this section"
-        todo_cmd = [p for p in problems if "TODO_MARKER_CMD" in p.rule][0]
-        origin_text_cmd = document.get_source()[
-            todo_cmd.origin.begin.source.index : todo_cmd.origin.end.source.index
-        ]
-
-        print("\n\\todo command problem:")
-        print(f"  Message: {todo_cmd.message}")
-        print(f"  Context: {todo_cmd.context}")
-        print(f"  Origin text: {origin_text_cmd[:100]}")
-        print(f"  Origin position: {todo_cmd.origin.begin.source.index}")
+        # Verify we have one TODO comment and one \todo command
+        assert any("TODO" in p.rule for p in problems)
+        assert any("TODO_MARKER_CMD" in p.rule for p in problems)
 
     def test_todo_with_nearby_unique_text(self):
         """Test TODO location when there's unique nearby text."""
@@ -221,13 +198,6 @@ Another sentence here.
         assert len(problems) == 1
 
         problem = problems[0]
-        origin_text = document.get_source()[
-            problem.origin.begin.source.index : problem.origin.end.source.index
-        ]
-
-        print("\nUnique text test:")
-        print(f"  Origin text: {origin_text[:100]}")
-        print(f"  Origin position: {problem.origin.begin.source.index}")
 
         # The origin should include "quick brown fox" since it's nearby and unique
         # Not at position 0 (document start)

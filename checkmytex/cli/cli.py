@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import typing
+from pathlib import Path
 
 from rich.console import Console
 
@@ -17,7 +17,7 @@ def cli(
     engine: DocumentAnalyzer,
     args: argparse.Namespace,
     whitelist: Whitelist,
-    latex_parser: typing.Optional[LatexParser] = None,
+    latex_parser: LatexParser | None = None,
 ) -> None:
     console = Console(record=True)
     try:
@@ -25,7 +25,7 @@ def cli(
         latex_document = latex_parser.parse(args.path[0])
         analyzed_document = engine.analyze(latex_document)
         if args.json:
-            with open(args.json, "w") as f:
+            with Path(args.json).open("w") as f:
                 json.dump(analyzed_document.serialize(), f)
             return
         if args.html:
@@ -35,7 +35,7 @@ def cli(
             if args.print:
                 rp = RichPrinter(
                     analyzed_document,
-                    problem_handler=lambda p: None,
+                    problem_handler=lambda _: None,
                     console=console,
                 )
             else:

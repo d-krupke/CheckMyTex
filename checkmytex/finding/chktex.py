@@ -80,7 +80,7 @@ class ChkTex(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Running chktex...")
-        result, err, exitcode = self._run(
+        result, err, _exitcode = self._run(
             f"chktex -f '{self._format_str}'", document.get_source()
         )
         if err:

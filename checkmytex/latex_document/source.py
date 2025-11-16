@@ -4,8 +4,6 @@ Container for the LaTeX-sources.
 
 from __future__ import annotations
 
-import typing
-
 from flachtex import TraceableString
 
 from checkmytex.latex_document.indexed_string import (
@@ -28,29 +26,29 @@ class FilePosition:
     def __repr__(self) -> str:
         return f"{self.path}{self.position}"
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"path": self.path, "position": self.position.serialize()}
 
 
 class LatexSource:
     def __init__(
-        self, source: TraceableString, structure: typing.Dict[str, typing.Dict]
+        self, source: TraceableString, structure: dict[str, dict]
     ):
         self.flat_source: IndexedText = IndexedText(source)
-        self.files: typing.Dict[str, IndexedText] = {}
-        self.includes: typing.Dict[str, typing.List[str]] = {}
+        self.files: dict[str, IndexedText] = {}
+        self.includes: dict[str, list[str]] = {}
         for path, data in structure.items():
             self.files[path] = IndexedText(data["content"])
             self.includes[path] = list(data["includes"])
-        self.file_names: typing.List[str] = list(self.files.keys())
+        self.file_names: list[str] = list(self.files.keys())
         self.file_order = {f: i for i, f in enumerate(self.file_names)}
 
-    def get_file(self, file: str, line: typing.Optional[int]) -> str:
+    def get_file(self, file: str, line: int | None) -> str:
         if line is not None:
             return str(self.files[file].get_line(line))
         return str(self.files[file])
 
-    def investigate_origin(self, index: int) -> typing.Optional[FilePosition]:
+    def investigate_origin(self, index: int) -> FilePosition | None:
         file, index = self.flat_source.text.get_origin(index)
         if file not in self.files:
             return None
@@ -59,7 +57,7 @@ class LatexSource:
 
     def get_simplified_origin_range(
         self, begin: int, end: int
-    ) -> typing.Optional[typing.Tuple[FilePosition, FilePosition]]:
+    ) -> tuple[FilePosition, FilePosition] | None:
         origins = [self.investigate_origin(i) for i in range(begin, end)]
         origins = [o for o in origins if o is not None]
         if not origins:
@@ -87,7 +85,7 @@ class LatexSource:
             FilePosition(focus_on_file, file_end),
         )
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {
             "flat": str(self.flat_source),
             "files": {path: str(content) for path, content in self.files.items()},

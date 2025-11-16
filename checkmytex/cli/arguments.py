@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-import typing
 from pathlib import Path
 
 
@@ -24,7 +23,7 @@ def create_default_argument_parser() -> argparse.ArgumentParser:
 
 
 def parse_arguments(
-    parser: typing.Optional[argparse.ArgumentParser] = None,
+    parser: argparse.ArgumentParser | None = None,
 ) -> argparse.Namespace:
     """
     Parse CLI arguments.

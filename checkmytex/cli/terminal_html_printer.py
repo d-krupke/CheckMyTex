@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import html
 import os.path
-import typing
+import re
 from collections import defaultdict
+from pathlib import Path
 
 from checkmytex import AnalyzedDocument
 from checkmytex.finding import Problem
@@ -17,7 +18,7 @@ class TerminalHtmlPrinter:
     def __init__(
         self,
         analysis: AnalyzedDocument,
-        shorten: typing.Optional[int] = 5,
+        shorten: int | None = 5,
     ):
         self.analysis = analysis
         self.shorten = shorten
@@ -28,7 +29,7 @@ class TerminalHtmlPrinter:
         """Generate and save HTML report to file."""
         self.html_parts = []
         self._generate_html()
-        with open(path, "w", encoding="utf-8") as f:
+        with Path(path).open("w", encoding="utf-8") as f:
             f.write("\n".join(self.html_parts))
 
     def _generate_html(self) -> None:
@@ -394,7 +395,6 @@ class TerminalHtmlPrinter:
     def _apply_latex_highlighting(self, content: str) -> str:
         """Apply basic LaTeX syntax highlighting."""
         # This is a simple highlighter - could be enhanced
-        import re
 
         # Highlight comments
         content = re.sub(r"(%.*)", r'<span class="comment">\1</span>', content)
@@ -403,9 +403,8 @@ class TerminalHtmlPrinter:
         content = re.sub(r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', content)
 
         # Highlight brackets
-        content = re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
+        return re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
 
-        return content
 
     def _add_orphaned_problems(self) -> None:
         """Add orphaned problems section."""

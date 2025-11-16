@@ -9,6 +9,7 @@ import re
 import typing
 
 from checkmytex.latex_document import LatexDocument, Origin
+from checkmytex.latex_document.indexed_string import TextPosition
 from checkmytex.latex_document.origin import OriginPointer
 from checkmytex.latex_document.source import FilePosition
 
@@ -60,8 +61,6 @@ class LineLengthChecker(Checker):
             file_indexed = document.sources.files[filename]
 
             # Convert positions to TextPosition objects
-            from checkmytex.latex_document.indexed_string import TextPosition
-
             begin_text_pos = file_indexed.get_detailed_position(line_start_pos)
             end_text_pos = file_indexed.get_detailed_position(line_end_pos)
 
@@ -71,7 +70,6 @@ class LineLengthChecker(Checker):
 
             # Try to find nearby content in processed source for source positions
             line_idx = begin_text_pos.line
-            line_content = str(file_indexed.get_line(line_idx)).strip()
 
             # Search for this line or nearby lines in processed source
             for offset in range(20):
@@ -104,7 +102,7 @@ class LineLengthChecker(Checker):
                                                 end_file_pos, source_match.end.source
                                             ),
                                         )
-                            except:
+                            except Exception:
                                 continue
 
             # Fallback: create with dummy source positions
@@ -141,7 +139,7 @@ class LineLengthChecker(Checker):
                 if line_length > self.max_length:
                     try:
                         # Calculate position in file
-                        line_start = sum(len(l) + 1 for l in lines[: line_num - 1])
+                        line_start = sum(len(prev_line) + 1 for prev_line in lines[: line_num - 1])
                         line_end = line_start + line_length
 
                         # Create origin from raw file position

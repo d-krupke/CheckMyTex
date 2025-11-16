@@ -50,7 +50,7 @@ class IgnoreLikelyAuthorNames(Filter):
             yield problem
 
 
-def _find_bibtex_paths(document: LatexDocument) -> typing.List[str]:
+def _find_bibtex_paths(document: LatexDocument) -> list[str]:
     regex = r"\\((addbibresource)|(bibliography))\{(?P<path>[^}]+)\}"
     paths = set()
     for match in re.finditer(regex, document.get_source()):
@@ -87,7 +87,7 @@ class IgnoreWordsFromBibliography(Filter):
                 bibtex += "\n".join(file.readlines())
         return bibtex
 
-    def _extract_words_from_bibtex(self, bibtex: str) -> typing.Set[str]:
+    def _extract_words_from_bibtex(self, bibtex: str) -> set[str]:
         expr = (
             r"^\s*((author)|(AUTHOR)|(title)|(TITLE))"
             r"\s*=\s*\{(?P<text>[^{}]*(\{[^{}]*\}[^{}]*)*)\}"

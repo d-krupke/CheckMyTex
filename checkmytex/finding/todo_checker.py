@@ -9,6 +9,7 @@ import re
 import typing
 
 from checkmytex.latex_document import LatexDocument, Origin
+from checkmytex.latex_document.indexed_string import TextPosition
 from checkmytex.latex_document.origin import OriginPointer
 from checkmytex.latex_document.source import FilePosition
 
@@ -53,8 +54,6 @@ class TodoChecker(Checker):
             file_indexed = document.sources.files[filename]
 
             # Convert positions to TextPosition objects
-            from checkmytex.latex_document.indexed_string import TextPosition
-
             begin_text_pos = file_indexed.get_detailed_position(match_start)
             end_text_pos = file_indexed.get_detailed_position(match_end)
 
@@ -101,7 +100,7 @@ class TodoChecker(Checker):
                                                 end_file_pos, source_match.end.source
                                             ),
                                         )
-                            except:
+                            except Exception:
                                 continue
 
             # Fallback: create with dummy source positions

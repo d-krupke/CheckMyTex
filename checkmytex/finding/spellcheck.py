@@ -45,7 +45,7 @@ class AspellChecker(Checker):
         words = self._get_words(document)
         bin = shutil.which("aspell")
         word_list = "\n".join(words.keys())
-        out, err, code = self._run(f"{bin}  -a --lang={self.lang}", input=word_list)
+        out, _err, _code = self._run(f"{bin}  -a --lang={self.lang}", input=word_list)
         regex = re.compile(r"^\s*&\s*(?P<word>\w+)[0-9\s]*:(?P<sugg>.*)$", re.MULTILINE)
         for match in regex.finditer(out):
             word = match.group("word").strip()

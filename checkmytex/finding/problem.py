@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import typing
 
 from checkmytex.latex_document import Origin
 
@@ -19,7 +18,7 @@ class Problem:
         long_id: str,
         tool: str,
         rule: str,
-        look_up_url: typing.Optional[str] = None,
+        look_up_url: str | None = None,
     ):
         self.short_id = str(hashlib.md5((tool + long_id).encode()).hexdigest())
         self.long_id = long_id

@@ -20,7 +20,7 @@ class AnalyzedDocument:
     ) -> None:
         self.document = document
         self.problems = list(problems)
-        self._on_false_positive: typing.Optional[typing.Callable[[Problem], None]] = (
+        self._on_false_positive: typing.Callable[[Problem], None] | None = (
             None
         )
 
@@ -58,7 +58,7 @@ class AnalyzedDocument:
         """
         return self.remove_if(lambda p: problem.long_id == p.long_id)
 
-    def remove_with_rule(self, rule: str, tool: typing.Optional[str] = None) -> int:
+    def remove_with_rule(self, rule: str, tool: str | None = None) -> int:
         """
         Remove all problems that have been created by the rule.
         """
@@ -67,8 +67,8 @@ class AnalyzedDocument:
         return self.remove_if(lambda p: p.rule == rule)
 
     def get_problems(
-        self, file: typing.Optional[str] = None, line: typing.Optional[int] = None
-    ) -> typing.List[Problem]:
+        self, file: str | None = None, line: int | None = None
+    ) -> list[Problem]:
         """
         Returns problems. Can be for a specific file and even line.
         """
@@ -79,7 +79,7 @@ class AnalyzedDocument:
             return problems
         return self.problems
 
-    def get_orphaned_problems(self) -> typing.List[Problem]:
+    def get_orphaned_problems(self) -> list[Problem]:
         return [p for p in self.problems if not p.origin]
 
     def list_files(self) -> typing.Iterable[str]:

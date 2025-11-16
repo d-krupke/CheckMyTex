@@ -53,14 +53,13 @@ class ProblemHandler:
         pprint(problem.serialize())
         return False
 
-    def find(self, problem: Problem):
+    def find(self, _problem: Problem):
         self.console.log("Use this find-utility to compare with other occurrences.")
         pattern = self.console.input("Find pattern (regex):")
         if pattern:
             self.console.log("Searching in text...")
             for origin in self.analyzed_document.document.find_in_text(pattern):
-                print(origin)
-                l = origin.get_source_line()
+                self.console.log(str(origin))
                 self.console.print(
                     escape(
                         f"{origin.get_file()}[{origin.get_file_line()}] {self.analyzed_document.document.get_file_content(origin.get_file(), origin.get_file_line())}"
@@ -68,8 +67,7 @@ class ProblemHandler:
                 )
             self.console.log("Searching in source...")
             for origin in self.analyzed_document.document.find_in_source(pattern):
-                print(origin)
-                l = origin.get_source_line()
+                self.console.log(str(origin))
                 self.console.print(
                     escape(
                         f"{origin.get_file()}[{origin.get_file_line()}] {self.analyzed_document.document.get_file_content(origin.get_file(), origin.get_file_line())}"
@@ -85,7 +83,7 @@ class ProblemHandler:
             lambda s: self.console.print(escape(s)),
         )
         prompt.add_option(
-            "s", "[s]kip", lambda p: True, help_="Skip to the next problem."
+            "s", "[s]kip", lambda _: True, help_="Skip to the next problem."
         )
         prompt.add_option(
             "S", "[S]kip all", self._skip_all, help_="Skip all similar problems."
@@ -102,9 +100,9 @@ class ProblemHandler:
         prompt.add_option(
             "n", "[n]ext file", self._next_file, help_="Skip to next file."
         )
-        prompt.add_option("x", None, lambda p: exit(0), help_="Exit.")
-        prompt.add_option("exit", None, lambda p: exit(0))
-        prompt.add_option("q", None, lambda p: exit(0))
+        prompt.add_option("x", None, lambda _: exit(0), help_="Exit.")
+        prompt.add_option("exit", None, lambda _: exit(0))
+        prompt.add_option("q", None, lambda _: exit(0))
         prompt.add_option(
             "e",
             "[e]dit",
@@ -127,9 +125,9 @@ class RichPrinter:
     def __init__(
         self,
         analysis: AnalyzedDocument,
-        shorten: typing.Optional[int] = 5,
-        problem_handler: typing.Optional[typing.Callable[[Problem], None]] = None,
-        console: typing.Optional[Console] = None,
+        shorten: int | None = 5,
+        problem_handler: typing.Callable[[Problem], None] | None = None,
+        console: Console | None = None,
     ):
         self.problem_handler = problem_handler
         self.analysis = analysis
@@ -200,14 +198,14 @@ class RichPrinter:
             }
         )
         problematic_lines.sort()
-        for l in problematic_lines:
+        for line_num in problematic_lines:
             if self.shorten is not None:
-                l_ = max(last_printed_line + 1, l - self.shorten)
+                l_ = max(last_printed_line + 1, line_num - self.shorten)
             else:
                 l_ = last_printed_line + 1
             if l_ != 0 and l_ != last_printed_line + 1:
                 self.console.print("...")
-            problems = self.analysis.get_problems(filename, l)
+            problems = self.analysis.get_problems(filename, line_num)
             highlights = [
                 (
                     prob.origin.get_file_line(),
@@ -216,9 +214,9 @@ class RichPrinter:
                 )
                 for prob in problems
             ]
-            assert l_ <= l
-            self.print_source(filename, l_, l + 1, highlights)
-            last_printed_line = l
+            assert l_ <= line_num
+            self.print_source(filename, l_, line_num + 1, highlights)
+            last_printed_line = line_num
             for prob in problems:
                 self.print_problem(prob)
         if self.shorten is None:
@@ -233,7 +231,7 @@ class RichPrinter:
         filename,
         begin,
         end,
-        highlights: typing.Iterable[typing.Tuple[int, int, int]],
+        highlights: typing.Iterable[tuple[int, int, int]],
     ):
         text = "".join(
             self.analysis.document.get_file_content(filename, i)
@@ -251,8 +249,8 @@ class RichPrinter:
             word_wrap=True,
             tab_size=1,
         )
-        for l, b, e in highlights:
-            syntax.stylize_range("white on red", (1 + l - begin, b), (1 + l - begin, e))
+        for line_no, begin_off, end_off in highlights:
+            syntax.stylize_range("white on red", (1 + line_no - begin, begin_off), (1 + line_no - begin, end_off))
         self.console.print(syntax)
 
     def print_problem(self, problem: Problem):

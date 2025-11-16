@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import typing
 from pathlib import Path
 
 import flachtex
@@ -27,17 +26,16 @@ class _IgnoreRule(RegexSkipRule):
         )
 
     def determine_skip(self, match: re.Match):
-        span_to_be_skipped = Range(
+        return Range(
             match.start("skipped_part"), match.end("skipped_part")
         )
-        return span_to_be_skipped
 
 
 class LatexParser:
     def __init__(
         self,
-        file_finder: typing.Optional[flachtex.FileFinder] = None,
-        yalafi_opts: typing.Optional[typing.Dict] = None,
+        file_finder: flachtex.FileFinder | None = None,
+        yalafi_opts: dict | None = None,
     ):
         self.file_finder = file_finder if file_finder else flachtex.FileFinder()
         self._yalafi_opts = yalafi_opts
@@ -61,7 +59,7 @@ class LatexParser:
         return ncs
 
     def parse_source(
-        self, path: str, project_root: typing.Optional[str] = None
+        self, path: str, project_root: str | None = None
     ) -> LatexSource:
         if project_root:
             self.file_finder.set_root(project_root)
@@ -80,7 +78,7 @@ class LatexParser:
         )
 
     def parse(
-        self, path: str, project_root: typing.Optional[str] = None
+        self, path: str, project_root: str | None = None
     ) -> LatexDocument:
         source = self.parse_source(path, project_root)
         return LatexDocument(

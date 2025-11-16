@@ -109,8 +109,7 @@ class DocumentAnalyzer:
         """
         for checker in self.checker:
             try:
-                for problem in checker.check(latex_document):
-                    yield problem
+                yield from checker.check(latex_document)
             except (RuntimeError, ValueError, TypeError, KeyError) as e:
                 # Expected errors from checker logic
                 logging.getLogger("CheckMyTex").error(

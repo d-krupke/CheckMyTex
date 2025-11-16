@@ -5,7 +5,6 @@ further rules and refinements.
 
 from __future__ import annotations
 
-# flake8: noqa F401
 from .analyzed_document import AnalyzedDocument
 from .document_analyzer import DocumentAnalyzer
 from .latex_document import LatexDocument

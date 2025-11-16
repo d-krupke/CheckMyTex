@@ -8,7 +8,7 @@ import logging
 import shutil
 import tempfile
 import zipfile
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import datetime
 from pathlib import Path
 
@@ -291,7 +291,7 @@ async def analyze(
 
 
 def create_analyzer(
-    enabled_checkers: list[str] = None, enabled_filters: list[str] = None
+    enabled_checkers: list[str] | None = None, enabled_filters: list[str] | None = None
 ) -> DocumentAnalyzer:
     """Create a DocumentAnalyzer with configurable checkers and filters.
 
@@ -337,58 +337,40 @@ def create_analyzer(
         try:
             analyzer.add_checker(AspellChecker())
         except Exception:
-            try:
+            with suppress(Exception):
                 analyzer.add_checker(CheckSpell())
-            except Exception:
-                pass
 
     if "languagetool" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(Languagetool())
-        except Exception:
-            pass
 
     if "chktex" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(ChkTex())
-        except Exception:
-            pass
 
     if "siunitx" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(SiUnitx())
-        except Exception:
-            pass
 
     if "nphard" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(UniformNpHard())
-        except Exception:
-            pass
 
     if "cleveref" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(Cleveref())
-        except Exception:
-            pass
 
     if "proselint" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(Proselint())
-        except Exception:
-            pass
 
     if "linelength" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(LineLengthChecker(max_length=200))
-        except Exception:
-            pass
 
     if "todo" in enabled_checkers:
-        try:
+        with suppress(Exception):
             analyzer.add_checker(TodoChecker())
-        except Exception:
-            pass
 
     # Add filters based on configuration
     if "includegraphics" in enabled_filters:

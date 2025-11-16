@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import typing
-
 from .indexed_string import TextPosition
 from .source import FilePosition
 
@@ -15,7 +13,7 @@ class OriginPointer:
         self,
         file: FilePosition,
         source: TextPosition,
-        text: typing.Optional[TextPosition] = None,
+        text: TextPosition | None = None,
     ):
         self.file = file  # position in file
         self.source = source  # position in flat source
@@ -34,7 +32,7 @@ class OriginPointer:
     def __repr__(self) -> str:
         return f"FILE:{self.file}|SOURCE:{self.source}|text::{self.text}"
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {
             "file": self.file.serialize(),
             "source": self.source.serialize(),
@@ -65,7 +63,7 @@ class Origin:
     def get_file(self) -> str:
         return self.begin.file.path
 
-    def get_text_span(self) -> typing.Optional[typing.Tuple[int, int]]:
+    def get_text_span(self) -> tuple[int, int] | None:
         if self.begin.text is None:
             return None
         if self.end.text is None:
@@ -73,10 +71,10 @@ class Origin:
             raise RuntimeError(msg)
         return self.begin.text.index, self.end.text.index
 
-    def get_source_span(self) -> typing.Tuple[int, int]:
+    def get_source_span(self) -> tuple[int, int]:
         return self.begin.source.index, self.end.source.index
 
-    def get_file_span(self) -> typing.Tuple[int, int]:
+    def get_file_span(self) -> tuple[int, int]:
         return self.begin.file.position.index, self.end.file.position.index
 
     def get_text_line(self) -> int:
@@ -99,5 +97,5 @@ class Origin:
             return NotImplemented
         return self.begin == other.begin and self.end == other.end
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"begin": self.begin.serialize(), "end": self.end.serialize()}
