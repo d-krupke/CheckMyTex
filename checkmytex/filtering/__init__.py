@@ -5,6 +5,7 @@ A collection of filters to filter issues found by the checker/tools in
 
 # flake8: noqa F401
 from .authors import IgnoreLikelyAuthorNames, IgnoreWordsFromBibliography
+from .code_listings import IgnoreCodeListings
 from .filter import (
     Filter,
     IgnoreIncludegraphics,

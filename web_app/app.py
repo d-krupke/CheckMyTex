@@ -19,6 +19,7 @@ import json
 from checkmytex import DocumentAnalyzer
 from checkmytex.cli.terminal_html_printer import TerminalHtmlPrinter
 from checkmytex.filtering import (
+    IgnoreCodeListings,
     IgnoreIncludegraphics,
     IgnoreLikelyAuthorNames,
     IgnoreRefs,
@@ -33,8 +34,10 @@ from checkmytex.finding import (
     ChkTex,
     Cleveref,
     Languagetool,
+    LineLengthChecker,
     Proselint,
     SiUnitx,
+    TodoChecker,
     UniformNpHard,
 )
 from checkmytex.latex_document.parser import LatexParser
@@ -134,8 +137,8 @@ async def licenses(request: Request):
 async def analyze(
     request: Request,
     file: UploadFile = File(...),
-    checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]'),
-    filters: str = Form(default='["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography"]')
+    checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard", "linelength", "todo"]'),
+    filters: str = Form(default='["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography", "codelistings"]')
 ):
     """Analyze uploaded ZIP file and return HTML report."""
     start_time = datetime.now()
@@ -271,16 +274,18 @@ def create_analyzer(
     Args:
         enabled_checkers: List of checker names to enable.
                          Valid values: 'aspell', 'languagetool', 'chktex',
-                                      'siunitx', 'cleveref', 'proselint', 'nphard'
+                                      'siunitx', 'cleveref', 'proselint', 'nphard',
+                                      'linelength', 'todo'
         enabled_filters: List of filter names to enable.
                         Valid values: 'includegraphics', 'refs', 'repeated',
-                                     'spellingwithmath', 'mathmode', 'authornames', 'bibliography'
+                                     'spellingwithmath', 'mathmode', 'authornames',
+                                     'bibliography', 'codelistings'
     """
     if enabled_checkers is None:
-        enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
+        enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard", "linelength", "todo"]
 
     if enabled_filters is None:
-        enabled_filters = ["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography"]
+        enabled_filters = ["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography", "codelistings"]
 
     analyzer = DocumentAnalyzer()
 
@@ -330,6 +335,18 @@ def create_analyzer(
         except Exception:
             pass
 
+    if "linelength" in enabled_checkers:
+        try:
+            analyzer.add_checker(LineLengthChecker(max_length=100))
+        except Exception:
+            pass
+
+    if "todo" in enabled_checkers:
+        try:
+            analyzer.add_checker(TodoChecker())
+        except Exception:
+            pass
+
     # Add filters based on configuration
     if "includegraphics" in enabled_filters:
         analyzer.add_filter(IgnoreIncludegraphics())
@@ -351,6 +368,9 @@ def create_analyzer(
 
     if "bibliography" in enabled_filters:
         analyzer.add_filter(IgnoreWordsFromBibliography())
+
+    if "codelistings" in enabled_filters:
+        analyzer.add_filter(IgnoreCodeListings())
 
     return analyzer
 
