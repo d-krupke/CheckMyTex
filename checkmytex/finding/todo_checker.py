@@ -75,9 +75,11 @@ class TodoChecker(Checker):
                     # Look for substantial non-comment LaTeX content nearby
                     # that we can reliably find in the processed source
                     file_lines = file_content.split('\n')
-                    nearby_text = None
-                    search_radius = 10  # Look up to 10 lines away
+                    origin = None
+                    search_radius = 15  # Look up to 15 lines away
 
+                    # Try multiple nearby lines, with preference for closer lines
+                    candidates = []
                     for offset in range(-search_radius, search_radius + 1):
                         idx = line_num - 1 + offset
                         if 0 <= idx < len(file_lines):
@@ -85,23 +87,35 @@ class TodoChecker(Checker):
                             # Skip empty lines, comment lines, and very short lines
                             if (line_text and
                                 not line_text.startswith('%') and
-                                len(line_text) > 15 and
-                                # Look for lines with actual LaTeX content
-                                ('\\' in line_text or '{' in line_text)):
-                                # Use a substantial chunk for better matching
-                                nearby_text = line_text[:80]
-                                break
+                                len(line_text) > 10):
+                                # Prefer lines with LaTeX commands
+                                priority = 0
+                                if '\\' in line_text:
+                                    priority += 2
+                                if len(line_text) > 30:
+                                    priority += 1
+                                candidates.append((abs(offset), priority, line_text))
 
-                    origin = None
-                    if nearby_text:
-                        # Try to find this text in the processed source
-                        # Use a substring that's likely to be unique
-                        search_text = nearby_text[:40]
-                        # Escape special regex characters
-                        search_pattern = re.escape(search_text)
-                        source_matches = list(document.find_in_source(search_pattern))
-                        if source_matches:
-                            origin = source_matches[0]
+                    # Sort by priority (higher first), then by distance (closer first)
+                    candidates.sort(key=lambda x: (-x[1], x[0]))
+
+                    # Try to find each candidate in the processed source
+                    for _, _, line_text in candidates[:10]:  # Try up to 10 candidates
+                        # Try different substring lengths for better matching
+                        for length in [60, 40, 25, 15]:
+                            if len(line_text) >= length:
+                                search_text = line_text[:length]
+                                # Escape special regex characters
+                                search_pattern = re.escape(search_text)
+                                try:
+                                    source_matches = list(document.find_in_source(search_pattern))
+                                    if source_matches:
+                                        origin = source_matches[0]
+                                        break
+                                except Exception:
+                                    continue
+                        if origin:
+                            break
 
                     # If we still don't have an origin, try to use the document structure
                     # to at least get close to the right section
@@ -173,9 +187,10 @@ class TodoChecker(Checker):
                     # If that didn't work, look for nearby LaTeX content
                     if origin is None:
                         file_lines = file_content.split('\n')
-                        nearby_text = None
-                        search_radius = 10
+                        search_radius = 15
 
+                        # Try multiple nearby lines, with preference for closer lines
+                        candidates = []
                         for offset in range(-search_radius, search_radius + 1):
                             if offset == 0:  # Skip the line with \todo itself
                                 continue
@@ -186,18 +201,34 @@ class TodoChecker(Checker):
                                 if (line_text and
                                     not line_text.startswith('%') and
                                     '\\todo' not in line_text and
-                                    len(line_text) > 15 and
-                                    ('\\' in line_text or '{' in line_text)):
-                                    nearby_text = line_text[:80]
-                                    break
+                                    len(line_text) > 10):
+                                    # Prefer lines with LaTeX commands
+                                    priority = 0
+                                    if '\\' in line_text:
+                                        priority += 2
+                                    if len(line_text) > 30:
+                                        priority += 1
+                                    candidates.append((abs(offset), priority, line_text))
 
-                        if nearby_text:
-                            # Try to find this text in the processed source
-                            search_text = nearby_text[:40]
-                            search_pattern = re.escape(search_text)
-                            source_matches = list(document.find_in_source(search_pattern))
-                            if source_matches:
-                                origin = source_matches[0]
+                        # Sort by priority (higher first), then by distance (closer first)
+                        candidates.sort(key=lambda x: (-x[1], x[0]))
+
+                        # Try to find each candidate in the processed source
+                        for _, _, line_text in candidates[:10]:  # Try up to 10 candidates
+                            # Try different substring lengths for better matching
+                            for length in [60, 40, 25, 15]:
+                                if len(line_text) >= length:
+                                    search_text = line_text[:length]
+                                    search_pattern = re.escape(search_text)
+                                    try:
+                                        source_matches = list(document.find_in_source(search_pattern))
+                                        if source_matches:
+                                            origin = source_matches[0]
+                                            break
+                                    except Exception:
+                                        continue
+                            if origin:
+                                break
 
                     # Try to find section headings if still no origin
                     if origin is None:
