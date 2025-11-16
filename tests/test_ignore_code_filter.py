@@ -2,7 +2,7 @@
 
 from checkmytex import DocumentAnalyzer
 from checkmytex.filtering import IgnoreCodeListings
-from checkmytex.finding import CheckSpell
+from checkmytex.finding import CheckSpell, LineLengthChecker
 from checkmytex.latex_document.parser import LatexParser
 from flachtex import FileFinder
 
@@ -27,8 +27,6 @@ More text.
         document = parser.parse("main.tex")
 
         # Use LineLengthChecker which works on raw source
-        from checkmytex.finding import LineLengthChecker
-
         analyzer = DocumentAnalyzer()
         # Use a threshold that both long lines exceed
         analyzer.add_checker(LineLengthChecker(max_length=60))
