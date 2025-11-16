@@ -8,7 +8,9 @@ publishing the final document.
 import re
 import typing
 
-from checkmytex.latex_document import LatexDocument
+from checkmytex.latex_document import LatexDocument, Origin
+from checkmytex.latex_document.origin import OriginPointer
+from checkmytex.latex_document.source import FilePosition
 
 from .abstract_checker import Checker
 from .problem import Problem
@@ -30,6 +32,77 @@ class TodoChecker(Checker):
             log: Logging function (default: print)
         """
         super().__init__(log)
+
+    def _create_origin_from_file_position(
+        self,
+        document: LatexDocument,
+        filename: str,
+        line_num: int,
+        context_length: int = 50
+    ) -> Origin:
+        """
+        Create an origin directly from a file line number.
+
+        This creates an origin that points to a specific line in a file,
+        and attempts to map it to the corresponding position in the processed source.
+
+        Args:
+            document: The LaTeX document
+            filename: The file containing the TODO
+            line_num: The line number (1-indexed) where the TODO is located
+            context_length: Approximate length for the origin range
+
+        Returns:
+            Origin object pointing to the location
+        """
+        # Get the file's indexed text
+        file_indexed = document.sources.files[filename]
+
+        # Convert to 0-indexed line number
+        line_idx = line_num - 1
+
+        # Get the text position at the start of this line in the file
+        file_begin_pos = file_indexed.get_detailed_position((line_idx, 0))
+
+        # Get end position (same line, some characters forward)
+        file_end_pos = file_indexed.get_detailed_position((line_idx, min(context_length, 80)))
+
+        # Now we need to find where this file line maps to in the flat source
+        # We'll search the flat source for content from this file line
+        try:
+            # Get the actual content of the line
+            line_content = file_indexed.get_line(line_idx)
+            line_text = str(line_content).strip()
+
+            # Try to find this line in the processed source
+            # Remove comments and try to match actual content
+            if line_text and not line_text.startswith('%'):
+                # This line has non-comment content, try to find it in source
+                search_pattern = re.escape(line_text[:40])
+                source_matches = list(document.find_in_source(search_pattern))
+                if source_matches:
+                    return source_matches[0]
+
+            # If the line itself is a comment or not found, look at nearby lines
+            for offset in range(1, 20):
+                # Try lines after first (TODOs are often right before relevant content)
+                for direction in [1, -1]:
+                    nearby_line_idx = line_idx + (offset * direction)
+                    if 0 <= nearby_line_idx < file_indexed.num_lines():
+                        nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
+                        if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 10:
+                            # Try to find this content
+                            search_pattern = re.escape(nearby_content[:40])
+                            source_matches = list(document.find_in_source(search_pattern))
+                            if source_matches:
+                                return source_matches[0]
+
+            # Last resort: use document start
+            return document.get_simplified_origin_of_source(0, 1)
+
+        except Exception as e:
+            self.log(f"Warning: Could not create origin for {filename}:{line_num}: {e}")
+            return document.get_simplified_origin_of_source(0, 1)
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         """
@@ -72,73 +145,10 @@ class TodoChecker(Checker):
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    # Look for substantial non-comment LaTeX content nearby
-                    # that we can reliably find in the processed source
-                    file_lines = file_content.split('\n')
-                    origin = None
-                    search_radius = 15  # Look up to 15 lines away
-
-                    # Try multiple nearby lines, with preference for closer lines
-                    candidates = []
-                    for offset in range(-search_radius, search_radius + 1):
-                        idx = line_num - 1 + offset
-                        if 0 <= idx < len(file_lines):
-                            line_text = file_lines[idx].strip()
-                            # Skip empty lines, comment lines, and very short lines
-                            if (line_text and
-                                not line_text.startswith('%') and
-                                len(line_text) > 10):
-                                # Prefer lines with LaTeX commands
-                                priority = 0
-                                if '\\' in line_text:
-                                    priority += 2
-                                if len(line_text) > 30:
-                                    priority += 1
-                                candidates.append((abs(offset), priority, line_text))
-
-                    # Sort by priority (higher first), then by distance (closer first)
-                    candidates.sort(key=lambda x: (-x[1], x[0]))
-
-                    # Try to find each candidate in the processed source
-                    for _, _, line_text in candidates[:10]:  # Try up to 10 candidates
-                        # Try different substring lengths for better matching
-                        for length in [60, 40, 25, 15]:
-                            if len(line_text) >= length:
-                                search_text = line_text[:length]
-                                # Escape special regex characters
-                                search_pattern = re.escape(search_text)
-                                try:
-                                    source_matches = list(document.find_in_source(search_pattern))
-                                    if source_matches:
-                                        origin = source_matches[0]
-                                        break
-                                except Exception:
-                                    continue
-                        if origin:
-                            break
-
-                    # If we still don't have an origin, try to use the document structure
-                    # to at least get close to the right section
-                    if origin is None:
-                        # Look for section headings or other structural elements nearby
-                        for offset in range(-20, 20):
-                            idx = line_num - 1 + offset
-                            if 0 <= idx < len(file_lines):
-                                line_text = file_lines[idx]
-                                # Look for section commands
-                                section_match = re.search(r'\\(section|subsection|subsubsection|chapter|paragraph)\{([^}]+)\}', line_text)
-                                if section_match:
-                                    section_title = section_match.group(2)[:30]
-                                    # Try to find this section in the processed source
-                                    search_pattern = re.escape(section_title)
-                                    source_matches = list(document.find_in_source(search_pattern))
-                                    if source_matches:
-                                        origin = source_matches[0]
-                                        break
-
-                    # Last resort: use document start
-                    if origin is None:
-                        origin = document.get_simplified_origin_of_source(0, 1)
+                    # Create origin using the helper method
+                    origin = self._create_origin_from_file_position(
+                        document, filename, line_num
+                    )
 
                     message = f"{marker_type} comment found: {marker_text if marker_text else '(no description)'}"
 
@@ -172,83 +182,22 @@ class TodoChecker(Checker):
                     lines = file_content[:match.start()].split('\n')
                     line_num = len(lines)
 
-                    origin = None
-
                     # First, try to find the actual \todo command in the processed source
                     # This should work if the \todo is not inside a comment
                     todo_text = match.group(0)
-                    # Search for a unique portion of the \todo command
                     search_text = todo_text[:min(50, len(todo_text))]
                     search_pattern = re.escape(search_text)
                     source_matches = list(document.find_in_source(search_pattern))
+
                     if source_matches:
+                        # Found the \todo command itself in the source
                         origin = source_matches[0]
-
-                    # If that didn't work, look for nearby LaTeX content
-                    if origin is None:
-                        file_lines = file_content.split('\n')
-                        search_radius = 15
-
-                        # Try multiple nearby lines, with preference for closer lines
-                        candidates = []
-                        for offset in range(-search_radius, search_radius + 1):
-                            if offset == 0:  # Skip the line with \todo itself
-                                continue
-                            idx = line_num - 1 + offset
-                            if 0 <= idx < len(file_lines):
-                                line_text = file_lines[idx].strip()
-                                # Skip empty lines, comment lines, lines with \todo, and very short lines
-                                if (line_text and
-                                    not line_text.startswith('%') and
-                                    '\\todo' not in line_text and
-                                    len(line_text) > 10):
-                                    # Prefer lines with LaTeX commands
-                                    priority = 0
-                                    if '\\' in line_text:
-                                        priority += 2
-                                    if len(line_text) > 30:
-                                        priority += 1
-                                    candidates.append((abs(offset), priority, line_text))
-
-                        # Sort by priority (higher first), then by distance (closer first)
-                        candidates.sort(key=lambda x: (-x[1], x[0]))
-
-                        # Try to find each candidate in the processed source
-                        for _, _, line_text in candidates[:10]:  # Try up to 10 candidates
-                            # Try different substring lengths for better matching
-                            for length in [60, 40, 25, 15]:
-                                if len(line_text) >= length:
-                                    search_text = line_text[:length]
-                                    search_pattern = re.escape(search_text)
-                                    try:
-                                        source_matches = list(document.find_in_source(search_pattern))
-                                        if source_matches:
-                                            origin = source_matches[0]
-                                            break
-                                    except Exception:
-                                        continue
-                            if origin:
-                                break
-
-                    # Try to find section headings if still no origin
-                    if origin is None:
-                        file_lines = file_content.split('\n')
-                        for offset in range(-20, 20):
-                            idx = line_num - 1 + offset
-                            if 0 <= idx < len(file_lines):
-                                line_text = file_lines[idx]
-                                section_match = re.search(r'\\(section|subsection|subsubsection|chapter|paragraph)\{([^}]+)\}', line_text)
-                                if section_match:
-                                    section_title = section_match.group(2)[:30]
-                                    search_pattern = re.escape(section_title)
-                                    source_matches = list(document.find_in_source(search_pattern))
-                                    if source_matches:
-                                        origin = source_matches[0]
-                                        break
-
-                    # Last resort: use document start
-                    if origin is None:
-                        origin = document.get_simplified_origin_of_source(0, 1)
+                    else:
+                        # The \todo is commented out or not in processed source
+                        # Use the helper method to find nearby content
+                        origin = self._create_origin_from_file_position(
+                            document, filename, line_num
+                        )
 
                     message = f"\\todo command found: {todo_content if todo_content else '(empty)'}"
 

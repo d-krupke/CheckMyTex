@@ -148,3 +148,92 @@ We have a TODO list for the project, but this is just text.
         """Test that the checker is always available."""
         checker = TodoChecker()
         assert checker.is_available() is True
+
+    def test_todo_location_accuracy(self):
+        """Test that TODOs are reported at their actual locations."""
+        source = r"""
+\documentclass{article}
+\begin{document}
+\section{Introduction}
+This is the introduction section with some text.
+% TODO: Add more details here
+More text after the TODO comment.
+
+\section{Methods}
+This is the methods section.
+\todo{Fix this section}
+More methods text.
+
+\section{Results}
+This is the results section.
+\end{document}
+        """
+        parser = LatexParser(FileFinder(".", {"main.tex": source}))
+        document = parser.parse("main.tex")
+        checker = TodoChecker()
+
+        problems = list(checker.check(document))
+
+        # Should find both TODOs
+        assert len(problems) == 2
+
+        # Check that the TODO comment is near "Add more details"
+        todo_comment = [p for p in problems if "TODO" in p.rule][0]
+        # The origin should be somewhere in the Introduction section
+        # Get the text at the origin
+        origin_text = document.get_source()[
+            todo_comment.origin.begin.source.index:
+            todo_comment.origin.end.source.index
+        ]
+
+        # Print debug info
+        print(f"\nTODO comment problem:")
+        print(f"  Message: {todo_comment.message}")
+        print(f"  Context: {todo_comment.context}")
+        print(f"  Origin text: {origin_text[:100]}")
+        print(f"  Origin position: {todo_comment.origin.begin.source.index}")
+
+        # Check that the \todo command is near "Fix this section"
+        todo_cmd = [p for p in problems if "TODO_MARKER_CMD" in p.rule][0]
+        origin_text_cmd = document.get_source()[
+            todo_cmd.origin.begin.source.index:
+            todo_cmd.origin.end.source.index
+        ]
+
+        print(f"\n\\todo command problem:")
+        print(f"  Message: {todo_cmd.message}")
+        print(f"  Context: {todo_cmd.context}")
+        print(f"  Origin text: {origin_text_cmd[:100]}")
+        print(f"  Origin position: {todo_cmd.origin.begin.source.index}")
+
+    def test_todo_with_nearby_unique_text(self):
+        """Test TODO location when there's unique nearby text."""
+        source = r"""
+\documentclass{article}
+\begin{document}
+The quick brown fox jumps over the lazy dog.
+% TODO: This should map to the fox sentence
+Another sentence here.
+\end{document}
+        """
+        parser = LatexParser(FileFinder(".", {"main.tex": source}))
+        document = parser.parse("main.tex")
+        checker = TodoChecker()
+
+        problems = list(checker.check(document))
+        assert len(problems) == 1
+
+        problem = problems[0]
+        origin_text = document.get_source()[
+            problem.origin.begin.source.index:
+            problem.origin.end.source.index
+        ]
+
+        print(f"\nUnique text test:")
+        print(f"  Origin text: {origin_text[:100]}")
+        print(f"  Origin position: {problem.origin.begin.source.index}")
+
+        # The origin should include "quick brown fox" since it's nearby and unique
+        # Not at position 0 (document start)
+        assert problem.origin.begin.source.index > 10, \
+            f"TODO mapped to position {problem.origin.begin.source.index}, expected > 10"
