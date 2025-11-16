@@ -11,16 +11,14 @@ class TestIgnoreCodeListings:
     """Test cases for the Ignore Code Listings Filter."""
 
     def test_ignores_lstlisting_environment(self):
-        """Test that spelling errors in lstlisting are ignored."""
+        """Test that errors in lstlisting are ignored."""
         source = r"""
 \documentclass{article}
 \usepackage{listings}
 \begin{document}
-This is normal text with misspeling.
+This is a very long line of normal text outside the code block that exceeds our threshold.
 \begin{lstlisting}
-def functon_with_typo():
-    varible = 123
-    return varible
+This is another very long line but inside lstlisting so it should be filtered out completely.
 \end{lstlisting}
 More text.
 \end{document}
@@ -28,9 +26,12 @@ More text.
         parser = LatexParser(FileFinder(".", {"main.tex": source}))
         document = parser.parse("main.tex")
 
-        # Create analyzer with spell checker
+        # Use LineLengthChecker which works on raw source
+        from checkmytex.finding import LineLengthChecker
+
         analyzer = DocumentAnalyzer()
-        analyzer.add_checker(CheckSpell())
+        # Use a threshold that both long lines exceed
+        analyzer.add_checker(LineLengthChecker(max_length=60))
 
         # Without filter
         report_no_filter = analyzer.analyze(document)
@@ -41,9 +42,9 @@ More text.
         report_with_filter = analyzer.analyze(document)
         problems_with_filter = list(report_with_filter.get_problems())
 
-        # Filter should reduce the number of problems
+        # Filter should reduce the number of problems (lstlisting line filtered)
         assert len(problems_with_filter) < len(problems_no_filter)
-        # Should still detect the misspelling in normal text
+        # Should still detect the long line in normal text
         assert len(problems_with_filter) >= 1
 
     def test_ignores_verbatim_environment(self):
