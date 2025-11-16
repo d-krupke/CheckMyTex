@@ -397,6 +397,26 @@
                             </span>
                         </label>
                     </div>
+
+                    <div class="config-group">
+                        <h4>Code Quality</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="linelength" checked>
+                            <span class="tooltip">
+                                Line Length
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Detects lines exceeding 100 characters. Long lines make version control diffs harder to read and reduce overall code readability.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="todo" checked>
+                            <span class="tooltip">
+                                TODO/FIXME
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Finds TODO, FIXME, XXX comments and \todo{} commands. Helps ensure no draft markers or unfinished work remains before publication.</span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -465,6 +485,14 @@
                                 Bibliography Words
                                 <span class="tooltip-icon">?</span>
                                 <span class="tooltip-text">Ignores words found in your bibliography entries. Technical terms and names from citations shouldn't be flagged as errors.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="codelistings" checked>
+                            <span class="tooltip">
+                                Code Listings
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores errors within code listing environments (lstlisting, verbatim, minted). Programming code has different syntax rules and shouldn't trigger language checks.</span>
                             </span>
                         </label>
                     </div>
