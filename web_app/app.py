@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 import json
 
@@ -240,6 +240,9 @@ async def analyze(
             html_path = temp_dir / 'report.html'
             printer.to_html(str(html_path))
 
+            # Read the HTML content before temp directory is cleaned up
+            html_content = html_path.read_text(encoding='utf-8')
+
             # Log success
             duration = (datetime.now() - start_time).total_seconds()
             logger.info(
@@ -248,10 +251,9 @@ async def analyze(
             )
 
             # Return the terminal-styled HTML
-            return FileResponse(
-                html_path,
-                media_type='text/html',
-                filename='checkmytex_report.html'
+            return HTMLResponse(
+                content=html_content,
+                media_type='text/html'
             )
 
         except HTTPException:
