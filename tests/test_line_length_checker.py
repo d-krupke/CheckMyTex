@@ -15,13 +15,13 @@ class TestLineLengthChecker:
 \documentclass{article}
 \begin{document}
 This is a short line.
-This is a very long line that exceeds the maximum length and should be flagged by the line length checker as a problem that needs to be addressed.
+This is a very long line that exceeds the maximum length and should be flagged by the line length checker as a problem that needs to be addressed because it is essentially a full paragraph in a single line which makes version control diffs very hard to read.
 Another short line.
 \end{document}
         """
         parser = LatexParser(FileFinder(".", {"main.tex": source}))
         document = parser.parse("main.tex")
-        checker = LineLengthChecker(max_length=100)
+        checker = LineLengthChecker(max_length=200)
 
         problems = list(checker.check(document))
 
@@ -41,7 +41,7 @@ Yet another short line.
         """
         parser = LatexParser(FileFinder(".", {"main.tex": source}))
         document = parser.parse("main.tex")
-        checker = LineLengthChecker(max_length=100)
+        checker = LineLengthChecker(max_length=200)
 
         problems = list(checker.check(document))
 

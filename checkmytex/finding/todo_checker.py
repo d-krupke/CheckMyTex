@@ -61,14 +61,6 @@ class TodoChecker(Checker):
         # Convert to 0-indexed line number
         line_idx = line_num - 1
 
-        # Get the text position at the start of this line in the file
-        file_begin_pos = file_indexed.get_detailed_position((line_idx, 0))
-
-        # Get end position (same line, some characters forward)
-        file_end_pos = file_indexed.get_detailed_position((line_idx, min(context_length, 80)))
-
-        # Now we need to find where this file line maps to in the flat source
-        # We'll search the flat source for content from this file line
         try:
             # Get the actual content of the line
             line_content = file_indexed.get_line(line_idx)
@@ -78,24 +70,38 @@ class TodoChecker(Checker):
             # Remove comments and try to match actual content
             if line_text and not line_text.startswith('%'):
                 # This line has non-comment content, try to find it in source
-                search_pattern = re.escape(line_text[:40])
+                search_pattern = re.escape(line_text[:60])
                 source_matches = list(document.find_in_source(search_pattern))
-                if source_matches:
-                    return source_matches[0]
+                # Filter to matches in the same file
+                for match in source_matches:
+                    if match.get_file() == filename:
+                        return match
 
             # If the line itself is a comment or not found, look at nearby lines
-            for offset in range(1, 20):
+            # Build a list of candidates with their distances
+            for offset in range(1, 30):
                 # Try lines after first (TODOs are often right before relevant content)
                 for direction in [1, -1]:
                     nearby_line_idx = line_idx + (offset * direction)
                     if 0 <= nearby_line_idx < file_indexed.num_lines():
                         nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
-                        if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 10:
-                            # Try to find this content
-                            search_pattern = re.escape(nearby_content[:40])
-                            source_matches = list(document.find_in_source(search_pattern))
-                            if source_matches:
-                                return source_matches[0]
+                        if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
+                            # Try different substring lengths for better uniqueness
+                            for substr_len in [80, 60, 40, 25]:
+                                if len(nearby_content) >= substr_len:
+                                    search_pattern = re.escape(nearby_content[:substr_len])
+                                    source_matches = list(document.find_in_source(search_pattern))
+
+                                    # Filter to matches in the same file and pick closest
+                                    for match in source_matches:
+                                        if match.get_file() == filename:
+                                            # Check if this match is reasonably close to our line
+                                            match_line = match.get_file_line()
+                                            line_distance = abs(match_line - line_num)
+                                            # Accept if within reasonable distance
+                                            if line_distance <= offset + 10:
+                                                return match
+                                    break  # Found matches, even if not in same file
 
             # Last resort: use document start
             return document.get_simplified_origin_of_source(0, 1)

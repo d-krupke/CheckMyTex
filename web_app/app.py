@@ -337,7 +337,7 @@ def create_analyzer(
 
     if "linelength" in enabled_checkers:
         try:
-            analyzer.add_checker(LineLengthChecker(max_length=100))
+            analyzer.add_checker(LineLengthChecker(max_length=200))
         except Exception:
             pass
 

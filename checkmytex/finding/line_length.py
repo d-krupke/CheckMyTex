@@ -22,7 +22,7 @@ class LineLengthChecker(Checker):
     lines to 80-100 characters.
     """
 
-    def __init__(self, max_length: int = 100, log: typing.Callable = print):
+    def __init__(self, max_length: int = 200, log: typing.Callable = print):
         """
         Initialize the Line Length Checker.
 
