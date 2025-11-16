@@ -20,9 +20,7 @@ class AnalyzedDocument:
     ) -> None:
         self.document = document
         self.problems = list(problems)
-        self._on_false_positive: typing.Callable[[Problem], None] | None = (
-            None
-        )
+        self._on_false_positive: typing.Callable[[Problem], None] | None = None
 
     def set_on_false_positive_cb(
         self, on_false_positive: typing.Callable[[Problem], None]

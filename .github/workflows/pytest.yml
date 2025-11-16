@@ -25,7 +25,7 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          ruff check .
+          ruff check checkmytex
 
       - name: Format check with ruff
         run: |

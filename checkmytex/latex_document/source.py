@@ -31,9 +31,7 @@ class FilePosition:
 
 
 class LatexSource:
-    def __init__(
-        self, source: TraceableString, structure: dict[str, dict]
-    ):
+    def __init__(self, source: TraceableString, structure: dict[str, dict]):
         self.flat_source: IndexedText = IndexedText(source)
         self.files: dict[str, IndexedText] = {}
         self.includes: dict[str, list[str]] = {}

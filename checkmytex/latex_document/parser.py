@@ -26,9 +26,7 @@ class _IgnoreRule(RegexSkipRule):
         )
 
     def determine_skip(self, match: re.Match):
-        return Range(
-            match.start("skipped_part"), match.end("skipped_part")
-        )
+        return Range(match.start("skipped_part"), match.end("skipped_part"))
 
 
 class LatexParser:
@@ -58,9 +56,7 @@ class LatexParser:
             ncs.new_command(cmd)
         return ncs
 
-    def parse_source(
-        self, path: str, project_root: str | None = None
-    ) -> LatexSource:
+    def parse_source(self, path: str, project_root: str | None = None) -> LatexSource:
         if project_root:
             self.file_finder.set_root(project_root)
         else:
@@ -77,9 +73,7 @@ class LatexParser:
             flachtex.remove_comments(flat_source), preprocessor.structure
         )
 
-    def parse(
-        self, path: str, project_root: str | None = None
-    ) -> LatexDocument:
+    def parse(self, path: str, project_root: str | None = None) -> LatexDocument:
         source = self.parse_source(path, project_root)
         return LatexDocument(
             source, DetexedText(str(source.flat_source), self._yalafi_opts)

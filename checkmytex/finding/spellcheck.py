@@ -20,9 +20,7 @@ class AspellChecker(Checker):
         super().__init__()
         self.lang = lang
 
-    def _get_words(
-        self, document: LatexDocument
-    ) -> dict[str, list[Origin]]:
+    def _get_words(self, document: LatexDocument) -> dict[str, list[Origin]]:
         word_occurrences: dict[str, list[Origin]] = {}
         word_regex = re.compile(r"(^|[\s(-])(?P<word>[^\s-]+)")
         text = document.get_text()

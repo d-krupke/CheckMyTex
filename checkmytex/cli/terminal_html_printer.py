@@ -405,7 +405,6 @@ class TerminalHtmlPrinter:
         # Highlight brackets
         return re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
 
-
     def _add_orphaned_problems(self) -> None:
         """Add orphaned problems section."""
         problems = self.analysis.get_orphaned_problems()
