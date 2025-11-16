@@ -65,8 +65,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_text(
         self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+        begin: typing.Union[int, tuple[int, int]],
+        end: typing.Union[int, tuple[int, int]],
     ) -> Origin:
         """
         Investigates a simplified origin of the corresponding range.
@@ -105,8 +105,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_source(
         self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+        begin: typing.Union[int, tuple[int, int]],
+        end: typing.Union[int, tuple[int, int]],
     ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).
@@ -145,5 +145,5 @@ class LatexDocument:
         for match in re.finditer(pattern, str(self.get_source())):
             yield self.get_simplified_origin_of_source(match.start(), match.end())
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"sources": self.sources.serialize(), "text": str(self.detexed_text)}

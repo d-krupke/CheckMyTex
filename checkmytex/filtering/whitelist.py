@@ -23,8 +23,8 @@ class Whitelist(Filter):
         :param on_add: Callback [Problem]->None that is called on newly
          whitelisted problems.
         """
-        self._shortkeys: typing.Set[str] = set()
-        self._whitelist: typing.Dict[str, str] = {}
+        self._shortkeys: set[str] = set()
+        self._whitelist: dict[str, str] = {}
         self._on_add = on_add
         self._path = path
         if path is not None and Path(path).exists():

@@ -15,7 +15,7 @@ class TextPosition:
         self.line = line
         self.line_offset = line_offset
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"index": self.index, "line": self.line, "line_offset": self.line_offset}
 
     def __eq__(self, other):
@@ -51,7 +51,7 @@ class IndexedText:
         self._index = compute_row_index(self._content)
 
     def get_detailed_position(
-        self, i: typing.Union[TextPosition, typing.Tuple[int, int], int]
+        self, i: typing.Union[TextPosition, tuple[int, int], int]
     ) -> TextPosition:
         if isinstance(i, TextPosition):
             if i.index is not None:
@@ -86,7 +86,7 @@ class IndexedText:
 
 def simplify_text_range(
     positions: typing.Iterable[typing.Optional[TextPosition]],
-) -> typing.Optional[typing.Tuple[TextPosition, TextPosition]]:
+) -> typing.Optional[tuple[TextPosition, TextPosition]]:
     """
     Returns a simple, single-line range based on a list of positions.
     This means, that it can be shortened.

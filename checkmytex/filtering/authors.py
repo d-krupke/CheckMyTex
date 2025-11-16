@@ -80,10 +80,10 @@ class IgnoreWordsFromBibliography(Filter):
     def _collect_bibtexs(self, document: LatexDocument) -> str:
         bibtex = ""
         for path in _find_bibtex_paths(document):
-            with open(path) as file:
+            with Path(path).open() as file:
                 bibtex += "\n".join(file.readlines())
         for path in self._paths:
-            with open(path) as file:
+            with Path(path).open() as file:
                 bibtex += "\n".join(file.readlines())
         return bibtex
 

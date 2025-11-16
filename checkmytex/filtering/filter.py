@@ -57,7 +57,7 @@ class IgnoreRefs(Filter):
 
 
 class IgnoreRepeatedWords(Filter):
-    def __init__(self, words: typing.Optional[typing.List[str]] = None):
+    def __init__(self, words: typing.Optional[list[str]] = None):
         # Default to common academic words that are often intentionally repeated
         self.words = words if words is not None else ["problem", "problems"]
         self.document: typing.Optional[LatexDocument] = None

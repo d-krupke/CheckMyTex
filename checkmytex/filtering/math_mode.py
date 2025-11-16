@@ -23,14 +23,14 @@ class MathMode(Filter):
 
     def __init__(
         self,
-        rules: typing.Optional[typing.Dict[str, typing.Optional[typing.List]]] = None,
+        rules: typing.Optional[dict[str, typing.Optional[list]]] = None,
     ):
         """
         :param rules: Specify which tools and rules (None for all) should be
         ignored in math mode. Defaults to filtering spelling, grammar, and style
         issues in math mode.
         """
-        self.ranges: typing.List[typing.Tuple[int, int]] = []
+        self.ranges: list[tuple[int, int]] = []
         # Default: ignore spelling, grammar, and style issues in math mode
         self.rules = (
             rules
@@ -38,7 +38,7 @@ class MathMode(Filter):
             else {"SPELLING": None, "languagetool": None, "Proselint": None}
         )
 
-    def _find_simple_math(self, source) -> typing.List[typing.Tuple[int, int]]:
+    def _find_simple_math(self, source) -> list[tuple[int, int]]:
         regex = re.compile(
             r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
         )
@@ -47,14 +47,14 @@ class MathMode(Filter):
             end = match.end("math")
             self.ranges.append((begin, end))
 
-    def _find_line_math(self, source) -> typing.List[typing.Tuple[int, int]]:
+    def _find_line_math(self, source) -> list[tuple[int, int]]:
         regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
         for match in regex.finditer(source):
             begin = match.start()
             end = match.end()
             self.ranges.append((begin, end))
 
-    def _find_environments(self, source, env) -> typing.List[typing.Tuple[int, int]]:
+    def _find_environments(self, source, env) -> list[tuple[int, int]]:
         regex = re.compile(
             r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
             re.MULTILINE | re.DOTALL,

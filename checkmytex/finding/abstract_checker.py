@@ -21,7 +21,7 @@ class Checker(abc.ABC):
 
     def _run(
         self, cmd: str, input: typing.Optional[str] = None
-    ) -> typing.Tuple[str, str, int]:
+    ) -> tuple[str, str, int]:
         """
         Execute a shell command.
 
