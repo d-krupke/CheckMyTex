@@ -33,103 +33,76 @@ class TodoChecker(Checker):
         """
         super().__init__(log)
 
-    def _create_origin_from_file_position(
+    def _create_origin_from_raw_file_match(
         self,
         document: LatexDocument,
         filename: str,
-        line_num: int,
-        context_length: int = 50
+        match_start: int,
+        match_end: int
     ) -> Origin:
         """
-        Create an origin directly from a file line number.
-
-        This creates an origin that points to a specific line in a file,
-        and attempts to map it to the corresponding position in the processed source.
+        Create an origin directly from raw file positions.
 
         Args:
             document: The LaTeX document
-            filename: The file containing the TODO
-            line_num: The line number (1-indexed) where the TODO is located
-            context_length: Approximate length for the origin range
+            filename: The file containing the match
+            match_start: Start position in the raw file content
+            match_end: End position in the raw file content
 
         Returns:
             Origin object pointing to the location
         """
-        # Get the file's indexed text
-        file_indexed = document.sources.files[filename]
-
-        # Convert to 0-indexed line number
-        line_idx = line_num - 1
-
         try:
-            # Get the actual content of the line
-            line_content = file_indexed.get_line(line_idx)
-            line_text = str(line_content).strip()
+            # Get the file's indexed text (raw content)
+            file_indexed = document.sources.files[filename]
 
-            # Try to find this line in the processed source
-            # Remove comments and try to match actual content
-            if line_text and not line_text.startswith('%'):
-                # This line has non-comment content, try to find it in source
-                search_pattern = re.escape(line_text[:60])
-                source_matches = list(document.find_in_source(search_pattern))
-                # Filter to matches in the same file
-                for match in source_matches:
-                    if match.get_file() == filename:
-                        return match
+            # Convert positions to TextPosition objects
+            from checkmytex.latex_document.indexed_string import TextPosition
+            begin_text_pos = file_indexed.get_detailed_position(match_start)
+            end_text_pos = file_indexed.get_detailed_position(match_end)
 
-            # If the line itself is a comment or not found, look at nearby lines
-            # TODOs typically refer to content AFTER them, so try forward first
-            # Try forward (after TODO)
-            for offset in range(1, 30):
-                nearby_line_idx = line_idx + offset
-                if nearby_line_idx < file_indexed.num_lines():
-                    nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
-                    if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
-                        # Try different substring lengths for better uniqueness
-                        for substr_len in [80, 60, 40, 25]:
-                            if len(nearby_content) >= substr_len:
-                                search_pattern = re.escape(nearby_content[:substr_len])
+            # Create FilePosition objects
+            begin_file_pos = FilePosition(filename, begin_text_pos)
+            end_file_pos = FilePosition(filename, end_text_pos)
+
+            # We need source positions too for the OriginPointer
+            # Since the TODO might not exist in processed source, we'll use
+            # a position from nearby processed content
+
+            # Try to find a nearby position in the processed source that corresponds
+            # to this file location by searching for content on the same or nearby lines
+            line_idx = begin_text_pos.line
+
+            # Search for content on this line or nearby lines that exists in processed source
+            for offset in range(0, 50):
+                for direction in ([0] if offset == 0 else [1, -1]):
+                    check_line = line_idx + (offset * direction)
+                    if 0 <= check_line < file_indexed.num_lines():
+                        line_content = str(file_indexed.get_line(check_line)).strip()
+                        if line_content and not line_content.startswith('%') and len(line_content) > 10:
+                            # Try to find this in processed source
+                            search_pattern = re.escape(line_content[:min(40, len(line_content))])
+                            try:
                                 source_matches = list(document.find_in_source(search_pattern))
+                                for source_match in source_matches:
+                                    if source_match.get_file() == filename:
+                                        # Use this match's source positions
+                                        return Origin(
+                                            OriginPointer(begin_file_pos, source_match.begin.source),
+                                            OriginPointer(end_file_pos, source_match.end.source)
+                                        )
+                            except:
+                                continue
 
-                                # Filter to matches in the same file and pick closest
-                                for match in source_matches:
-                                    if match.get_file() == filename:
-                                        # Check if this match is reasonably close to our line
-                                        match_line = match.get_file_line()
-                                        line_distance = abs(match_line - line_num)
-                                        # Accept if within reasonable distance
-                                        if line_distance <= offset + 10:
-                                            return match
-                                break  # Found matches, even if not in same file
-
-            # Try backward (before TODO) only if no forward match found
-            for offset in range(1, 30):
-                nearby_line_idx = line_idx - offset
-                if nearby_line_idx >= 0:
-                    nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
-                    if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
-                        # Try different substring lengths for better uniqueness
-                        for substr_len in [80, 60, 40, 25]:
-                            if len(nearby_content) >= substr_len:
-                                search_pattern = re.escape(nearby_content[:substr_len])
-                                source_matches = list(document.find_in_source(search_pattern))
-
-                                # Filter to matches in the same file and pick closest
-                                for match in source_matches:
-                                    if match.get_file() == filename:
-                                        # Check if this match is reasonably close to our line
-                                        match_line = match.get_file_line()
-                                        line_distance = abs(match_line - line_num)
-                                        # Accept if within reasonable distance
-                                        if line_distance <= offset + 10:
-                                            return match
-                                break  # Found matches, even if not in same file
-
-            # Last resort: use document start
-            return document.get_simplified_origin_of_source(0, 1)
+            # Fallback: create with dummy source positions
+            dummy_source_pos = TextPosition(0, 0, 0)
+            return Origin(
+                OriginPointer(begin_file_pos, dummy_source_pos),
+                OriginPointer(end_file_pos, dummy_source_pos)
+            )
 
         except Exception as e:
-            self.log(f"Warning: Could not create origin for {filename}:{line_num}: {e}")
+            self.log(f"Warning: Could not create origin from raw positions: {e}")
             return document.get_simplified_origin_of_source(0, 1)
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
@@ -159,21 +132,20 @@ class TodoChecker(Checker):
                 marker_text = match.group(2).strip()
 
                 try:
-                    lines = file_content[:match.start()].split('\n')
-                    line_num = len(lines)
-
                     context = match.group(0)
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    origin = self._create_origin_from_file_position(
-                        document, filename, line_num
+                    # Create origin from the exact raw file match position
+                    origin = self._create_origin_from_raw_file_match(
+                        document, filename, match.start(), match.end()
                     )
 
                     message = f"{marker_type} comment found: {marker_text if marker_text else '(no description)'}"
 
                     rule = f"TODO_MARKER_{marker_type}"
-                    long_id = f"{rule}|{filename}:{line_num}|{context}"
+                    # Use origin's file line for the ID
+                    long_id = f"{rule}|{filename}:{origin.get_file_line()+1}|{context}"
 
                     yield Problem(
                         origin=origin,
@@ -193,21 +165,19 @@ class TodoChecker(Checker):
                 todo_content = match.group("content").strip()
 
                 try:
-                    lines = file_content[:match.start()].split('\n')
-                    line_num = len(lines)
-
                     context = match.group(0)
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    origin = self._create_origin_from_file_position(
-                        document, filename, line_num
+                    # Create origin from the exact raw file match position
+                    origin = self._create_origin_from_raw_file_match(
+                        document, filename, match.start(), match.end()
                     )
 
                     message = f"\\todo command found: {todo_content if todo_content else '(empty)'}"
 
                     rule = "TODO_MARKER_CMD"
-                    long_id = f"{rule}|{filename}:{line_num}|{context}"
+                    long_id = f"{rule}|{filename}:{origin.get_file_line()+1}|{context}"
 
                     yield Problem(
                         origin=origin,
