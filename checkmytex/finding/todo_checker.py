@@ -78,30 +78,52 @@ class TodoChecker(Checker):
                         return match
 
             # If the line itself is a comment or not found, look at nearby lines
-            # Build a list of candidates with their distances
+            # TODOs typically refer to content AFTER them, so try forward first
+            # Try forward (after TODO)
             for offset in range(1, 30):
-                # Try lines after first (TODOs are often right before relevant content)
-                for direction in [1, -1]:
-                    nearby_line_idx = line_idx + (offset * direction)
-                    if 0 <= nearby_line_idx < file_indexed.num_lines():
-                        nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
-                        if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
-                            # Try different substring lengths for better uniqueness
-                            for substr_len in [80, 60, 40, 25]:
-                                if len(nearby_content) >= substr_len:
-                                    search_pattern = re.escape(nearby_content[:substr_len])
-                                    source_matches = list(document.find_in_source(search_pattern))
+                nearby_line_idx = line_idx + offset
+                if nearby_line_idx < file_indexed.num_lines():
+                    nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
+                    if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
+                        # Try different substring lengths for better uniqueness
+                        for substr_len in [80, 60, 40, 25]:
+                            if len(nearby_content) >= substr_len:
+                                search_pattern = re.escape(nearby_content[:substr_len])
+                                source_matches = list(document.find_in_source(search_pattern))
 
-                                    # Filter to matches in the same file and pick closest
-                                    for match in source_matches:
-                                        if match.get_file() == filename:
-                                            # Check if this match is reasonably close to our line
-                                            match_line = match.get_file_line()
-                                            line_distance = abs(match_line - line_num)
-                                            # Accept if within reasonable distance
-                                            if line_distance <= offset + 10:
-                                                return match
-                                    break  # Found matches, even if not in same file
+                                # Filter to matches in the same file and pick closest
+                                for match in source_matches:
+                                    if match.get_file() == filename:
+                                        # Check if this match is reasonably close to our line
+                                        match_line = match.get_file_line()
+                                        line_distance = abs(match_line - line_num)
+                                        # Accept if within reasonable distance
+                                        if line_distance <= offset + 10:
+                                            return match
+                                break  # Found matches, even if not in same file
+
+            # Try backward (before TODO) only if no forward match found
+            for offset in range(1, 30):
+                nearby_line_idx = line_idx - offset
+                if nearby_line_idx >= 0:
+                    nearby_content = str(file_indexed.get_line(nearby_line_idx)).strip()
+                    if nearby_content and not nearby_content.startswith('%') and len(nearby_content) > 15:
+                        # Try different substring lengths for better uniqueness
+                        for substr_len in [80, 60, 40, 25]:
+                            if len(nearby_content) >= substr_len:
+                                search_pattern = re.escape(nearby_content[:substr_len])
+                                source_matches = list(document.find_in_source(search_pattern))
+
+                                # Filter to matches in the same file and pick closest
+                                for match in source_matches:
+                                    if match.get_file() == filename:
+                                        # Check if this match is reasonably close to our line
+                                        match_line = match.get_file_line()
+                                        line_distance = abs(match_line - line_num)
+                                        # Accept if within reasonable distance
+                                        if line_distance <= offset + 10:
+                                            return match
+                                break  # Found matches, even if not in same file
 
             # Last resort: use document start
             return document.get_simplified_origin_of_source(0, 1)
