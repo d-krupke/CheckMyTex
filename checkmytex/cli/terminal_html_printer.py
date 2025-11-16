@@ -28,8 +28,8 @@ class TerminalHtmlPrinter:
         """Generate and save HTML report to file."""
         self.html_parts = []
         self._generate_html()
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(self.html_parts))
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(self.html_parts))
 
     def _generate_html(self) -> None:
         """Generate the complete HTML document."""
@@ -215,33 +215,43 @@ class TerminalHtmlPrinter:
 
     def _add_file_overview(self) -> None:
         """Add table of problems by file."""
-        self.html_parts.append('        <div class="section-title">Problems by file</div>')
-        self.html_parts.append('        <table>')
-        self.html_parts.append('            <thead>')
-        self.html_parts.append('                <tr><th>File</th><th>Count</th></tr>')
-        self.html_parts.append('            </thead>')
-        self.html_parts.append('            <tbody>')
+        self.html_parts.append(
+            '        <div class="section-title">Problems by file</div>'
+        )
+        self.html_parts.append("        <table>")
+        self.html_parts.append("            <thead>")
+        self.html_parts.append("                <tr><th>File</th><th>Count</th></tr>")
+        self.html_parts.append("            </thead>")
+        self.html_parts.append("            <tbody>")
 
         for file in self.analysis.list_files():
-            filename = html.escape(str(file[len(self.file_prefix):]))
+            filename = html.escape(str(file[len(self.file_prefix) :]))
             count = len(self.analysis.get_problems(file))
-            self.html_parts.append(f'                <tr><td>{filename}</td><td>{count}</td></tr>')
+            self.html_parts.append(
+                f"                <tr><td>{filename}</td><td>{count}</td></tr>"
+            )
 
         if self.analysis.get_orphaned_problems():
             count = len(self.analysis.get_orphaned_problems())
-            self.html_parts.append(f'                <tr><td>UNKNOWN</td><td>{count}</td></tr>')
+            self.html_parts.append(
+                f"                <tr><td>UNKNOWN</td><td>{count}</td></tr>"
+            )
 
-        self.html_parts.append('            </tbody>')
-        self.html_parts.append('        </table>')
+        self.html_parts.append("            </tbody>")
+        self.html_parts.append("        </table>")
 
     def _add_rule_count(self) -> None:
         """Add table of problems by type."""
-        self.html_parts.append('        <div class="section-title">Problems by type</div>')
-        self.html_parts.append('        <table>')
-        self.html_parts.append('            <thead>')
-        self.html_parts.append('                <tr><th>Tool</th><th>Rule</th><th>Count</th></tr>')
-        self.html_parts.append('            </thead>')
-        self.html_parts.append('            <tbody>')
+        self.html_parts.append(
+            '        <div class="section-title">Problems by type</div>'
+        )
+        self.html_parts.append("        <table>")
+        self.html_parts.append("            <thead>")
+        self.html_parts.append(
+            "                <tr><th>Tool</th><th>Rule</th><th>Count</th></tr>"
+        )
+        self.html_parts.append("            </thead>")
+        self.html_parts.append("            <tbody>")
 
         problem_counts = defaultdict(lambda: defaultdict(lambda: 0))
         for prob in self.analysis.get_problems():
@@ -250,25 +260,29 @@ class TerminalHtmlPrinter:
         for tool, rules in problem_counts.items():
             first = True
             for rule, count in rules.items():
-                tool_display = html.escape(str(tool)) if first else ''
+                tool_display = html.escape(str(tool)) if first else ""
                 rule_display = html.escape(str(rule))
-                self.html_parts.append(f'                <tr><td>{tool_display}</td><td>{rule_display}</td><td>{count}</td></tr>')
+                self.html_parts.append(
+                    f"                <tr><td>{tool_display}</td><td>{rule_display}</td><td>{count}</td></tr>"
+                )
                 first = False
 
-        self.html_parts.append('            </tbody>')
-        self.html_parts.append('        </table>')
+        self.html_parts.append("            </tbody>")
+        self.html_parts.append("        </table>")
 
     def _add_file_section(self, filename: str) -> None:
         """Add section for a specific file."""
-        display_name = filename[len(self.file_prefix):]
-        separator = '─' * 50 + ' ' + display_name + ' ' + '─' * 50
+        display_name = filename[len(self.file_prefix) :]
+        separator = "─" * 50 + " " + display_name + " " + "─" * 50
         self.html_parts.append(f'        <div class="separator">{separator}</div>')
 
         last_printed_line = -1
-        problematic_lines = sorted({
-            prob.origin.get_file_line()
-            for prob in self.analysis.get_problems(filename)
-        })
+        problematic_lines = sorted(
+            {
+                prob.origin.get_file_line()
+                for prob in self.analysis.get_problems(filename)
+            }
+        )
 
         for line_num in problematic_lines:
             if self.shorten is not None:
@@ -283,12 +297,16 @@ class TerminalHtmlPrinter:
 
             # Get highlight ranges for this line
             highlights = [
-                (prob.origin.begin.file.position.line_offset,
-                 prob.origin.end.file.position.line_offset)
+                (
+                    prob.origin.begin.file.position.line_offset,
+                    prob.origin.end.file.position.line_offset,
+                )
                 for prob in problems
             ]
 
-            self._add_code_block(filename, start_line, line_num + 1, line_num, highlights, problems)
+            self._add_code_block(
+                filename, start_line, line_num + 1, line_num, highlights, problems
+            )
             last_printed_line = line_num
 
     def _add_code_block(
@@ -298,37 +316,43 @@ class TerminalHtmlPrinter:
         end_line: int,
         highlight_line: int,
         highlights: list[tuple[int, int]],
-        problems: list[Problem]
+        problems: list[Problem],
     ) -> None:
         """Add a code block with line numbers."""
         self.html_parts.append('        <div class="code-block">')
 
         for line_idx in range(start_line, end_line):
             line_content = self.analysis.document.get_file_content(filename, line_idx)
-            if line_content and line_content.endswith('\n'):
+            if line_content and line_content.endswith("\n"):
                 line_content = line_content[:-1]
 
-            self.html_parts.append(f'            <div class="code-line">')
-            self.html_parts.append(f'                <span class="line-number">{line_idx}</span>')
+            self.html_parts.append('            <div class="code-line">')
+            self.html_parts.append(
+                f'                <span class="line-number">{line_idx}</span>'
+            )
 
             # Apply highlights if this is the problem line
             if line_idx == highlight_line and line_content:
                 highlighted_content = self._highlight_ranges(line_content, highlights)
             else:
-                escaped_content = html.escape(line_content) if line_content else ''
+                escaped_content = html.escape(line_content) if line_content else ""
                 highlighted_content = self._apply_latex_highlighting(escaped_content)
 
-            self.html_parts.append(f'                <span class="line-content">{highlighted_content}</span>')
-            self.html_parts.append('            </div>')
+            self.html_parts.append(
+                f'                <span class="line-content">{highlighted_content}</span>'
+            )
+            self.html_parts.append("            </div>")
 
         # Add problems
         for prob in problems:
             msg = html.escape(f">>> [{prob.tool}] {prob.message}")
             self.html_parts.append(f'        <div class="problem">{msg}</div>')
 
-        self.html_parts.append('        </div>')
+        self.html_parts.append("        </div>")
 
-    def _highlight_ranges(self, line_content: str, highlights: list[tuple[int, int]]) -> str:
+    def _highlight_ranges(
+        self, line_content: str, highlights: list[tuple[int, int]]
+    ) -> str:
         """Highlight specific character ranges in a line."""
         # Merge overlapping ranges
         if not highlights:
@@ -365,7 +389,7 @@ class TerminalHtmlPrinter:
             after = html.escape(line_content[pos:])
             result.append(self._apply_latex_highlighting(after))
 
-        return ''.join(result)
+        return "".join(result)
 
     def _apply_latex_highlighting(self, content: str) -> str:
         """Apply basic LaTeX syntax highlighting."""
@@ -373,17 +397,13 @@ class TerminalHtmlPrinter:
         import re
 
         # Highlight comments
-        content = re.sub(r'(%.*)', r'<span class="comment">\1</span>', content)
+        content = re.sub(r"(%.*)", r'<span class="comment">\1</span>', content)
 
         # Highlight commands
-        content = re.sub(
-            r'(\\[a-zA-Z@]+)',
-            r'<span class="command">\1</span>',
-            content
-        )
+        content = re.sub(r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', content)
 
         # Highlight brackets
-        content = re.sub(r'([{}[\]])', r'<span class="bracket">\1</span>', content)
+        content = re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
 
         return content
 
@@ -393,7 +413,9 @@ class TerminalHtmlPrinter:
         if not problems:
             return
 
-        self.html_parts.append('        <div class="separator">─────── Other problems ───────</div>')
+        self.html_parts.append(
+            '        <div class="separator">─────── Other problems ───────</div>'
+        )
         for prob in problems:
             msg = html.escape(f">>> [{prob.tool}] {prob.message}")
             self.html_parts.append(f'        <div class="problem">{msg}</div>')

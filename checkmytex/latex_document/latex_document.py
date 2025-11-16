@@ -121,7 +121,9 @@ class LatexDocument:
             msg = "End is before begin."
             raise ValueError(msg)
         if end_.index - begin_.index > 1000:  # reduce very large ranges.
-            logging.getLogger("CheckMyTex").info(f"Reducing long range {begin_}-{end_}.")
+            logging.getLogger("CheckMyTex").info(
+                f"Reducing long range {begin_}-{end_}."
+            )
             begin_ = source.get_detailed_position(end_.index - 1000)
         if begin_ >= end_:
             msg = f"Invalid range after reduction: begin ({begin_}) >= end ({end_})"

@@ -116,7 +116,7 @@ class DocumentAnalyzer:
                 logging.getLogger("CheckMyTex").error(
                     f"Checker {checker} failed with {type(e).__name__}: {e}"
                 )
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 # Unexpected errors - log full traceback for debugging
                 logging.getLogger("CheckMyTex").error(
                     f"Unexpected exception in {checker}: {e}\n{traceback.format_exc()}"

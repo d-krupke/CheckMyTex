@@ -41,7 +41,7 @@ class LineLengthChecker(Checker):
         document: LatexDocument,
         filename: str,
         line_start_pos: int,
-        line_end_pos: int
+        line_end_pos: int,
     ) -> Origin:
         """
         Create an origin from raw file line positions.
@@ -61,6 +61,7 @@ class LineLengthChecker(Checker):
 
             # Convert positions to TextPosition objects
             from checkmytex.latex_document.indexed_string import TextPosition
+
             begin_text_pos = file_indexed.get_detailed_position(line_start_pos)
             end_text_pos = file_indexed.get_detailed_position(line_end_pos)
 
@@ -73,22 +74,35 @@ class LineLengthChecker(Checker):
             line_content = str(file_indexed.get_line(line_idx)).strip()
 
             # Search for this line or nearby lines in processed source
-            for offset in range(0, 20):
-                for direction in ([0] if offset == 0 else [1, -1]):
+            for offset in range(20):
+                for direction in [0] if offset == 0 else [1, -1]:
                     check_line = line_idx + (offset * direction)
                     if 0 <= check_line < file_indexed.num_lines():
                         check_content = str(file_indexed.get_line(check_line)).strip()
-                        if check_content and not check_content.startswith('%') and len(check_content) > 10:
+                        if (
+                            check_content
+                            and not check_content.startswith("%")
+                            and len(check_content) > 10
+                        ):
                             # Try to find this in processed source
-                            search_pattern = re.escape(check_content[:min(40, len(check_content))])
+                            search_pattern = re.escape(
+                                check_content[: min(40, len(check_content))]
+                            )
                             try:
-                                source_matches = list(document.find_in_source(search_pattern))
+                                source_matches = list(
+                                    document.find_in_source(search_pattern)
+                                )
                                 for source_match in source_matches:
                                     if source_match.get_file() == filename:
                                         # Use this match's source positions
                                         return Origin(
-                                            OriginPointer(begin_file_pos, source_match.begin.source),
-                                            OriginPointer(end_file_pos, source_match.end.source)
+                                            OriginPointer(
+                                                begin_file_pos,
+                                                source_match.begin.source,
+                                            ),
+                                            OriginPointer(
+                                                end_file_pos, source_match.end.source
+                                            ),
                                         )
                             except:
                                 continue
@@ -97,7 +111,7 @@ class LineLengthChecker(Checker):
             dummy_source_pos = TextPosition(0, 0, 0)
             return Origin(
                 OriginPointer(begin_file_pos, dummy_source_pos),
-                OriginPointer(end_file_pos, dummy_source_pos)
+                OriginPointer(end_file_pos, dummy_source_pos),
             )
 
         except Exception as e:
@@ -119,7 +133,7 @@ class LineLengthChecker(Checker):
         # Check each file in raw format (to see actual source file lines)
         for filename in document.files():
             file_content = document.get_file_content(filename)
-            lines = file_content.split('\n')
+            lines = file_content.split("\n")
 
             for line_num, line in enumerate(lines, 1):
                 line_length = len(line)
@@ -127,7 +141,7 @@ class LineLengthChecker(Checker):
                 if line_length > self.max_length:
                     try:
                         # Calculate position in file
-                        line_start = sum(len(l) + 1 for l in lines[:line_num-1])
+                        line_start = sum(len(l) + 1 for l in lines[: line_num - 1])
                         line_end = line_start + line_length
 
                         # Create origin from raw file position
@@ -158,7 +172,7 @@ class LineLengthChecker(Checker):
                             long_id=long_id,
                             tool="LineLengthChecker",
                             rule=rule,
-                            look_up_url=None
+                            look_up_url=None,
                         )
                     except Exception as e:
                         self.log(f"Warning: Could not process line {line_num}: {e}")

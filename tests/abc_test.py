@@ -1,9 +1,7 @@
 import re
 import typing
 
-
 from checkmytex import DocumentAnalyzer, LatexDocument
-from checkmytex.cli.rich_printer import RichPrinter
 from checkmytex.finding import Checker, Problem
 from checkmytex.latex_document.parser import LatexParser
 from flachtex import FileFinder
@@ -80,6 +78,7 @@ class TestAbc:
                 "in file:",
                 files["/main.tex"][f_range[0] : f_range[1]],
             )
+
 
 #    def test_3(self):
 #        files = {

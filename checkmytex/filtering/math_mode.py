@@ -22,7 +22,8 @@ class MathMode(Filter):
     """
 
     def __init__(
-        self, rules: typing.Optional[typing.Dict[str, typing.Optional[typing.List]]] = None
+        self,
+        rules: typing.Optional[typing.Dict[str, typing.Optional[typing.List]]] = None,
     ):
         """
         :param rules: Specify which tools and rules (None for all) should be

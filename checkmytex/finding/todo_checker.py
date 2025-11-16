@@ -34,11 +34,7 @@ class TodoChecker(Checker):
         super().__init__(log)
 
     def _create_origin_from_raw_file_match(
-        self,
-        document: LatexDocument,
-        filename: str,
-        match_start: int,
-        match_end: int
+        self, document: LatexDocument, filename: str, match_start: int, match_end: int
     ) -> Origin:
         """
         Create an origin directly from raw file positions.
@@ -58,6 +54,7 @@ class TodoChecker(Checker):
 
             # Convert positions to TextPosition objects
             from checkmytex.latex_document.indexed_string import TextPosition
+
             begin_text_pos = file_indexed.get_detailed_position(match_start)
             end_text_pos = file_indexed.get_detailed_position(match_end)
 
@@ -74,22 +71,35 @@ class TodoChecker(Checker):
             line_idx = begin_text_pos.line
 
             # Search for content on this line or nearby lines that exists in processed source
-            for offset in range(0, 50):
-                for direction in ([0] if offset == 0 else [1, -1]):
+            for offset in range(50):
+                for direction in [0] if offset == 0 else [1, -1]:
                     check_line = line_idx + (offset * direction)
                     if 0 <= check_line < file_indexed.num_lines():
                         line_content = str(file_indexed.get_line(check_line)).strip()
-                        if line_content and not line_content.startswith('%') and len(line_content) > 10:
+                        if (
+                            line_content
+                            and not line_content.startswith("%")
+                            and len(line_content) > 10
+                        ):
                             # Try to find this in processed source
-                            search_pattern = re.escape(line_content[:min(40, len(line_content))])
+                            search_pattern = re.escape(
+                                line_content[: min(40, len(line_content))]
+                            )
                             try:
-                                source_matches = list(document.find_in_source(search_pattern))
+                                source_matches = list(
+                                    document.find_in_source(search_pattern)
+                                )
                                 for source_match in source_matches:
                                     if source_match.get_file() == filename:
                                         # Use this match's source positions
                                         return Origin(
-                                            OriginPointer(begin_file_pos, source_match.begin.source),
-                                            OriginPointer(end_file_pos, source_match.end.source)
+                                            OriginPointer(
+                                                begin_file_pos,
+                                                source_match.begin.source,
+                                            ),
+                                            OriginPointer(
+                                                end_file_pos, source_match.end.source
+                                            ),
                                         )
                             except:
                                 continue
@@ -98,7 +108,7 @@ class TodoChecker(Checker):
             dummy_source_pos = TextPosition(0, 0, 0)
             return Origin(
                 OriginPointer(begin_file_pos, dummy_source_pos),
-                OriginPointer(end_file_pos, dummy_source_pos)
+                OriginPointer(end_file_pos, dummy_source_pos),
             )
 
         except Exception as e:
@@ -145,7 +155,9 @@ class TodoChecker(Checker):
 
                     rule = f"TODO_MARKER_{marker_type}"
                     # Use origin's file line for the ID
-                    long_id = f"{rule}|{filename}:{origin.get_file_line()+1}|{context}"
+                    long_id = (
+                        f"{rule}|{filename}:{origin.get_file_line() + 1}|{context}"
+                    )
 
                     yield Problem(
                         origin=origin,
@@ -154,7 +166,7 @@ class TodoChecker(Checker):
                         long_id=long_id,
                         tool="TodoChecker",
                         rule=rule,
-                        look_up_url=None
+                        look_up_url=None,
                     )
                 except Exception as e:
                     self.log(f"Warning: Could not process {marker_type} marker: {e}")
@@ -177,7 +189,9 @@ class TodoChecker(Checker):
                     message = f"\\todo command found: {todo_content if todo_content else '(empty)'}"
 
                     rule = "TODO_MARKER_CMD"
-                    long_id = f"{rule}|{filename}:{origin.get_file_line()+1}|{context}"
+                    long_id = (
+                        f"{rule}|{filename}:{origin.get_file_line() + 1}|{context}"
+                    )
 
                     yield Problem(
                         origin=origin,
@@ -186,7 +200,7 @@ class TodoChecker(Checker):
                         long_id=long_id,
                         tool="TodoChecker",
                         rule=rule,
-                        look_up_url="https://ctan.org/pkg/todonotes"
+                        look_up_url="https://ctan.org/pkg/todonotes",
                     )
                 except Exception as e:
                     self.log(f"Warning: Could not process \\todo command: {e}")

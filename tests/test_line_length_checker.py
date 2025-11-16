@@ -1,6 +1,5 @@
 """Tests for Line Length Checker."""
 
-from checkmytex import DocumentAnalyzer
 from checkmytex.finding import LineLengthChecker
 from checkmytex.latex_document.parser import LatexParser
 from flachtex import FileFinder

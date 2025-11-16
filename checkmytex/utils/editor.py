@@ -71,9 +71,7 @@ class Editor:
         offset: int = self.offsets.get(file, 0) if self.remember_offsets else 0
 
         # Format the command string
-        cmd_str = self.editor_pattern.format(
-            e=self.editor, f=file, l=line + 1 + offset
-        )
+        cmd_str = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
 
         # Use shlex.split to safely parse the command and execute without shell=True
         try:
