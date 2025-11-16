@@ -220,6 +220,68 @@
             color: #667eea;
         }
 
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #999;
+            color: white;
+            text-align: center;
+            font-size: 10px;
+            line-height: 14px;
+            cursor: help;
+            font-weight: bold;
+        }
+
+        .tooltip:hover .tooltip-icon {
+            background-color: #667eea;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: #2d2d2d;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2d2d2d transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .footer {
             margin-top: 30px;
             padding-top: 20px;
@@ -258,7 +320,7 @@
                 <div class="upload-text">
                     <strong>Click to upload</strong> or drag and drop
                 </div>
-                <div style="color: #999; font-size: 14px;">ZIP file (max 100MB)</div>
+                <div style="color: #999; font-size: 14px;">ZIP file (max 10MB)</div>
                 <input type="file" name="file" id="fileInput" accept=".zip">
                 <div class="file-name" id="fileName"></div>
             </div>
@@ -272,11 +334,19 @@
                         <h4>Spelling & Grammar</h4>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="aspell" checked>
-                            <span>Aspell (Spelling)</span>
+                            <span class="tooltip">
+                                Aspell (Spelling)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Checks for spelling errors using the Aspell dictionary. Catches typos and misspelled words in your document.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="languagetool" checked>
-                            <span>LanguageTool (Grammar)</span>
+                            <span class="tooltip">
+                                LanguageTool (Grammar)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Advanced grammar and style checking. Detects grammatical errors, punctuation issues, and style problems in your text.</span>
+                            </span>
                         </label>
                     </div>
 
@@ -284,15 +354,27 @@
                         <h4>LaTeX Checks</h4>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="chktex" checked>
-                            <span>ChkTeX (Syntax)</span>
+                            <span class="tooltip">
+                                ChkTeX (Syntax)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">LaTeX semantic checker that finds typographic errors and LaTeX antipatterns. Catches missing braces, inconsistent spacing, and more.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="siunitx" checked>
-                            <span>SiUnitx (Units)</span>
+                            <span class="tooltip">
+                                SiUnitx (Units)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Checks that numbers with units use the siunitx package. Example: "5 km" should be "\SI{5}{km}".</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="cleveref" checked>
-                            <span>Cleveref (References)</span>
+                            <span class="tooltip">
+                                Cleveref (References)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Verifies correct usage of cleveref commands for cross-references. Ensures consistent reference formatting throughout your document.</span>
+                            </span>
                         </label>
                     </div>
 
@@ -300,11 +382,19 @@
                         <h4>Style Checks</h4>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="proselint" checked>
-                            <span>Proselint (Style)</span>
+                            <span class="tooltip">
+                                Proselint (Style)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Prose linter that checks for style issues based on expert writing guides. Detects jargon, redundancy, clichés, and other style problems.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="checker" value="nphard" checked>
-                            <span>Uniform NP-Hard</span>
+                            <span class="tooltip">
+                                Uniform NP-Hard
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ensures consistent capitalization and hyphenation of complexity terms like "NP-hard" and "NP-complete" throughout your document.</span>
+                            </span>
                         </label>
                     </div>
                 </div>
@@ -319,15 +409,35 @@
                         <h4>Ignore Patterns</h4>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="includegraphics" checked>
-                            <span>Includegraphics</span>
+                            <span class="tooltip">
+                                Includegraphics
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores spelling errors in file paths within \includegraphics{} commands. Image filenames often trigger false spelling errors.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="refs" checked>
-                            <span>References</span>
+                            <span class="tooltip">
+                                References
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores errors in \ref{}, \cite{}, and similar commands. Label names often look like spelling errors.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="repeated" checked>
-                            <span>Repeated Words</span>
+                            <span class="tooltip">
+                                Repeated Words
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Allows intentional repetition of common words like "problem" across sentences. Reduces false positives for academic writing.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="spellingwithmath" checked>
+                            <span class="tooltip">
+                                Math/Commands
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores spelling errors in words containing LaTeX commands (\) or math ($). Prevents false positives for mathematical notation.</span>
+                            </span>
                         </label>
                     </div>
 
@@ -335,15 +445,27 @@
                         <h4>Context-Aware</h4>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="mathmode" checked>
-                            <span>Math Mode</span>
+                            <span class="tooltip">
+                                Math Mode
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Filters out problems detected within math environments ($ ... $, \[ ... \]). Math notation shouldn't trigger language checks.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="authornames" checked>
-                            <span>Author Names</span>
+                            <span class="tooltip">
+                                Author Names
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Detects and ignores likely author names in your document. Names often trigger spelling errors but are intentional.</span>
+                            </span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="filter" value="bibliography" checked>
-                            <span>Bibliography Words</span>
+                            <span class="tooltip">
+                                Bibliography Words
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores words found in your bibliography entries. Technical terms and names from citations shouldn't be flagged as errors.</span>
+                            </span>
                         </label>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ from checkmytex.filtering import (
     IgnoreLikelyAuthorNames,
     IgnoreRefs,
     IgnoreRepeatedWords,
+    IgnoreSpellingWithMath,
     IgnoreWordsFromBibliography,
     MathMode,
 )
@@ -134,7 +135,7 @@ async def analyze(
     request: Request,
     file: UploadFile = File(...),
     checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]'),
-    filters: str = Form(default='["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]')
+    filters: str = Form(default='["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography"]')
 ):
     """Analyze uploaded ZIP file and return HTML report."""
     start_time = datetime.now()
@@ -157,7 +158,7 @@ async def analyze(
     try:
         enabled_filters = json.loads(filters)
     except json.JSONDecodeError:
-        enabled_filters = ["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]
+        enabled_filters = ["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography"]
 
     logger.info(
         f"Configuration from {client_ip}: "
@@ -273,13 +274,13 @@ def create_analyzer(
                                       'siunitx', 'cleveref', 'proselint', 'nphard'
         enabled_filters: List of filter names to enable.
                         Valid values: 'includegraphics', 'refs', 'repeated',
-                                     'mathmode', 'authornames', 'bibliography'
+                                     'spellingwithmath', 'mathmode', 'authornames', 'bibliography'
     """
     if enabled_checkers is None:
         enabled_checkers = ["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]
 
     if enabled_filters is None:
-        enabled_filters = ["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]
+        enabled_filters = ["includegraphics", "refs", "repeated", "spellingwithmath", "mathmode", "authornames", "bibliography"]
 
     analyzer = DocumentAnalyzer()
 
@@ -338,6 +339,9 @@ def create_analyzer(
 
     if "repeated" in enabled_filters:
         analyzer.add_filter(IgnoreRepeatedWords())
+
+    if "spellingwithmath" in enabled_filters:
+        analyzer.add_filter(IgnoreSpellingWithMath())
 
     if "mathmode" in enabled_filters:
         analyzer.add_filter(MathMode())
