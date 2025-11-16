@@ -19,14 +19,18 @@ A modern, user-friendly web interface for CheckMyTex built with FastAPI.
   - Cleveref (References)
   - Proselint (Style)
   - Uniform NP-Hard
+  - **Line Length** - Detects lines >100 characters ⭐ NEW
+  - **TODO/FIXME** - Finds draft markers and unfinished work ⭐ NEW
 
 - **Filters**: Configure false positive reduction
   - Ignore includegraphics paths
   - Ignore references
   - Ignore repeated words
+  - Math/Commands filtering
   - Math mode filtering
   - Author name detection
   - Bibliography word filtering
+  - **Code Listings** - Ignores errors in code environments ⭐ NEW
 
 ### 📜 Open Source Attribution
 - Dedicated licenses page

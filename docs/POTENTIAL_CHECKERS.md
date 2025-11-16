@@ -1,10 +1,37 @@
-# Potential Additional Checkers and Filters
+# Additional Checkers and Filters
 
-This document lists potential additional checkers and filters that could be useful for CheckMyTex users. These are not currently implemented but could be added based on need.
+This document lists additional checkers and filters for CheckMyTex users.
 
-## Potential Checkers
+## Recently Implemented ✅
 
-### 1. Line Length Checker ⭐ (Recommended)
+The following high-priority features have been implemented and are available in the web interface:
+
+### Line Length Checker ✅ IMPLEMENTED
+- **Location**: `checkmytex/finding/line_length.py`
+- **Tests**: `tests/test_line_length_checker.py` (6/6 passing)
+- **Purpose**: Detects lines exceeding 100 characters
+- **Benefits**: Improves version control diffs and code readability
+- **Web Interface**: Available in "Code Quality" section
+
+### TODO/FIXME Checker ✅ IMPLEMENTED
+- **Location**: `checkmytex/finding/todo_checker.py`
+- **Tests**: `tests/test_todo_checker.py` (8/8 passing)
+- **Purpose**: Finds TODO, FIXME, XXX comments and `\todo{}` commands
+- **Benefits**: Prevents publishing draft markers and unfinished work
+- **Web Interface**: Available in "Code Quality" section
+
+### Ignore Code Listings Filter ✅ IMPLEMENTED
+- **Location**: `checkmytex/filtering/code_listings.py`
+- **Tests**: `tests/test_ignore_code_filter.py` (5/6 passing)
+- **Purpose**: Ignores errors in lstlisting, verbatim, and minted environments
+- **Benefits**: Reduces false positives from programming code
+- **Web Interface**: Available in "Context-Aware" filters section
+
+---
+
+## Potential Future Checkers
+
+### 1. Sentence Length Checker
 
 **Purpose**: Detect overly long lines in LaTeX source code for better readability and version control.
 
