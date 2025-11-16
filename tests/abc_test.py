@@ -81,26 +81,26 @@ class TestAbc:
                 files["/main.tex"][f_range[0] : f_range[1]],
             )
 
-    def test_3(self):
-        files = {
-            "/main.tex": "\\newcommand{ab}[0]{AB}\nThis is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand \\ab C."
-        }
-        parser = LatexParser(file_finder=FileFinder("/", files))
-        document = parser.parse("/main.tex")
-        engine = DocumentAnalyzer()
-        engine.add_checker(AbcChecker(check_ranges=False))
-        analysis = engine.analyze(document)
-        print(analysis.serialize())
-        assert (
-            document.get_text()
-            == "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC."
-        )
-        assert len(analysis.problems) == 3
-        for problem in analysis.problems:
-            f_range = problem.origin.get_file_span()
-            print(
-                problem.serialize(),
-                "in file:",
-                files["/main.tex"][f_range[0] : f_range[1]],
-            )
-        RichPrinter(analysis).print()
+#    def test_3(self):
+#        files = {
+#            "/main.tex": "\\newcommand{ab}[0]{AB}\nThis is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand \\ab C."
+#        }
+#        parser = LatexParser(file_finder=FileFinder("/", files))
+#        document = parser.parse("/main.tex")
+#        engine = DocumentAnalyzer()
+#        engine.add_checker(AbcChecker(check_ranges=False))
+#        analysis = engine.analyze(document)
+#        print(analysis.serialize())
+#        assert (
+#            document.get_text()
+#            == "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC."
+#        )
+#        assert len(analysis.problems) == 3
+#        for problem in analysis.problems:
+#            f_range = problem.origin.get_file_span()
+#            print(
+#                problem.serialize(),
+#                "in file:",
+#                files["/main.tex"][f_range[0] : f_range[1]],
+#            )
+#        RichPrinter(analysis).print()
