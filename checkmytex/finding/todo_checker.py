@@ -63,8 +63,7 @@ class TodoChecker(Checker):
                 marker_text = match.group(2).strip()
 
                 try:
-                    # Try to find the context text (the line before or after the comment)
-                    # in the processed source to create a proper origin
+                    # Calculate line number in raw file
                     lines = file_content[:match.start()].split('\n')
                     line_num = len(lines)
 
@@ -73,32 +72,58 @@ class TodoChecker(Checker):
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    # Try to find nearby text in the source to create an origin
-                    # Look for text in the same or nearby lines
+                    # Look for substantial non-comment LaTeX content nearby
+                    # that we can reliably find in the processed source
                     file_lines = file_content.split('\n')
                     nearby_text = None
-                    for offset in [0, -1, 1, -2, 2]:
+                    search_radius = 10  # Look up to 10 lines away
+
+                    for offset in range(-search_radius, search_radius + 1):
                         idx = line_num - 1 + offset
                         if 0 <= idx < len(file_lines):
                             line_text = file_lines[idx].strip()
-                            # Skip empty lines and comment lines
-                            if line_text and not line_text.startswith('%'):
-                                nearby_text = line_text[:50]  # Use first 50 chars
+                            # Skip empty lines, comment lines, and very short lines
+                            if (line_text and
+                                not line_text.startswith('%') and
+                                len(line_text) > 15 and
+                                # Look for lines with actual LaTeX content
+                                ('\\' in line_text or '{' in line_text)):
+                                # Use a substantial chunk for better matching
+                                nearby_text = line_text[:80]
                                 break
 
+                    origin = None
                     if nearby_text:
-                        # Try to find this text in the source
-                        # Escape the search pattern since find_in_source uses regex
-                        search_pattern = re.escape(nearby_text[:20])
+                        # Try to find this text in the processed source
+                        # Use a substring that's likely to be unique
+                        search_text = nearby_text[:40]
+                        # Escape special regex characters
+                        search_pattern = re.escape(search_text)
                         source_matches = list(document.find_in_source(search_pattern))
                         if source_matches:
-                            # Use the first match to create an origin
                             origin = source_matches[0]
-                        else:
-                            # Fallback: use beginning of document
-                            origin = document.get_simplified_origin_of_source(0, 1)
-                    else:
-                        # Fallback: use beginning of document
+
+                    # If we still don't have an origin, try to use the document structure
+                    # to at least get close to the right section
+                    if origin is None:
+                        # Look for section headings or other structural elements nearby
+                        for offset in range(-20, 20):
+                            idx = line_num - 1 + offset
+                            if 0 <= idx < len(file_lines):
+                                line_text = file_lines[idx]
+                                # Look for section commands
+                                section_match = re.search(r'\\(section|subsection|subsubsection|chapter|paragraph)\{([^}]+)\}', line_text)
+                                if section_match:
+                                    section_title = section_match.group(2)[:30]
+                                    # Try to find this section in the processed source
+                                    search_pattern = re.escape(section_title)
+                                    source_matches = list(document.find_in_source(search_pattern))
+                                    if source_matches:
+                                        origin = source_matches[0]
+                                        break
+
+                    # Last resort: use document start
+                    if origin is None:
                         origin = document.get_simplified_origin_of_source(0, 1)
 
                     message = f"{marker_type} comment found: {marker_text if marker_text else '(no description)'}"
@@ -129,29 +154,69 @@ class TodoChecker(Checker):
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    # Try to find nearby text for origin
+                    # Calculate line number in raw file
                     lines = file_content[:match.start()].split('\n')
                     line_num = len(lines)
 
-                    file_lines = file_content.split('\n')
-                    nearby_text = None
-                    for offset in [0, -1, 1]:
-                        idx = line_num - 1 + offset
-                        if 0 <= idx < len(file_lines):
-                            line_text = file_lines[idx].strip()
-                            if line_text and not line_text.startswith('%') and '\\todo' not in line_text:
-                                nearby_text = line_text[:50]
-                                break
+                    origin = None
 
-                    if nearby_text:
-                        # Escape the search pattern since find_in_source uses regex
-                        search_pattern = re.escape(nearby_text[:20])
-                        source_matches = list(document.find_in_source(search_pattern))
-                        if source_matches:
-                            origin = source_matches[0]
-                        else:
-                            origin = document.get_simplified_origin_of_source(0, 1)
-                    else:
+                    # First, try to find the actual \todo command in the processed source
+                    # This should work if the \todo is not inside a comment
+                    todo_text = match.group(0)
+                    # Search for a unique portion of the \todo command
+                    search_text = todo_text[:min(50, len(todo_text))]
+                    search_pattern = re.escape(search_text)
+                    source_matches = list(document.find_in_source(search_pattern))
+                    if source_matches:
+                        origin = source_matches[0]
+
+                    # If that didn't work, look for nearby LaTeX content
+                    if origin is None:
+                        file_lines = file_content.split('\n')
+                        nearby_text = None
+                        search_radius = 10
+
+                        for offset in range(-search_radius, search_radius + 1):
+                            if offset == 0:  # Skip the line with \todo itself
+                                continue
+                            idx = line_num - 1 + offset
+                            if 0 <= idx < len(file_lines):
+                                line_text = file_lines[idx].strip()
+                                # Skip empty lines, comment lines, lines with \todo, and very short lines
+                                if (line_text and
+                                    not line_text.startswith('%') and
+                                    '\\todo' not in line_text and
+                                    len(line_text) > 15 and
+                                    ('\\' in line_text or '{' in line_text)):
+                                    nearby_text = line_text[:80]
+                                    break
+
+                        if nearby_text:
+                            # Try to find this text in the processed source
+                            search_text = nearby_text[:40]
+                            search_pattern = re.escape(search_text)
+                            source_matches = list(document.find_in_source(search_pattern))
+                            if source_matches:
+                                origin = source_matches[0]
+
+                    # Try to find section headings if still no origin
+                    if origin is None:
+                        file_lines = file_content.split('\n')
+                        for offset in range(-20, 20):
+                            idx = line_num - 1 + offset
+                            if 0 <= idx < len(file_lines):
+                                line_text = file_lines[idx]
+                                section_match = re.search(r'\\(section|subsection|subsubsection|chapter|paragraph)\{([^}]+)\}', line_text)
+                                if section_match:
+                                    section_title = section_match.group(2)[:30]
+                                    search_pattern = re.escape(section_title)
+                                    source_matches = list(document.find_in_source(search_pattern))
+                                    if source_matches:
+                                        origin = source_matches[0]
+                                        break
+
+                    # Last resort: use document start
+                    if origin is None:
                         origin = document.get_simplified_origin_of_source(0, 1)
 
                     message = f"\\todo command found: {todo_content if todo_content else '(empty)'}"
