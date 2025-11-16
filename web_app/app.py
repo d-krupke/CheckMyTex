@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
+import shutil
 import tempfile
 import zipfile
+from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
@@ -33,9 +38,84 @@ from checkmytex.finding import (
 )
 from checkmytex.latex_document.parser import LatexParser
 
+# Configuration
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_UNCOMPRESSED_SIZE = 50 * 1024 * 1024  # 50MB uncompressed
+MAX_COMPRESSION_RATIO = 100  # Prevent zip bombs
+ANALYSIS_TIMEOUT = 120  # 2 minutes
+
+# Logging configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(title="CheckMyTex Web Interface")
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
+
+# Utility functions
+
+@contextmanager
+def temp_workspace():
+    """Create a temporary workspace that is always cleaned up."""
+    temp_dir = Path(tempfile.mkdtemp(prefix='checkmytex_'))
+    try:
+        logger.debug(f"Created temporary workspace: {temp_dir}")
+        yield temp_dir
+    finally:
+        try:
+            shutil.rmtree(temp_dir)
+            logger.debug(f"Cleaned up temporary workspace: {temp_dir}")
+        except Exception as e:
+            logger.error(f"Failed to cleanup temporary directory {temp_dir}: {e}")
+
+
+def validate_zip_file(zip_path: Path) -> None:
+    """Validate ZIP file for security issues.
+
+    Raises:
+        HTTPException: If the ZIP file is suspicious or too large.
+    """
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            # Calculate compression ratio
+            compressed_size = zip_path.stat().st_size
+            uncompressed_size = sum(info.file_size for info in zf.infolist())
+
+            # Check for zip bombs
+            if compressed_size == 0:
+                raise HTTPException(status_code=400, detail="Empty ZIP file")
+
+            ratio = uncompressed_size / compressed_size
+            if ratio > MAX_COMPRESSION_RATIO:
+                logger.warning(
+                    f"Suspicious ZIP file detected: compression ratio {ratio:.1f}x "
+                    f"(threshold: {MAX_COMPRESSION_RATIO}x)"
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Suspicious ZIP file detected (compression ratio too high: {ratio:.0f}x)"
+                )
+
+            # Check uncompressed size
+            if uncompressed_size > MAX_UNCOMPRESSED_SIZE:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Uncompressed content too large ({uncompressed_size / 1024 / 1024:.1f}MB, max {MAX_UNCOMPRESSED_SIZE / 1024 / 1024:.0f}MB)"
+                )
+
+            logger.info(
+                f"ZIP validation passed: {compressed_size / 1024:.1f}KB compressed, "
+                f"{uncompressed_size / 1024:.1f}KB uncompressed (ratio: {ratio:.1f}x)"
+            )
+
+    except zipfile.BadZipFile:
+        raise HTTPException(status_code=400, detail="Invalid ZIP file")
+
+
+# API Endpoints
 
 @app.get("/")
 async def index(request: Request):
@@ -51,14 +131,20 @@ async def licenses(request: Request):
 
 @app.post("/analyze")
 async def analyze(
+    request: Request,
     file: UploadFile = File(...),
     checkers: str = Form(default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard"]'),
     filters: str = Form(default='["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]')
 ):
     """Analyze uploaded ZIP file and return HTML report."""
+    start_time = datetime.now()
+    client_ip = request.client.host if request.client else "unknown"
 
-    # Validate file
-    if not file.filename.endswith('.zip'):
+    logger.info(f"Analysis request from {client_ip} for file: {file.filename}")
+
+    # Validate file extension
+    if not file.filename or not file.filename.endswith('.zip'):
+        logger.warning(f"Invalid file type from {client_ip}: {file.filename}")
         raise HTTPException(status_code=400, detail="Please upload a ZIP file")
 
     # Parse checkers configuration
@@ -73,49 +159,106 @@ async def analyze(
     except json.JSONDecodeError:
         enabled_filters = ["includegraphics", "refs", "repeated", "mathmode", "authornames", "bibliography"]
 
-    # Create temporary directory
-    temp_dir = Path(tempfile.mkdtemp(prefix='checkmytex_'))
+    logger.info(
+        f"Configuration from {client_ip}: "
+        f"checkers={enabled_checkers}, filters={enabled_filters}"
+    )
 
-    try:
-        # Save and extract ZIP
-        zip_path = temp_dir / 'upload.zip'
-        content = await file.read()
-        zip_path.write_bytes(content)
+    # Use temporary workspace with guaranteed cleanup
+    with temp_workspace() as temp_dir:
+        try:
+            # Read and validate file size
+            zip_path = temp_dir / 'upload.zip'
+            content = await file.read()
 
-        with zipfile.ZipFile(zip_path, 'r') as zf:
-            zf.extractall(temp_dir / 'extracted')
+            if len(content) > MAX_FILE_SIZE:
+                logger.warning(
+                    f"File too large from {client_ip}: {len(content) / 1024 / 1024:.1f}MB "
+                    f"(max {MAX_FILE_SIZE / 1024 / 1024:.0f}MB)"
+                )
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"File too large ({len(content) / 1024 / 1024:.1f}MB, max {MAX_FILE_SIZE / 1024 / 1024:.0f}MB)"
+                )
 
-        extract_dir = temp_dir / 'extracted'
+            # Save ZIP file
+            zip_path.write_bytes(content)
+            logger.debug(f"Saved ZIP file: {len(content) / 1024:.1f}KB")
 
-        # Find main .tex file
-        main_tex = find_main_tex(extract_dir)
-        if not main_tex:
-            raise HTTPException(status_code=400, detail="No .tex file found in ZIP")
+            # Validate ZIP file (security checks)
+            validate_zip_file(zip_path)
 
-        # Create analyzer with selected checkers and filters
-        analyzer = create_analyzer(enabled_checkers, enabled_filters)
+            # Extract ZIP with timeout protection
+            try:
+                async with asyncio.timeout(30):  # 30 second timeout for extraction
+                    await asyncio.to_thread(
+                        lambda: zipfile.ZipFile(zip_path, 'r').extractall(temp_dir / 'extracted')
+                    )
+            except TimeoutError:
+                logger.error(f"ZIP extraction timeout from {client_ip}")
+                raise HTTPException(status_code=504, detail="ZIP extraction took too long")
 
-        # Parse and analyze
-        parser = LatexParser()
-        latex_document = parser.parse(str(main_tex))
-        analyzed_document = analyzer.analyze(latex_document)
+            extract_dir = temp_dir / 'extracted'
+            logger.debug(f"Extracted ZIP to: {extract_dir}")
 
-        # Generate HTML using TerminalHtmlPrinter
-        printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
-        html_path = temp_dir / 'report.html'
-        printer.to_html(str(html_path))
+            # Find main .tex file
+            main_tex = find_main_tex(extract_dir)
+            if not main_tex:
+                logger.warning(f"No .tex file found in ZIP from {client_ip}")
+                raise HTTPException(status_code=400, detail="No .tex file found in ZIP")
 
-        # Return the terminal-styled HTML
-        return FileResponse(
-            html_path,
-            media_type='text/html',
-            filename='checkmytex_report.html'
-        )
+            logger.info(f"Found main .tex file: {main_tex.name}")
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error analyzing document: {str(e)}")
+            # Create analyzer with selected checkers and filters
+            analyzer = create_analyzer(enabled_checkers, enabled_filters)
+
+            # Parse and analyze with timeout
+            try:
+                async with asyncio.timeout(ANALYSIS_TIMEOUT):
+                    # Run analysis in thread pool to avoid blocking
+                    analyzed_document = await asyncio.to_thread(
+                        lambda: (
+                            parser := LatexParser(),
+                            latex_document := parser.parse(str(main_tex)),
+                            analyzer.analyze(latex_document)
+                        )[-1]
+                    )
+
+            except TimeoutError:
+                logger.error(f"Analysis timeout from {client_ip} after {ANALYSIS_TIMEOUT}s")
+                raise HTTPException(
+                    status_code=504,
+                    detail=f"Analysis took too long (timeout: {ANALYSIS_TIMEOUT}s)"
+                )
+
+            # Generate HTML report
+            printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
+            html_path = temp_dir / 'report.html'
+            printer.to_html(str(html_path))
+
+            # Log success
+            duration = (datetime.now() - start_time).total_seconds()
+            logger.info(
+                f"Analysis completed for {client_ip} in {duration:.1f}s "
+                f"({len(analyzed_document.get_problems())} problems found)"
+            )
+
+            # Return the terminal-styled HTML
+            return FileResponse(
+                html_path,
+                media_type='text/html',
+                filename='checkmytex_report.html'
+            )
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            duration = (datetime.now() - start_time).total_seconds()
+            logger.error(
+                f"Analysis failed for {client_ip} after {duration:.1f}s: {type(e).__name__}: {str(e)}",
+                exc_info=True
+            )
+            raise HTTPException(status_code=500, detail=f"Error analyzing document: {str(e)}")
 
 
 def create_analyzer(
