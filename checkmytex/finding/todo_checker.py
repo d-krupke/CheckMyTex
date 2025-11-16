@@ -144,36 +144,28 @@ class TodoChecker(Checker):
         """
         self.log("Checking for TODO/FIXME/XXX markers...")
 
-        # Pattern for comment-based TODO markers
-        # Matches: % TODO: ..., % FIXME: ..., % XXX: ...
+        # Patterns for TODO markers
         comment_pattern = r"%\s*(TODO|FIXME|XXX)[\s:](.*?)$"
-
-        # Pattern for \\todo{} commands
-        # Matches: \todo{...} and \todo[...]{...}
         todo_cmd_pattern = r"\\todo(\[[^\]]*\])?\{(?P<content>[^}]*)\}"
 
-        # Check each file in the document
-        # Comments and \todo commands are often stripped from get_source(),
-        # so we need to check the raw file content
+        # Check each file in raw format
+        # (Comments and \todo commands are stripped from processed source)
         for filename in document.files():
             file_content = document.get_file_content(filename)
 
-            # Check for comment-based TODO markers
+            # 1. Check for comment-based TODO markers (% TODO: ...)
             for match in re.finditer(comment_pattern, file_content, re.MULTILINE):
                 marker_type = match.group(1)
                 marker_text = match.group(2).strip()
 
                 try:
-                    # Calculate line number in raw file
                     lines = file_content[:match.start()].split('\n')
                     line_num = len(lines)
 
-                    # Use the full match as context, limited to reasonable length
                     context = match.group(0)
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    # Create origin using the helper method
                     origin = self._create_origin_from_file_position(
                         document, filename, line_num
                     )
@@ -196,36 +188,21 @@ class TodoChecker(Checker):
                     self.log(f"Warning: Could not process {marker_type} marker: {e}")
                     continue
 
-            # Check for \\todo{} commands
+            # 2. Check for \todo{} commands
             for match in re.finditer(todo_cmd_pattern, file_content):
                 todo_content = match.group("content").strip()
 
                 try:
-                    # Create readable context
+                    lines = file_content[:match.start()].split('\n')
+                    line_num = len(lines)
+
                     context = match.group(0)
                     if len(context) > 80:
                         context = context[:77] + "..."
 
-                    # Calculate line number in raw file
-                    lines = file_content[:match.start()].split('\n')
-                    line_num = len(lines)
-
-                    # First, try to find the actual \todo command in the processed source
-                    # This should work if the \todo is not inside a comment
-                    todo_text = match.group(0)
-                    search_text = todo_text[:min(50, len(todo_text))]
-                    search_pattern = re.escape(search_text)
-                    source_matches = list(document.find_in_source(search_pattern))
-
-                    if source_matches:
-                        # Found the \todo command itself in the source
-                        origin = source_matches[0]
-                    else:
-                        # The \todo is commented out or not in processed source
-                        # Use the helper method to find nearby content
-                        origin = self._create_origin_from_file_position(
-                            document, filename, line_num
-                        )
+                    origin = self._create_origin_from_file_position(
+                        document, filename, line_num
+                    )
 
                     message = f"\\todo command found: {todo_content if todo_content else '(empty)'}"
 
