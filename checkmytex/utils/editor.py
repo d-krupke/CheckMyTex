@@ -7,6 +7,7 @@ import logging
 import os
 import shlex
 import subprocess
+import typing
 from pathlib import Path
 
 
@@ -27,13 +28,13 @@ class Editor:
     # the state.
     # pylint: disable=too-few-public-methods
 
-    _patterns = {
+    _patterns: typing.ClassVar[dict[str, str]] = {
         "nano": "{e} +{l} {f}",
         "vim": "{e} +{l} {f}",
         "gvim": "{e} +{l} {f}",
         "nvim": "{e} +{l} {f}",
     }
-    _default_pattern = "{e} {f}"
+    _default_pattern: typing.ClassVar[str] = "{e} {f}"
 
     def __init__(self, editor=None, pattern=None, remember_offsets=True):
         self.editor = editor if editor else os.environ.get("EDITOR")

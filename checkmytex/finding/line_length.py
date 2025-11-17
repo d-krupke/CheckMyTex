@@ -139,7 +139,9 @@ class LineLengthChecker(Checker):
                 if line_length > self.max_length:
                     try:
                         # Calculate position in file
-                        line_start = sum(len(prev_line) + 1 for prev_line in lines[: line_num - 1])
+                        line_start = sum(
+                            len(prev_line) + 1 for prev_line in lines[: line_num - 1]
+                        )
                         line_end = line_start + line_length
 
                         # Create origin from raw file position

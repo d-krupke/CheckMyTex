@@ -250,7 +250,11 @@ class RichPrinter:
             tab_size=1,
         )
         for line_no, begin_off, end_off in highlights:
-            syntax.stylize_range("white on red", (1 + line_no - begin, begin_off), (1 + line_no - begin, end_off))
+            syntax.stylize_range(
+                "white on red",
+                (1 + line_no - begin, begin_off),
+                (1 + line_no - begin, end_off),
+            )
         self.console.print(syntax)
 
     def print_problem(self, problem: Problem):

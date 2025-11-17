@@ -3,7 +3,7 @@ A collection of filters to filter issues found by the checker/tools in
  `finding'.
 """
 
-# flake8: noqa F401
+# ruff: noqa: F401
 from .authors import IgnoreLikelyAuthorNames, IgnoreWordsFromBibliography
 from .code_listings import IgnoreCodeListings
 from .filter import (
