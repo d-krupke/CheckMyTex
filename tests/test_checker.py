@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-
 from checkmytex import DocumentAnalyzer
 from checkmytex.finding import CheckSpell
 from checkmytex.latex_document.parser import LatexParser

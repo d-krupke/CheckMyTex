@@ -1,5 +1,3 @@
-import typing
-
 from yalafi.tex2txt import Options, tex2txt
 
 from checkmytex.latex_document.indexed_string import IndexedText
@@ -10,7 +8,7 @@ class DetexedText(IndexedText):
     Container for the detexed text. It just wraps yalafi.
     """
 
-    def __init__(self, source: str, yalafi_opts: typing.Optional[Options] = None):
+    def __init__(self, source: str, yalafi_opts: Options | None = None):
         yalafi_opts = yalafi_opts if yalafi_opts else Options()
         text, self._charmap = tex2txt(str(source), yalafi_opts)
         super().__init__(text)

@@ -35,7 +35,7 @@ class LatexDocument:
         """
         return self.sources.file_names
 
-    def get_source(self, line=None) -> typing.Union[str, TraceableString]:
+    def get_source(self, line=None) -> str | TraceableString:
         """
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
@@ -54,7 +54,7 @@ class LatexDocument:
             raise ValueError(msg)
         return str(self.detexed_text.text)
 
-    def get_file_content(self, path: str, line: typing.Optional[int] = None) -> str:
+    def get_file_content(self, path: str, line: int | None = None) -> str:
         """
         Return the content of a file. Does not perform any file reads but
         returns from cache.
@@ -65,8 +65,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_text(
         self,
-        begin: typing.Union[int, tuple[int, int]],
-        end: typing.Union[int, tuple[int, int]],
+        begin: int | tuple[int, int],
+        end: int | tuple[int, int],
     ) -> Origin:
         """
         Investigates a simplified origin of the corresponding range.
@@ -105,8 +105,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_source(
         self,
-        begin: typing.Union[int, tuple[int, int]],
-        end: typing.Union[int, tuple[int, int]],
+        begin: int | tuple[int, int],
+        end: int | tuple[int, int],
     ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).

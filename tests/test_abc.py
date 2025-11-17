@@ -17,7 +17,6 @@ class AbcChecker(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         text = document.get_text()
-        source = document.get_source()
         regex = re.compile("ABC")
         for match in regex.finditer(text):
             origin = document.get_simplified_origin_of_text(match.start(), match.end())

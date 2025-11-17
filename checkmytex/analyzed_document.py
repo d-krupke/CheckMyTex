@@ -5,6 +5,7 @@ Provides a container for an analyzed document, i.e., parsed document and found e
 from __future__ import annotations
 
 import typing
+from typing import Any
 
 from checkmytex.finding.problem import Problem
 from checkmytex.latex_document import LatexDocument
@@ -92,7 +93,7 @@ class AnalyzedDocument:
         """
         return self.document.get_file_content(file_name)
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict[str, Any]:
         return {
             "document": self.document.serialize(),
             "problems": [p.serialize() for p in self.problems],

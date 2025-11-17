@@ -19,9 +19,7 @@ class Checker(abc.ABC):
     def is_available(self) -> bool:
         pass
 
-    def _run(
-        self, cmd: str, input: typing.Optional[str] = None
-    ) -> tuple[str, str, int]:
+    def _run(self, cmd: str, input: str | None = None) -> tuple[str, str, int]:
         """
         Execute a shell command.
 

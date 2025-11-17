@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from typing import Any
 
 from checkmytex.latex_document import Origin
 
@@ -38,7 +39,7 @@ class Problem:
     def __hash__(self):
         return hash(self.short_id)
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict[str, Any]:
         return {
             "id": self.short_id,
             "tool": self.tool,

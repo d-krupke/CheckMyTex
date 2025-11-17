@@ -167,6 +167,7 @@ from checkmytex.finding import Checker, Problem
 from checkmytex import LatexDocument
 import typing
 
+
 class MyChecker(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         # Access flattened source or detexed text
@@ -207,6 +208,7 @@ from checkmytex.filtering import Filter
 from checkmytex.finding import Problem
 from checkmytex import LatexDocument
 import typing
+
 
 class MyFilter(Filter):
     def prepare(self, document: LatexDocument):
