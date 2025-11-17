@@ -2,10 +2,11 @@
 Parsing the arguments from CLI.
 """
 
+from __future__ import annotations
+
 import argparse
-import os
 import sys
-import typing
+from pathlib import Path
 
 
 def create_default_argument_parser() -> argparse.ArgumentParser:
@@ -21,7 +22,9 @@ def create_default_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def parse_arguments(parser: typing.Optional[argparse.ArgumentParser] = None):
+def parse_arguments(
+    parser: argparse.ArgumentParser | None = None,
+) -> argparse.Namespace:
     """
     Parse CLI arguments.
     :param log: A logging function.
@@ -35,6 +38,6 @@ def parse_arguments(parser: typing.Optional[argparse.ArgumentParser] = None):
     if args.w:
         args.whitelist = args.w
     else:
-        path = os.path.dirname(args.path[0])
-        args.whitelist = os.path.join(path, ".whitelist.txt")
+        path = Path(args.path[0]).parent
+        args.whitelist = str(path / ".whitelist.txt")
     return args

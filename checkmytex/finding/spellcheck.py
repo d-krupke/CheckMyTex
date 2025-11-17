@@ -20,10 +20,8 @@ class AspellChecker(Checker):
         super().__init__()
         self.lang = lang
 
-    def _get_words(
-        self, document: LatexDocument
-    ) -> typing.Dict[str, typing.List[Origin]]:
-        word_occurrences: typing.Dict[str, typing.List[Origin]] = {}
+    def _get_words(self, document: LatexDocument) -> dict[str, list[Origin]]:
+        word_occurrences: dict[str, list[Origin]] = {}
         word_regex = re.compile(r"(^|[\s(-])(?P<word>[^\s-]+)")
         text = document.get_text()
         is_word = re.compile(r"[A-Z]?[a-z]+-?[A-Z]?[a-z]+", re.UNICODE)
@@ -45,7 +43,7 @@ class AspellChecker(Checker):
         words = self._get_words(document)
         bin = shutil.which("aspell")
         word_list = "\n".join(words.keys())
-        out, err, code = self._run(f"{bin}  -a --lang={self.lang}", input=word_list)
+        out, _err, _code = self._run(f"{bin}  -a --lang={self.lang}", input=word_list)
         regex = re.compile(r"^\s*&\s*(?P<word>\w+)[0-9\s]*:(?P<sugg>.*)$", re.MULTILINE)
         for match in regex.finditer(out):
             word = match.group("word").strip()

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import hashlib
-import typing
+from typing import Any
 
 from checkmytex.latex_document import Origin
 
@@ -17,7 +19,7 @@ class Problem:
         long_id: str,
         tool: str,
         rule: str,
-        look_up_url: typing.Optional[str] = None,
+        look_up_url: str | None = None,
     ):
         self.short_id = str(hashlib.md5((tool + long_id).encode()).hexdigest())
         self.long_id = long_id
@@ -37,7 +39,7 @@ class Problem:
     def __hash__(self):
         return hash(self.short_id)
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict[str, Any]:
         return {
             "id": self.short_id,
             "tool": self.tool,

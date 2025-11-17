@@ -1,5 +1,11 @@
 # CheckMyTex
 
+[![PyPI version](https://badge.fury.io/py/CheckMyTex.svg)](https://badge.fury.io/py/CheckMyTex)
+[![Python package](https://github.com/d-krupke/checkmytex/actions/workflows/pytest.yml/badge.svg)](https://github.com/d-krupke/checkmytex/actions/workflows/pytest.yml)
+[![Python Versions](https://img.shields.io/pypi/pyversions/CheckMyTex.svg)](https://pypi.org/project/CheckMyTex/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 A tool to comfortably check complex LaTeX documents, e.g., dissertations, for
 common errors. There are already pretty good correction tools for LaTex, e.g.,
 [TeXtidote](https://github.com/sylvainhalle/textidote),
@@ -12,6 +18,24 @@ with hopefully any document. The primary difference to its main contenders is
 the focus on CLI and whitelists.
 
 > :warning: Your terminal needs to support rich (should be most terminals)!
+
+## Interfaces
+
+CheckMyTex provides two interfaces:
+
+### 1. 💻 Command Line Interface (CLI)
+The traditional terminal-based interface for power users and automation.
+
+### 2. 🌐 Web Interface (NEW!)
+A user-friendly web interface for document checking. Perfect for:
+- Easy document upload and analysis
+- Configurable checkers and filters
+- Clean, terminal-styled HTML output
+- No installation required for end users
+
+**[See Web App Documentation](web_app/README.md)**
+
+## Primary Features
 
 Primary concepts are
 
@@ -61,11 +85,18 @@ Further checks may be added in the future. I do a lot of collaborative writing
 on papers and am constantly confronted with bad LaTeX that I try to detect
 automatically.
 
+## Requirements
+
+- **Python 3.10 or higher** (3.11+ recommended)
+- LaTeX distribution (for ChkTeX)
+- [LanguageTool](https://languagetool.org/)
+- (Optional) aspell with dictionaries for better spell checking
+
 ## Install
 
-You can install CheckMyTex using pip (if you have Python3 installed)
+You can install CheckMyTex using pip:
 
-```
+```bash
 pip install checkmytex
 ```
 
@@ -263,10 +294,13 @@ Other languages are partially supported: You need to create your own main-file
 and provide the right language codes for the different tools. An example for
 german can be found in [german.py](./examples/german.py).
 
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
 ## Development Status
 
-This tool is still under development but already usable. Just expect some
-imperfections. Ideas are welcome.
+This tool is actively maintained and usable. Ideas and contributions are welcome!
 
 ### TODOs
 
@@ -275,15 +309,10 @@ imperfections. Ideas are welcome.
 - More configuration options. Currently, the best option is to simply build your
   own [main.py](./checkmytex/__main__.py)
 
-## Changes
+## Changelog
 
-- 0.10.5: Fixing `--print` option.
-- 0.10.4: Fixing exception when $EDITOR is not set.
-- 0.10.3: Making project slightly more robust.
-- 0.10.2: Making project pep compliant.
-- 0.10.1: Also the interactive mode is now using rich.
-- 0.10.0: Beautiful HTML-output using _rich_. Interactive CLI will follow soon.
-- 0.9.0: Fundamental refactoring and JSON-ouput.
-- 0.8.1: Fixing problem with text manipulated by commands. All found errors now
-  should only span a single line. Solution is ugly and should be improved. For
-  now, it is working. .
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

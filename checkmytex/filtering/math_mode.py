@@ -21,15 +21,24 @@ class MathMode(Filter):
     to ignore these in our regular expressions.
     """
 
-    def __init__(self, rules: typing.Dict[str, typing.Optional[typing.List]]):
+    def __init__(
+        self,
+        rules: dict[str, list | None] | None = None,
+    ):
         """
         :param rules: Specify which tools and rules (None for all) should be
-        ignored in math mode.
+        ignored in math mode. Defaults to filtering spelling, grammar, and style
+        issues in math mode.
         """
-        self.ranges: typing.List[typing.Tuple[int, int]] = []
-        self.rules = rules
+        self.ranges: list[tuple[int, int]] = []
+        # Default: ignore spelling, grammar, and style issues in math mode
+        self.rules = (
+            rules
+            if rules is not None
+            else {"SPELLING": None, "languagetool": None, "Proselint": None}
+        )
 
-    def _find_simple_math(self, source) -> typing.List[typing.Tuple[int, int]]:
+    def _find_simple_math(self, source) -> None:
         regex = re.compile(
             r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
         )
@@ -38,14 +47,14 @@ class MathMode(Filter):
             end = match.end("math")
             self.ranges.append((begin, end))
 
-    def _find_line_math(self, source) -> typing.List[typing.Tuple[int, int]]:
+    def _find_line_math(self, source) -> None:
         regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
         for match in regex.finditer(source):
             begin = match.start()
             end = match.end()
             self.ranges.append((begin, end))
 
-    def _find_environments(self, source, env) -> typing.List[typing.Tuple[int, int]]:
+    def _find_environments(self, source, env) -> None:
         regex = re.compile(
             r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
             re.MULTILINE | re.DOTALL,
@@ -76,9 +85,7 @@ class MathMode(Filter):
             return False
         begin = problem.origin.begin.source.index
         end = problem.origin.end.source.index
-        if not any(r[0] <= begin <= end <= r[1] for r in self.ranges):
-            return False
-        return True
+        return any(r[0] <= begin <= end <= r[1] for r in self.ranges)
 
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:

@@ -19,7 +19,7 @@ class Cleveref(Checker):
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Checking for cleveref usage...")
         # \ref instead of smarter \cref
-        for match in re.finditer(r"\\ref\{[^\}]+\}", document.get_source()):
+        for match in re.finditer(r"\\ref\{[^\}]+\}", str(document.get_source())):
             origin = document.get_simplified_origin_of_source(
                 match.start(), match.end()
             )
@@ -39,7 +39,7 @@ class Cleveref(Checker):
             )
         # \cref instead of \Cref at beginning of sentence
         expr = r"\.\s*(?P<cref>\\cref\{[^\}]+\})"  # ". \cref{xxx}"
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             origin = document.get_simplified_origin_of_source(
                 match.start("cref"), match.end("cref")
             )

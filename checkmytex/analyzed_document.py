@@ -2,7 +2,10 @@
 Provides a container for an analyzed document, i.e., parsed document and found errors.
 """
 
+from __future__ import annotations
+
 import typing
+from typing import Any
 
 from checkmytex.finding.problem import Problem
 from checkmytex.latex_document import LatexDocument
@@ -13,23 +16,23 @@ class AnalyzedDocument:
     An analyzed document. Contains the document and the problems found for it.
     """
 
-    def __init__(self, document: LatexDocument, problems: typing.Iterable[Problem]):
+    def __init__(
+        self, document: LatexDocument, problems: typing.Iterable[Problem]
+    ) -> None:
         self.document = document
         self.problems = list(problems)
-        self._on_false_positive: typing.Optional[typing.Callable[[Problem], None]] = (
-            None
-        )
+        self._on_false_positive: typing.Callable[[Problem], None] | None = None
 
     def set_on_false_positive_cb(
         self, on_false_positive: typing.Callable[[Problem], None]
-    ):
+    ) -> None:
         """
         Set a callback for when a problem is marked as false positive. This allows
         you, e.g., to save this for later iterations.
         """
         self._on_false_positive = on_false_positive
 
-    def mark_as_false_positive(self, problem: Problem):
+    def mark_as_false_positive(self, problem: Problem) -> None:
         """
         Mark a problem as false positive. All occurrences of this problem will be removed.
         """
@@ -54,7 +57,7 @@ class AnalyzedDocument:
         """
         return self.remove_if(lambda p: problem.long_id == p.long_id)
 
-    def remove_with_rule(self, rule: str, tool: typing.Optional[str] = None) -> int:
+    def remove_with_rule(self, rule: str, tool: str | None = None) -> int:
         """
         Remove all problems that have been created by the rule.
         """
@@ -63,8 +66,8 @@ class AnalyzedDocument:
         return self.remove_if(lambda p: p.rule == rule)
 
     def get_problems(
-        self, file: typing.Optional[str] = None, line: typing.Optional[int] = None
-    ) -> typing.List[Problem]:
+        self, file: str | None = None, line: int | None = None
+    ) -> list[Problem]:
         """
         Returns problems. Can be for a specific file and even line.
         """
@@ -75,7 +78,7 @@ class AnalyzedDocument:
             return problems
         return self.problems
 
-    def get_orphaned_problems(self) -> typing.List[Problem]:
+    def get_orphaned_problems(self) -> list[Problem]:
         return [p for p in self.problems if not p.origin]
 
     def list_files(self) -> typing.Iterable[str]:
@@ -90,7 +93,7 @@ class AnalyzedDocument:
         """
         return self.document.get_file_content(file_name)
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict[str, Any]:
         return {
             "document": self.document.serialize(),
             "problems": [p.serialize() for p in self.problems],

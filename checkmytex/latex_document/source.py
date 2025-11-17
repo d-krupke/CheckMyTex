@@ -2,6 +2,8 @@
 Container for the LaTeX-sources.
 """
 
+from __future__ import annotations
+
 import typing
 
 from flachtex import TraceableString
@@ -14,39 +16,42 @@ from checkmytex.latex_document.indexed_string import (
 
 
 class FilePosition:
-    def __init__(self, file: str, pos: TextPosition):
+    def __init__(self, file: str, pos: TextPosition) -> None:
         self.path = file  # file name/path
         self.position = pos  # position in the file
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FilePosition):
+            return NotImplemented
         return self.path == other.path and self.position == other.position
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.path}{self.position}"
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"path": self.path, "position": self.position.serialize()}
 
 
 class LatexSource:
-    def __init__(
-        self, source: TraceableString, structure: typing.Dict[str, typing.Dict]
-    ):
+    def __init__(self, source: TraceableString, structure: dict[str, dict]):
         self.flat_source: IndexedText = IndexedText(source)
-        self.files: typing.Dict[str, IndexedText] = {}
-        self.includes: typing.Dict[str, typing.List[str]] = {}
+        self.files: dict[str, IndexedText] = {}
+        self.includes: dict[str, list[str]] = {}
         for path, data in structure.items():
             self.files[path] = IndexedText(data["content"])
             self.includes[path] = list(data["includes"])
-        self.file_names: typing.List[str] = list(self.files.keys())
+        self.file_names: list[str] = list(self.files.keys())
         self.file_order = {f: i for i, f in enumerate(self.file_names)}
 
-    def get_file(self, file: str, line: typing.Optional[int]) -> str:
+    def get_file(self, file: str, line: int | None) -> str:
         if line is not None:
             return str(self.files[file].get_line(line))
         return str(self.files[file])
 
-    def investigate_origin(self, index: int) -> typing.Optional[FilePosition]:
+    def investigate_origin(self, index: int) -> FilePosition | None:
+        # TraceableString has get_origin, plain str does not
+        if isinstance(self.flat_source.text, str):
+            return None
         file, index = self.flat_source.text.get_origin(index)
         if file not in self.files:
             return None
@@ -55,12 +60,14 @@ class LatexSource:
 
     def get_simplified_origin_range(
         self, begin: int, end: int
-    ) -> typing.Optional[typing.Tuple[FilePosition, FilePosition]]:
+    ) -> tuple[FilePosition, FilePosition] | None:
         origins = [self.investigate_origin(i) for i in range(begin, end)]
-        origins = [o for o in origins if o is not None]
-        if not origins:
+        origins_filtered = [o for o in origins if o is not None]
+        if not origins_filtered:
             return None
-        files = [o.path for o in origins]
+        # Type narrowing: after filtering None values, all items are FilePosition
+        origins_typed = typing.cast(list[FilePosition], origins_filtered)
+        files = [o.path for o in origins_typed]
         files.sort(key=lambda f: self.file_order[f])
         if (
             files.count(files[-1]) <= 1
@@ -72,8 +79,8 @@ class LatexSource:
             focus_on_file = files[-2]
         else:
             focus_on_file = files[-1]
-        origins = [o for o in origins if o.path == focus_on_file]
-        file_range = simplify_text_range(o.position for o in origins)
+        origins_typed = [o for o in origins_typed if o.path == focus_on_file]
+        file_range = simplify_text_range(o.position for o in origins_typed)
         if file_range is None:
             msg = f"Could not determine origin of '{begin} -- {end}'."
             raise ValueError(msg)
@@ -83,7 +90,7 @@ class LatexSource:
             FilePosition(focus_on_file, file_end),
         )
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {
             "flat": str(self.flat_source),
             "files": {path: str(content) for path, content in self.files.items()},

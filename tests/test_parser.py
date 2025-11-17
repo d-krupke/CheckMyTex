@@ -1,5 +1,4 @@
 import flachtex
-
 from checkmytex.latex_document.parser import LatexParser
 
 

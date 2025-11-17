@@ -14,8 +14,8 @@ class Whitelist(Filter):
 
     def __init__(
         self,
-        path: typing.Optional[str] = None,
-        on_add: typing.Optional[typing.Callable[[Problem], None]] = None,
+        path: str | None = None,
+        on_add: typing.Callable[[Problem], None] | None = None,
     ):
         """
         :param path: File to initialize the whitelist from. If you do not want
@@ -23,8 +23,8 @@ class Whitelist(Filter):
         :param on_add: Callback [Problem]->None that is called on newly
          whitelisted problems.
         """
-        self._shortkeys: typing.Set[str] = set()
-        self._whitelist: typing.Dict[str, str] = {}
+        self._shortkeys: set[str] = set()
+        self._whitelist: dict[str, str] = {}
         self._on_add = on_add
         self._path = path
         if path is not None and Path(path).exists():
@@ -73,7 +73,7 @@ class Whitelist(Filter):
             if problem not in self:
                 yield problem
 
-    def add(self, problem: Problem, comment: typing.Optional[str] = None) -> None:
+    def add(self, problem: Problem, comment: str | None = None) -> None:
         """
         Adds a problem to the whitelist. If the whitelist is initiated
         from a file, the problem will directly be appended to the file.
@@ -95,6 +95,8 @@ class Whitelist(Filter):
             self._save_problem(problem, comment)
 
     def _save_problem(self, problem, comment) -> None:
+        if self._path is None:
+            return
         with Path(self._path).open("a") as file:
             file.write(
                 f"{problem.short_id} # {comment if comment else problem.long_id}\n"

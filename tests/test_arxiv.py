@@ -1,6 +1,5 @@
 import shutil
 import tarfile
-
 import urllib.request
 from pathlib import Path
 
@@ -40,7 +39,7 @@ def analyze(path):
 
 
 def download(url, extract_to, main_file):
-    def tex_file_filter(tarinfo, path):
+    def tex_file_filter(tarinfo, _path):
         if tarinfo.name.endswith(".tex"):
             return tarinfo
         return None

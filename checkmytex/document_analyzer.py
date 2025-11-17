@@ -30,8 +30,8 @@ class DocumentAnalyzer:
 
     def __init__(self, log: typing.Callable = print):
         self.log = log
-        self.checker = []
-        self.rules = []
+        self.checker: list[Checker] = []
+        self.rules: list[Filter] = []
 
     def setup_default(self) -> None:
         """
@@ -109,14 +109,13 @@ class DocumentAnalyzer:
         """
         for checker in self.checker:
             try:
-                for problem in checker.check(latex_document):
-                    yield problem
+                yield from checker.check(latex_document)
             except (RuntimeError, ValueError, TypeError, KeyError) as e:
                 # Expected errors from checker logic
                 logging.getLogger("CheckMyTex").error(
                     f"Checker {checker} failed with {type(e).__name__}: {e}"
                 )
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 # Unexpected errors - log full traceback for debugging
                 logging.getLogger("CheckMyTex").error(
                     f"Unexpected exception in {checker}: {e}\n{traceback.format_exc()}"

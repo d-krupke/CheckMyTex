@@ -2,9 +2,11 @@
 Provides some filters to lessen reported spelling errors on author names.
 """
 
-import os
+from __future__ import annotations
+
 import re
 import typing
+from pathlib import Path
 
 from yalafi.tex2txt import Options, tex2txt
 
@@ -40,6 +42,9 @@ class IgnoreLikelyAuthorNames(Filter):
                 if problem.origin is None:
                     msg = f"Error: Problem ({problem}) has no origin."
                     raise ValueError(msg)
+                if problem.origin.begin.text is None or problem.origin.end.text is None:
+                    yield problem
+                    continue
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()
@@ -48,20 +53,20 @@ class IgnoreLikelyAuthorNames(Filter):
             yield problem
 
 
-def _find_bibtex_paths(document: LatexDocument) -> typing.List[str]:
+def _find_bibtex_paths(document: LatexDocument) -> list[str]:
     regex = r"\\((addbibresource)|(bibliography))\{(?P<path>[^}]+)\}"
     paths = set()
-    for match in re.finditer(regex, document.get_source()):
+    for match in re.finditer(regex, str(document.get_source())):
         bib_file = match.group("path")
         in_file = document.get_simplified_origin_of_source(
             match.start("path"), match.end("path")
         ).get_file()
-        path = os.path.join(os.path.dirname(in_file), bib_file)
-        if os.path.isfile(path):
-            paths.add(path)
-        elif os.path.isfile(path + ".bib"):
-            paths.add(path + ".bib")
-    return paths
+        path = Path(in_file).parent / bib_file
+        if path.is_file():
+            paths.add(str(path))
+        elif path.with_suffix(".bib").is_file():
+            paths.add(str(path.with_suffix(".bib")))
+    return list(paths)
 
 
 class IgnoreWordsFromBibliography(Filter):
@@ -78,14 +83,14 @@ class IgnoreWordsFromBibliography(Filter):
     def _collect_bibtexs(self, document: LatexDocument) -> str:
         bibtex = ""
         for path in _find_bibtex_paths(document):
-            with open(path) as file:
+            with Path(path).open() as file:
                 bibtex += "\n".join(file.readlines())
         for path in self._paths:
-            with open(path) as file:
+            with Path(path).open() as file:
                 bibtex += "\n".join(file.readlines())
         return bibtex
 
-    def _extract_words_from_bibtex(self, bibtex: str) -> typing.Set[str]:
+    def _extract_words_from_bibtex(self, bibtex: str) -> None:
         expr = (
             r"^\s*((author)|(AUTHOR)|(title)|(TITLE))"
             r"\s*=\s*\{(?P<text>[^{}]*(\{[^{}]*\}[^{}]*)*)\}"
@@ -106,6 +111,9 @@ class IgnoreWordsFromBibliography(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
+                if problem.origin.begin.text is None or problem.origin.end.text is None:
+                    yield problem
+                    continue
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()

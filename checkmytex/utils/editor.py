@@ -7,6 +7,7 @@ import logging
 import os
 import shlex
 import subprocess
+import typing
 from pathlib import Path
 
 
@@ -27,13 +28,13 @@ class Editor:
     # the state.
     # pylint: disable=too-few-public-methods
 
-    _patterns = {
+    _patterns: typing.ClassVar[dict[str, str]] = {
         "nano": "{e} +{l} {f}",
         "vim": "{e} +{l} {f}",
         "gvim": "{e} +{l} {f}",
         "nvim": "{e} +{l} {f}",
     }
-    _default_pattern = "{e} {f}"
+    _default_pattern: typing.ClassVar[str] = "{e} {f}"
 
     def __init__(self, editor=None, pattern=None, remember_offsets=True):
         self.editor = editor if editor else os.environ.get("EDITOR")
@@ -71,9 +72,7 @@ class Editor:
         offset: int = self.offsets.get(file, 0) if self.remember_offsets else 0
 
         # Format the command string
-        cmd_str = self.editor_pattern.format(
-            e=self.editor, f=file, l=line + 1 + offset
-        )
+        cmd_str = self.editor_pattern.format(e=self.editor, f=file, l=line + 1 + offset)
 
         # Use shlex.split to safely parse the command and execute without shell=True
         try:

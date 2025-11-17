@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckMyTex - LaTeX Document Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area.dragover {
+            background-color: #e9ecef;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info ul {
+            margin-left: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info li {
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background-color: #fee;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            color: #c0392b;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .config-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .config-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .config-group h4 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-label:hover {
+            color: #667eea;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #999;
+            color: white;
+            text-align: center;
+            font-size: 10px;
+            line-height: 14px;
+            cursor: help;
+            font-weight: bold;
+        }
+
+        .tooltip:hover .tooltip-icon {
+            background-color: #667eea;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: #2d2d2d;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2d2d2d transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-disclaimer {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 CheckMyTex</h1>
+        <p class="subtitle">Upload your LaTeX project for analysis</p>
+
+        <form id="uploadForm">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📦</div>
+                <div class="upload-text">
+                    <strong>Click to upload</strong> or drag and drop
+                </div>
+                <div style="color: #999; font-size: 14px;">ZIP file (max 10MB)</div>
+                <input type="file" name="file" id="fileInput" accept=".zip">
+                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔧 Configure Checks</h3>
+                <p class="config-subtitle">Select which tools to run on your document</p>
+
+                <div class="config-grid">
+                    <div class="config-group">
+                        <h4>Spelling & Grammar</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="aspell" checked>
+                            <span class="tooltip">
+                                Aspell (Spelling)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Checks for spelling errors using the Aspell dictionary. Catches typos and misspelled words in your document.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="languagetool" checked>
+                            <span class="tooltip">
+                                LanguageTool (Grammar)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Advanced grammar and style checking. Detects grammatical errors, punctuation issues, and style problems in your text.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>LaTeX Checks</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="chktex" checked>
+                            <span class="tooltip">
+                                ChkTeX (Syntax)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">LaTeX semantic checker that finds typographic errors and LaTeX antipatterns. Catches missing braces, inconsistent spacing, and more.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="siunitx" checked>
+                            <span class="tooltip">
+                                SiUnitx (Units)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Checks that numbers with units use the siunitx package. Example: "5 km" should be "\SI{5}{km}".</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="cleveref" checked>
+                            <span class="tooltip">
+                                Cleveref (References)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Verifies correct usage of cleveref commands for cross-references. Ensures consistent reference formatting throughout your document.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Style Checks</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="proselint" checked>
+                            <span class="tooltip">
+                                Proselint (Style)
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Prose linter that checks for style issues based on expert writing guides. Detects jargon, redundancy, clichés, and other style problems.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="nphard" checked>
+                            <span class="tooltip">
+                                Uniform NP-Hard
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ensures consistent capitalization and hyphenation of complexity terms like "NP-hard" and "NP-complete" throughout your document.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Code Quality</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="linelength" checked>
+                            <span class="tooltip">
+                                Line Length
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Detects lines exceeding 100 characters. Long lines make version control diffs harder to read and reduce overall code readability.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="checker" value="todo" checked>
+                            <span class="tooltip">
+                                TODO/FIXME
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Finds TODO, FIXME, XXX comments and \todo{} commands. Helps ensure no draft markers or unfinished work remains before publication.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔍 Configure Filters</h3>
+                <p class="config-subtitle">Select filters to reduce false positives</p>
+
+                <div class="config-grid">
+                    <div class="config-group">
+                        <h4>Ignore Patterns</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="includegraphics" checked>
+                            <span class="tooltip">
+                                Includegraphics
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores spelling errors in file paths within \includegraphics{} commands. Image filenames often trigger false spelling errors.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="refs" checked>
+                            <span class="tooltip">
+                                References
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores errors in \ref{}, \cite{}, and similar commands. Label names often look like spelling errors.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="repeated" checked>
+                            <span class="tooltip">
+                                Repeated Words
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Allows intentional repetition of common words like "problem" across sentences. Reduces false positives for academic writing.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="spellingwithmath" checked>
+                            <span class="tooltip">
+                                Math/Commands
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores spelling errors in words containing LaTeX commands (\) or math ($). Prevents false positives for mathematical notation.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Context-Aware</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="mathmode" checked>
+                            <span class="tooltip">
+                                Math Mode
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Filters out problems detected within math environments ($ ... $, \[ ... \]). Math notation shouldn't trigger language checks.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="authornames" checked>
+                            <span class="tooltip">
+                                Author Names
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Detects and ignores likely author names in your document. Names often trigger spelling errors but are intentional.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="bibliography" checked>
+                            <span class="tooltip">
+                                Bibliography Words
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores words found in your bibliography entries. Technical terms and names from citations shouldn't be flagged as errors.</span>
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filter" value="codelistings" checked>
+                            <span class="tooltip">
+                                Code Listings
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Ignores errors within code listing environments (lstlisting, verbatim, minted). Programming code has different syntax rules and shouldn't trigger language checks.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" disabled>
+                Analyze Document
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Analyzing your document...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="info">
+            <h3>ℹ️ What gets checked:</h3>
+            <ul>
+                <li>Spelling and grammar</li>
+                <li>LaTeX syntax (ChkTeX)</li>
+                <li>Style and formatting</li>
+                <li>Proper use of siunitx, cleveref, etc.</li>
+            </ul>
+        </div>
+
+        <div class="info" style="margin-top: 15px;">
+            <h3>🙏 Built with open-source tools:</h3>
+            <ul style="font-size: 13px;">
+                <li><a href="http://aspell.net/" target="_blank" style="color: #667eea; text-decoration: none;"><strong>Aspell</strong></a> - Spell checking</li>
+                <li><a href="https://languagetool.org/" target="_blank" style="color: #667eea; text-decoration: none;"><strong>LanguageTool</strong></a> - Grammar checking</li>
+                <li><a href="https://www.nongnu.org/chktex/" target="_blank" style="color: #667eea; text-decoration: none;"><strong>ChkTeX</strong></a> - LaTeX semantic checker</li>
+                <li><a href="http://proselint.com/" target="_blank" style="color: #667eea; text-decoration: none;"><strong>Proselint</strong></a> - Prose linter</li>
+                <li><a href="https://github.com/d-krupke/flachtex" target="_blank" style="color: #667eea; text-decoration: none;"><strong>FlachTeX</strong></a> & <a href="https://github.com/torik42/YaLafi" target="_blank" style="color: #667eea; text-decoration: none;"><strong>YaLafi</strong></a> - LaTeX parsing</li>
+                <li><a href="https://github.com/Textualize/rich" target="_blank" style="color: #667eea; text-decoration: none;"><strong>Rich</strong></a> - Terminal formatting</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <div>
+                ⭐ <a href="https://github.com/d-krupke/CheckMyTex" target="_blank">CheckMyTex on GitHub</a> -
+                An open-source LaTeX checker by Dominik Krupke
+            </div>
+            <div style="margin-top: 8px;">
+                <a href="/licenses">📜 View Open Source Licenses</a>
+            </div>
+            <div class="footer-disclaimer">
+                This tool provides automated suggestions. Always review results carefully and use your judgment.
+                No warranty is provided for the accuracy or completeness of checks.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = `Selected: ${file.name}`;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.zip')) {
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = `Selected: ${file.name}`;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            loading.classList.add('active');
+            errorDiv.classList.remove('active');
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Collect selected checkers
+            const checkers = Array.from(document.querySelectorAll('input[name="checker"]:checked'))
+                .map(cb => cb.value);
+            formData.append('checkers', JSON.stringify(checkers));
+
+            // Collect selected filters
+            const filters = Array.from(document.querySelectorAll('input[name="filter"]:checked'))
+                .map(cb => cb.value);
+            formData.append('filters', JSON.stringify(filters));
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error);
+                }
+
+                // Open result in new window
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, '_blank');
+
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -35,7 +35,7 @@ class LatexDocument:
         """
         return self.sources.file_names
 
-    def get_source(self, line=None) -> typing.Union[str, TraceableString]:
+    def get_source(self, line=None) -> str | TraceableString:
         """
         returns the flattened LaTeX source.
         :return: Single string of the latex source.
@@ -54,7 +54,7 @@ class LatexDocument:
             raise ValueError(msg)
         return str(self.detexed_text.text)
 
-    def get_file_content(self, path: str, line: typing.Optional[int] = None) -> str:
+    def get_file_content(self, path: str, line: int | None = None) -> str:
         """
         Return the content of a file. Does not perform any file reads but
         returns from cache.
@@ -65,8 +65,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_text(
         self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+        begin: int | tuple[int, int],
+        end: int | tuple[int, int],
     ) -> Origin:
         """
         Investigates a simplified origin of the corresponding range.
@@ -105,8 +105,8 @@ class LatexDocument:
 
     def get_simplified_origin_of_source(
         self,
-        begin: typing.Union[int, typing.Tuple[int, int]],
-        end: typing.Union[int, typing.Tuple[int, int]],
+        begin: int | tuple[int, int],
+        end: int | tuple[int, int],
     ) -> Origin:
         """
         Returns the origin of the flattened source (`get_source`).
@@ -121,7 +121,9 @@ class LatexDocument:
             msg = "End is before begin."
             raise ValueError(msg)
         if end_.index - begin_.index > 1000:  # reduce very large ranges.
-            logging.getLogger("CheckMyTex").info(f"Reducing long range {begin_}-{end_}.")
+            logging.getLogger("CheckMyTex").info(
+                f"Reducing long range {begin_}-{end_}."
+            )
             begin_ = source.get_detailed_position(end_.index - 1000)
         if begin_ >= end_:
             msg = f"Invalid range after reduction: begin ({begin_}) >= end ({end_})"
@@ -143,5 +145,5 @@ class LatexDocument:
         for match in re.finditer(pattern, str(self.get_source())):
             yield self.get_simplified_origin_of_source(match.start(), match.end())
 
-    def serialize(self) -> typing.Dict:
+    def serialize(self) -> dict:
         return {"sources": self.sources.serialize(), "text": str(self.detexed_text)}

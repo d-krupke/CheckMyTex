@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # CheckMyTex FastAPI Application
+  checkmytex:
+    build:
+      context: ..
+      dockerfile: web_app/Dockerfile
+    container_name: checkmytex-app
+    restart: unless-stopped  # Auto-restart on crashes, but not if manually stopped
+    environment:
+      - PYTHONUNBUFFERED=1  # See Python output in logs immediately
+    networks:
+      - checkmytex-network
+    expose:
+      - "5000"  # Internal only - not exposed to host (nginx proxies to this)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'    # Prevent runaway CPU usage (security)
+          memory: 2G     # Prevent memory exhaustion (security)
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:1.25-alpine  # Small, secure base image
+    container_name: checkmytex-nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"  # Expose to host, configurable via .env
+    volumes:
+      - ./nginx-docker.conf:/etc/nginx/conf.d/default.conf:ro  # Read-only config
+    networks:
+      - checkmytex-network
+    depends_on:
+      - checkmytex  # Start app before nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'    # Nginx is lightweight
+          memory: 256M
+
+networks:
+  # Isolated network - containers can only talk to each other, not external services
+  checkmytex-network:
+    driver: bridge

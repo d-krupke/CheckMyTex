@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Licenses - CheckMyTex</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .license-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .license-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .license-section .license-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .license-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .license-badge.lgpl {
+            background-color: #f39c12;
+        }
+
+        .license-badge.gpl {
+            background-color: #e74c3c;
+        }
+
+        .license-badge.bsd {
+            background-color: #3498db;
+        }
+
+        .license-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .license-link:hover {
+            text-decoration: underline;
+        }
+
+        .description {
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .note {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .note h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .note p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📜 Open Source Licenses</h1>
+        <p class="subtitle">CheckMyTex is built with and depends on the following open-source projects</p>
+
+        <div class="note">
+            <h3>📝 Note on GPL/LGPL Compliance</h3>
+            <p>CheckMyTex uses several GPL and LGPL licensed tools as external programs (subprocesses). These tools are not modified or linked into CheckMyTex - they are called as separate executables. This usage model is generally accepted as compliant with GPL/LGPL terms.</p>
+            <p>All tools are properly attributed, and their respective licenses are honored. Users are free to replace or update these components independently.</p>
+        </div>
+
+        <div class="license-section">
+            <h2>🔤 GNU Aspell</h2>
+            <div class="license-info">
+                <span class="license-badge lgpl">LGPL</span>
+                <a href="http://aspell.net/" class="license-link" target="_blank">aspell.net</a>
+            </div>
+            <div class="description">
+                GNU Aspell is a Free and Open Source spell checker designed to replace Ispell. Licensed under the GNU Lesser General Public License (LGPL), which allows use in both free and proprietary software when used as a library or external program.
+            </div>
+        </div>
+
+        <div class="license-section">
+            <h2>✍️ LanguageTool</h2>
+            <div class="license-info">
+                <span class="license-badge lgpl">LGPL 2.1+</span>
+                <a href="https://languagetool.org/" class="license-link" target="_blank">languagetool.org</a>
+            </div>
+            <div class="description">
+                LanguageTool is an Open Source proofreading software for English, French, German, Polish, and more than 20 other languages. Licensed under the GNU Lesser General Public License version 2.1 or later. LGPL allows commercial use and web service hosting.
+            </div>
+        </div>
+
+        <div class="license-section">
+            <h2>📐 ChkTeX</h2>
+            <div class="license-info">
+                <span class="license-badge gpl">GPL v2+</span>
+                <a href="https://www.nongnu.org/chktex/" class="license-link" target="_blank">nongnu.org/chktex</a>
+            </div>
+            <div class="description">
+                ChkTeX is a LaTeX semantic checker that finds typographic errors LaTeX oversees. Licensed under the GNU General Public License version 2 or later. When used as an external program (not linked), GPL allows this usage model.
+            </div>
+        </div>
+
+        <div class="license-section">
+            <h2>✨ Proselint</h2>
+            <div class="license-info">
+                <span class="license-badge bsd">BSD-3-Clause</span>
+                <a href="http://proselint.com/" class="license-link" target="_blank">proselint.com</a>
+            </div>
+            <div class="description">
+                Proselint is a linter for prose that provides advice based on world-famous style guides. Licensed under the BSD 3-Clause License, a permissive open-source license allowing free use, modification, and distribution.
+            </div>
+        </div>
+
+        <div class="license-section">
+            <h2>📄 YaLafi</h2>
+            <div class="license-info">
+                <span class="license-badge gpl">GPL v3</span>
+                <a href="https://github.com/torik42/YaLafi" class="license-link" target="_blank">github.com/torik42/YaLafi</a>
+            </div>
+            <div class="description">
+                YaLafi (Yet another LaTeX filter) extracts plain text from LaTeX documents for grammar and spell checking. Licensed under GPL version 3. Used as a library component for text extraction.
+            </div>
+        </div>
+
+        <div class="license-section">
+            <h2>🎨 Rich</h2>
+            <div class="license-info">
+                <span class="license-badge">MIT</span>
+                <a href="https://github.com/Textualize/rich" class="license-link" target="_blank">github.com/Textualize/rich</a>
+            </div>
+            <div class="description">
+                Rich is a Python library for rich text and beautiful formatting in the terminal. Licensed under the MIT License, a permissive license that allows commercial use, modification, and distribution with minimal restrictions.
+            </div>
+        </div>
+
+        <div class="note">
+            <h3>⚖️ Your Rights and Obligations</h3>
+            <p><strong>You are free to:</strong> Use CheckMyTex and its web interface for any purpose, including commercial use and hosting as a web service.</p>
+            <p><strong>You must:</strong> Maintain attribution to all open-source components and their respective licenses. Do not modify the GPL/LGPL licensed tools themselves unless you're prepared to release those modifications.</p>
+            <p><strong>No Warranty:</strong> All software is provided "as is" without warranty of any kind, as specified in their respective licenses.</p>
+        </div>
+
+        <a href="/" class="back-link">← Back to CheckMyTex</a>
+
+        <div class="footer">
+            CheckMyTex is licensed under the MIT License<br>
+            Copyright © 2022 Dominik Krupke
+        </div>
+    </div>
+</body>
+</html>

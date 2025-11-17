@@ -26,7 +26,7 @@ class IgnoreIncludegraphics(Filter):
 
     def prepare(self, document: LatexDocument):
         expr = r"\\includegraphics(\[[^\]]*\])?\{(?P<path>[^\}]+)\}"
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             r = (match.start("path"), match.end("path"))
             self._ranges.append(r)
 
@@ -44,7 +44,7 @@ class IgnoreRefs(Filter):
 
     def prepare(self, document: LatexDocument):
         expr = r"\\(([Cc]?ref)|(fullcite)|(f?ref((ch)|(sec))))\{(?P<ref>[^\}]+)\}"
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             span = (match.start("ref"), match.end("ref"))
             self._ranges.append(span)
 
@@ -57,9 +57,10 @@ class IgnoreRefs(Filter):
 
 
 class IgnoreRepeatedWords(Filter):
-    def __init__(self, words: typing.List[str]):
-        self.words = words
-        self.document: typing.Optional[LatexDocument] = None
+    def __init__(self, words: list[str] | None = None):
+        # Default to common academic words that are often intentionally repeated
+        self.words = words if words is not None else ["problem", "problems"]
+        self.document: LatexDocument | None = None
 
     def prepare(self, document: LatexDocument):
         self.document = document
@@ -70,7 +71,7 @@ class IgnoreRepeatedWords(Filter):
             raise RuntimeError(msg)
         for problem in problems:
             if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
-                text = self.document.get_file_content(problem.origin.file)
+                text = self.document.get_file_content(problem.origin.get_file())
                 section = text[
                     problem.origin.begin.file.position.index : problem.origin.end.file.position.index
                 ]
