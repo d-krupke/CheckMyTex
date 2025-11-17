@@ -6,7 +6,7 @@ Thank you for your interest in contributing to CheckMyTex! This document provide
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - pip
 - git
 

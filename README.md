@@ -87,7 +87,7 @@ automatically.
 
 ## Requirements
 
-- **Python 3.8 or higher** (3.11+ recommended)
+- **Python 3.10 or higher** (3.11+ recommended)
 - LaTeX distribution (for ChkTeX)
 - [LanguageTool](https://languagetool.org/)
 - (Optional) aspell with dictionaries for better spell checking
