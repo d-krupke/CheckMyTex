@@ -26,7 +26,7 @@ class IgnoreIncludegraphics(Filter):
 
     def prepare(self, document: LatexDocument):
         expr = r"\\includegraphics(\[[^\]]*\])?\{(?P<path>[^\}]+)\}"
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             r = (match.start("path"), match.end("path"))
             self._ranges.append(r)
 
@@ -44,7 +44,7 @@ class IgnoreRefs(Filter):
 
     def prepare(self, document: LatexDocument):
         expr = r"\\(([Cc]?ref)|(fullcite)|(f?ref((ch)|(sec))))\{(?P<ref>[^\}]+)\}"
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             span = (match.start("ref"), match.end("ref"))
             self._ranges.append(span)
 
@@ -71,7 +71,7 @@ class IgnoreRepeatedWords(Filter):
             raise RuntimeError(msg)
         for problem in problems:
             if problem.rule == "EN_REPEATEDWORDS_PROBLEM":
-                text = self.document.get_file_content(problem.origin.file)
+                text = self.document.get_file_content(problem.origin.get_file())
                 section = text[
                     problem.origin.begin.file.position.index : problem.origin.end.file.position.index
                 ]

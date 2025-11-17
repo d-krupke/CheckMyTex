@@ -87,9 +87,11 @@ class Languagetool(Checker):
         if problem["rule"]["id"] != "EN_A_VS_AN":
             return False
         source = document.get_source()
-        context = source[
-            origin.end.source.index : max(len(source), origin.end.source.index + 10)
-        ].strip()
+        context = str(
+            source[
+                origin.end.source.index : max(len(source), origin.end.source.index + 10)
+            ]
+        ).strip()
         return bool(context and context[0] in ("\\", "$"))
 
     def _is_uppercase_letter_after_backslash(
@@ -98,9 +100,9 @@ class Languagetool(Checker):
         if problem["rule"]["id"] != "UPPERCASE_SENTENCE_START":
             return False
         source = document.get_source()
-        context = source[
-            max(0, origin.begin.source.index - 10) : origin.begin.source.index
-        ].strip()
+        context = str(
+            source[max(0, origin.begin.source.index - 10) : origin.begin.source.index]
+        ).strip()
         return bool(context and context[-1] == "\\")
 
     def is_available(self) -> bool:

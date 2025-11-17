@@ -23,7 +23,7 @@ class TerminalHtmlPrinter:
         self.analysis = analysis
         self.shorten = shorten
         self.file_prefix = os.path.commonpath(list(self.analysis.list_files()))
-        self.html_parts = []
+        self.html_parts: list[str] = []
 
     def to_html(self, path: str) -> None:
         """Generate and save HTML report to file."""
@@ -254,7 +254,9 @@ class TerminalHtmlPrinter:
         self.html_parts.append("            </thead>")
         self.html_parts.append("            <tbody>")
 
-        problem_counts = defaultdict(lambda: defaultdict(lambda: 0))
+        problem_counts: defaultdict[str, defaultdict[str, int]] = defaultdict(
+            lambda: defaultdict(lambda: 0)
+        )
         for prob in self.analysis.get_problems():
             problem_counts[prob.tool][prob.rule] += 1
 

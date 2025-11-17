@@ -30,8 +30,8 @@ class DocumentAnalyzer:
 
     def __init__(self, log: typing.Callable = print):
         self.log = log
-        self.checker = []
-        self.rules = []
+        self.checker: list[Checker] = []
+        self.rules: list[Filter] = []
 
     def setup_default(self) -> None:
         """

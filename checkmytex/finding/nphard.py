@@ -27,7 +27,7 @@ class UniformNpHard(Checker):
             r"-(([Hh]ard)|([Cc]omplete))"
         )
         variants_np = set()
-        for match in re.finditer(expr, document.get_source()):
+        for match in re.finditer(expr, str(document.get_source())):
             cmd = match.group("np").strip()
             if "\\NP" in cmd:  # $\NP$ and \NP can be mixed with no problem
                 variants_np.add("\\NP")

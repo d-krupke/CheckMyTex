@@ -42,6 +42,9 @@ class IgnoreLikelyAuthorNames(Filter):
                 if problem.origin is None:
                     msg = f"Error: Problem ({problem}) has no origin."
                     raise ValueError(msg)
+                if problem.origin.begin.text is None or problem.origin.end.text is None:
+                    yield problem
+                    continue
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()
@@ -53,7 +56,7 @@ class IgnoreLikelyAuthorNames(Filter):
 def _find_bibtex_paths(document: LatexDocument) -> list[str]:
     regex = r"\\((addbibresource)|(bibliography))\{(?P<path>[^}]+)\}"
     paths = set()
-    for match in re.finditer(regex, document.get_source()):
+    for match in re.finditer(regex, str(document.get_source())):
         bib_file = match.group("path")
         in_file = document.get_simplified_origin_of_source(
             match.start("path"), match.end("path")
@@ -63,7 +66,7 @@ def _find_bibtex_paths(document: LatexDocument) -> list[str]:
             paths.add(str(path))
         elif path.with_suffix(".bib").is_file():
             paths.add(str(path.with_suffix(".bib")))
-    return paths
+    return list(paths)
 
 
 class IgnoreWordsFromBibliography(Filter):
@@ -87,7 +90,7 @@ class IgnoreWordsFromBibliography(Filter):
                 bibtex += "\n".join(file.readlines())
         return bibtex
 
-    def _extract_words_from_bibtex(self, bibtex: str) -> set[str]:
+    def _extract_words_from_bibtex(self, bibtex: str) -> None:
         expr = (
             r"^\s*((author)|(AUTHOR)|(title)|(TITLE))"
             r"\s*=\s*\{(?P<text>[^{}]*(\{[^{}]*\}[^{}]*)*)\}"
@@ -108,6 +111,9 @@ class IgnoreWordsFromBibliography(Filter):
     def filter(self, problems: typing.Iterable[Problem]) -> typing.Iterable[Problem]:
         for problem in problems:
             if problem.rule == "SPELLING":
+                if problem.origin.begin.text is None or problem.origin.end.text is None:
+                    yield problem
+                    continue
                 begin = problem.origin.begin.text.index
                 end = problem.origin.end.text.index
                 misspelled_word = self._text[begin:end].strip()

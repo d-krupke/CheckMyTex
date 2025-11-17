@@ -38,7 +38,7 @@ class MathMode(Filter):
             else {"SPELLING": None, "languagetool": None, "Proselint": None}
         )
 
-    def _find_simple_math(self, source) -> list[tuple[int, int]]:
+    def _find_simple_math(self, source) -> None:
         regex = re.compile(
             r"(^|[^\$])(?P<math>\$([^\$]|\\\$)*[^\\\$]\$)", re.MULTILINE | re.DOTALL
         )
@@ -47,14 +47,14 @@ class MathMode(Filter):
             end = match.end("math")
             self.ranges.append((begin, end))
 
-    def _find_line_math(self, source) -> list[tuple[int, int]]:
+    def _find_line_math(self, source) -> None:
         regex = re.compile(r"(\\\[.+?\\\])", re.MULTILINE | re.DOTALL)
         for match in regex.finditer(source):
             begin = match.start()
             end = match.end()
             self.ranges.append((begin, end))
 
-    def _find_environments(self, source, env) -> list[tuple[int, int]]:
+    def _find_environments(self, source, env) -> None:
         regex = re.compile(
             r"\\begin\{\s*" + env + r"\s*\}.+?\\end\{\s*" + env + r"\s*\}",
             re.MULTILINE | re.DOTALL,

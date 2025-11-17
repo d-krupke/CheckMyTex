@@ -29,7 +29,7 @@ class IgnoreCodeListings(Filter):
         Args:
             document: The LaTeX document to prepare
         """
-        source = document.get_source()
+        source = str(document.get_source())
 
         # Pattern for lstlisting environment
         # Matches: \begin{lstlisting}...\end{lstlisting}

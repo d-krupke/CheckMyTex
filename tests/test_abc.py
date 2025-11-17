@@ -24,12 +24,15 @@ class AbcChecker(Checker):
             t_origin = origin.get_text_span()
             f_origin = origin.get_file_span()
             if self.check_ranges:
+                assert s_origin is not None
                 assert (
                     text[s_origin[0] : s_origin[1]] == text[match.start() : match.end()]
                 )
+                assert t_origin is not None
                 assert (
                     text[t_origin[0] : t_origin[1]] == text[match.start() : match.end()]
                 )
+                assert f_origin is not None
                 assert (
                     text[f_origin[0] : f_origin[1]] == text[match.start() : match.end()]
                 )

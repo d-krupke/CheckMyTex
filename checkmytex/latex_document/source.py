@@ -4,6 +4,8 @@ Container for the LaTeX-sources.
 
 from __future__ import annotations
 
+import typing
+
 from flachtex import TraceableString
 
 from checkmytex.latex_document.indexed_string import (
@@ -47,6 +49,9 @@ class LatexSource:
         return str(self.files[file])
 
     def investigate_origin(self, index: int) -> FilePosition | None:
+        # TraceableString has get_origin, plain str does not
+        if isinstance(self.flat_source.text, str):
+            return None
         file, index = self.flat_source.text.get_origin(index)
         if file not in self.files:
             return None
@@ -57,10 +62,12 @@ class LatexSource:
         self, begin: int, end: int
     ) -> tuple[FilePosition, FilePosition] | None:
         origins = [self.investigate_origin(i) for i in range(begin, end)]
-        origins = [o for o in origins if o is not None]
-        if not origins:
+        origins_filtered = [o for o in origins if o is not None]
+        if not origins_filtered:
             return None
-        files = [o.path for o in origins]
+        # Type narrowing: after filtering None values, all items are FilePosition
+        origins_typed = typing.cast(list[FilePosition], origins_filtered)
+        files = [o.path for o in origins_typed]
         files.sort(key=lambda f: self.file_order[f])
         if (
             files.count(files[-1]) <= 1
@@ -72,8 +79,8 @@ class LatexSource:
             focus_on_file = files[-2]
         else:
             focus_on_file = files[-1]
-        origins = [o for o in origins if o.path == focus_on_file]
-        file_range = simplify_text_range(o.position for o in origins)
+        origins_typed = [o for o in origins_typed if o.path == focus_on_file]
+        file_range = simplify_text_range(o.position for o in origins_typed)
         if file_range is None:
             msg = f"Could not determine origin of '{begin} -- {end}'."
             raise ValueError(msg)

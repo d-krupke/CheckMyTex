@@ -78,13 +78,31 @@ class ChkTex(Checker):
         super().__init__()
         self._parser = re.compile(self._regex)
 
+    @staticmethod
+    def _is_informational_message(stderr: str) -> bool:
+        """Check if stderr contains only informational messages, not actual errors."""
+        # ChkTeX writes summary statistics and help text to stderr
+        # These are not errors and should be filtered out
+        informational_patterns = [
+            "No errors printed",
+            "warnings printed",
+            "user suppressed warnings",
+            "line suppressed warnings",
+            "See the manual",
+            "The manual is available",
+            "texdoc chktex",
+        ]
+        return any(pattern in stderr for pattern in informational_patterns)
+
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Running chktex...")
         result, err, _exitcode = self._run(
-            f"chktex -f '{self._format_str}'", document.get_source()
+            f"chktex -q -f '{self._format_str}'", str(document.get_source())
         )
-        if err:
-            self.log(f"checktex returned an error: '{err}'")
+        # Filter out informational messages from stderr
+        # ChkTeX writes summary statistics to stderr which are not errors
+        if err and not self._is_informational_message(err):
+            self.log(f"chktex returned an error: '{err}'")
         results = result.split("\n")
         for result in results:
             parsed = self._parser.fullmatch(result)
