@@ -41,7 +41,6 @@ Let us use \importantterm here.
         engine = DocumentAnalyzer()
         engine.add_checker(CheckSpell())
         report = engine.analyze(document)
-        print(document.get_text())
         assert len(report.problems) == 1
         start, end = report.problems[0].origin.get_file_span()
         # Position may vary between Python versions due to text processing differences
@@ -83,8 +82,6 @@ Let us use \importantterm{}bla here.
         report = engine.analyze(document)
         assert len(report.problems) == 1
         start, end = report.problems[0].origin.get_file_span()
-        # print(document.get_text())
-        print(source[start:end])
         # Position may vary between Python versions due to text processing differences
         # The important check is that it correctly maps back to the source
         assert source[start:end] == "bla"

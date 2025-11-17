@@ -115,7 +115,7 @@ def validate_zip_file(zip_path: Path) -> None:
             )
 
     except zipfile.BadZipFile:
-        raise HTTPException(status_code=400, detail="Invalid ZIP file")
+        raise HTTPException(status_code=400, detail="Invalid ZIP file") from None
 
 
 # API Endpoints
@@ -136,7 +136,7 @@ async def licenses(request: Request):
 @app.post("/analyze")
 async def analyze(
     request: Request,
-    file: UploadFile = File(...),
+    file: UploadFile = File(...),  # noqa: B008
     checkers: str = Form(
         default='["aspell", "languagetool", "chktex", "siunitx", "cleveref", "proselint", "nphard", "linelength", "todo"]'
     ),
@@ -224,7 +224,7 @@ async def analyze(
                 logger.error(f"ZIP extraction timeout from {client_ip}")
                 raise HTTPException(
                     status_code=504, detail="ZIP extraction took too long"
-                )
+                ) from None
 
             extract_dir = temp_dir / "extracted"
             logger.debug(f"Extracted ZIP to: {extract_dir}")
@@ -259,7 +259,7 @@ async def analyze(
                 raise HTTPException(
                     status_code=504,
                     detail=f"Analysis took too long (timeout: {ANALYSIS_TIMEOUT}s)",
-                )
+                ) from None
 
             # Generate HTML report in memory (no need to write to disk)
             printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
@@ -287,7 +287,7 @@ async def analyze(
             )
             raise HTTPException(
                 status_code=500, detail=f"Error analyzing document: {e!s}"
-            )
+            ) from e
 
 
 def create_analyzer(

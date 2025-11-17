@@ -14,7 +14,6 @@ class TestLatexDocument:
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             assert o1 == o2
         for i in range(5, 8):
-            j = i - 5
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             assert o1 == o2
@@ -28,12 +27,11 @@ class TestLatexDocument:
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             assert o1 == o2
         for i in range(5, 8):
-            j = i - 5
             o1 = document.get_simplified_origin_of_source(i, i + 1)
             o2 = document.get_simplified_origin_of_text(i, i + 1)
             assert o1 == o2
             assert o1.get_file() == "/sub.tex"
-            assert o1.get_file_span() == (j, j + 1)
+            assert o1.get_file_span() == (i - 5, i - 5 + 1)
 
     def test_3(self):
         sources = {

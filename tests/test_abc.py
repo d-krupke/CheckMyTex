@@ -52,9 +52,7 @@ class TestAbc:
         document = parser.parse("/main.tex")
         engine = DocumentAnalyzer()
         engine.add_checker(AbcChecker(check_ranges=True))
-        analysis = engine.analyze(document)
-        for problem in analysis.problems:
-            print(problem.serialize())
+        engine.analyze(document)
 
     def test_2(self):
         files = {
@@ -70,13 +68,6 @@ class TestAbc:
             == "This is a test with ABC.\nSecond line. Also here an ABC.\nHere one with newcommand ABC."
         )
         assert len(analysis.problems) == 3
-        for problem in analysis.problems:
-            f_range = problem.origin.get_file_span()
-            print(
-                problem.serialize(),
-                "in file:",
-                files["/main.tex"][f_range[0] : f_range[1]],
-            )
 
 
 #    def test_3(self):
