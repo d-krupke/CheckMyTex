@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 # Upload limits
@@ -16,6 +17,8 @@ PASTED_MAIN_FILENAME = "pasted_document.tex"
 # Runtime settings
 ANALYSIS_TIMEOUT = 120  # 2 minutes
 TEMPLATE_DIR = Path(__file__).parent / "templates"
+DEFAULT_IMPRINT_TEMPLATE = "imprint_placeholder.html"
+IMPRINT_TEMPLATE = os.environ.get("IMPRINT_TEMPLATE", DEFAULT_IMPRINT_TEMPLATE)
 
 # Feature toggles
 DEFAULT_CHECKERS = [

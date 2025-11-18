@@ -14,7 +14,6 @@ from checkmytex.latex_document.parser import LatexParser
 from checkmytex.reporting.extensions import (
     BasicMessageExtension,
     ChatGptLinkExtension,
-    LookupUrlExtension,
 )
 from checkmytex.reporting.html_report import HtmlReportGenerator
 from config import (
@@ -23,6 +22,8 @@ from config import (
     ANALYSIS_TIMEOUT,
     DEFAULT_CHECKERS,
     DEFAULT_FILTERS,
+    DEFAULT_IMPRINT_TEMPLATE,
+    IMPRINT_TEMPLATE,
     MAX_FILE_SIZE,
     MAX_TEXT_CHARACTERS,
     PASTED_MAIN_FILENAME,
@@ -32,6 +33,7 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from helpers import find_main_tex_in_dict, get_client_ip, parse_selection_payload
+from jinja2 import TemplateNotFound
 from zip_handler import extract_latex_files_to_dict, validate_zip_file
 
 # Logging configuration
@@ -56,6 +58,21 @@ async def index(request: Request):
 async def licenses(request: Request):
     """Show licenses page."""
     return templates.TemplateResponse("licenses.html", {"request": request})
+
+
+@app.get("/imprint")
+async def imprint(request: Request):
+    """Show imprint/legal notice."""
+    template_name = IMPRINT_TEMPLATE
+    try:
+        return templates.TemplateResponse(template_name, {"request": request})
+    except TemplateNotFound:
+        logger.warning(
+            "Imprint template '%s' not found; falling back to default", template_name
+        )
+        return templates.TemplateResponse(
+            DEFAULT_IMPRINT_TEMPLATE, {"request": request}
+        )
 
 
 @app.get("/health")
@@ -259,8 +276,7 @@ async def analyze(
         # Generate HTML report in memory with extensions
         extensions = [
             BasicMessageExtension(),  # Always include the basic message
-            ChatGptLinkExtension(model="gpt-4o"),  # Add ChatGPT help links
-            LookupUrlExtension(),  # Add documentation links if available
+            ChatGptLinkExtension(model="gpt-4o"),  # ChatGPT + docs + copy buttons
         ]
 
         report = HtmlReportGenerator(

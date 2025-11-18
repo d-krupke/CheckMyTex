@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprint / Legal Notice</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .notice {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        a {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Imprint / Legal Notice</h1>
+        <p class="notice">
+            This deployment has not configured a specific imprint/legal notice yet. Provide your jurisdiction-dependent content
+            by mounting a custom template into <code>web_app/templates</code> and setting the <code>IMPRINT_TEMPLATE</code> environment variable
+            (for example <code>IMPRINT_TEMPLATE=imprint_de.html</code>). The FastAPI service will automatically render that template instead of this placeholder.
+        </p>
+        <p>
+            If you operate CheckMyTex in a legal environment that requires disclosures (e.g., Impressum under §5 TMG in Germany), ensure you
+            publish the appropriate address, contact, VAT/Tax IDs, disclaimers, and privacy statements.
+        </p>
+    </div>
+</body>
+</html>

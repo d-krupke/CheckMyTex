@@ -44,6 +44,7 @@ class ChatGptLinkExtension(ProblemExtension):
 
         escaped_prompt = html.escape(copy_prompt)
         link_html = self._render_link_button(link_url, link_disabled)
+        learn_more_html = self._render_learn_more_button(context.problem.look_up_url)
 
         return (
             f'<div class="llm-help-buttons">'
@@ -55,6 +56,7 @@ class ChatGptLinkExtension(ProblemExtension):
             f"</svg>"
             f'<span class="copy-prompt-text">Copy prompt</span>'
             f"</button>"
+            f"{learn_more_html}"
             f"</div>"
         )
 
@@ -120,6 +122,28 @@ class ChatGptLinkExtension(ProblemExtension):
             background: #38a169;
         }
         .icon-copy {
+            width: 14px;
+            height: 14px;
+            fill: white;
+        }
+        .lookup-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #4a5568;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .lookup-link:hover {
+            background: #2d3748;
+            transform: translateY(-1px);
+        }
+        .icon-external {
             width: 14px;
             height: 14px;
             fill: white;
@@ -351,4 +375,20 @@ class ChatGptLinkExtension(ProblemExtension):
             f'target="_blank" rel="noopener noreferrer">'
             f"{content}"
             "</a>"
+        )
+
+    def _render_learn_more_button(self, url: str | None) -> str:
+        """Render documentation link if available."""
+        if not url:
+            return ""
+
+        escaped_url = html.escape(url)
+        return (
+            f'<a href="{escaped_url}" class="lookup-link" '
+            f'target="_blank" rel="noopener noreferrer">'
+            f'<svg class="icon-external" viewBox="0 0 24 24">'
+            f'<path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7z"/>'
+            f"</svg>"
+            f"Learn more"
+            f"</a>"
         )
