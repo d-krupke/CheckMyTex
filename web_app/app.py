@@ -5,12 +5,18 @@ from __future__ import annotations
 import asyncio
 import io
 import logging
+import uuid
 from datetime import datetime
 
 import flachtex
 from analyzer_factory import create_analyzer
-from checkmytex.cli.terminal_html_printer import TerminalHtmlPrinter
 from checkmytex.latex_document.parser import LatexParser
+from checkmytex.reporting.extensions import (
+    BasicMessageExtension,
+    ChatGptLinkExtension,
+    LookupUrlExtension,
+)
+from checkmytex.reporting.html_report import HtmlReportGenerator
 from config import (
     ALLOWED_CHECKERS,
     ALLOWED_FILTERS,
@@ -72,6 +78,8 @@ async def analyze(
     ),
 ):
     """Analyze uploaded ZIP file and return HTML report."""
+    # Generate unique request ID for tracking and abuse detection
+    request_id = str(uuid.uuid4())[:8]
     start_time = datetime.now()
     client_ip = get_client_ip(request)
 
@@ -83,8 +91,11 @@ async def analyze(
 
     filename = file.filename if file else None
     logger.info(
-        f"Analysis request from {client_ip} using {sanitized_mode} input "
-        f"(filename={filename or 'pasted-text'})"
+        "[%s] Analysis request from %s using %s input (filename=%s)",
+        request_id,
+        client_ip,
+        sanitized_mode,
+        filename or "pasted-text",
     )
 
     preloaded_file_dict: dict[str, str] | None = None
@@ -94,12 +105,15 @@ async def analyze(
 
     if sanitized_mode == "zip":
         if not file or not file.filename:
-            logger.warning(f"No file provided from {client_ip}")
+            logger.warning("[%s] No file provided from %s", request_id, client_ip)
             raise HTTPException(status_code=400, detail="Please upload a ZIP file")
 
         if not file.filename.lower().endswith(".zip"):
             logger.warning(
-                f"Invalid file type from {client_ip}: {file.filename}", exc_info=False
+                "[%s] Invalid file type from %s: %s",
+                request_id,
+                client_ip,
+                file.filename,
             )
             raise HTTPException(status_code=400, detail="Please upload a ZIP file")
 
@@ -109,8 +123,10 @@ async def analyze(
         # If we got more than MAX_FILE_SIZE, the file is too large
         if len(content) > MAX_FILE_SIZE:
             logger.warning(
-                f"File too large from {client_ip} "
-                f"(max {MAX_FILE_SIZE / 1024 / 1024:.0f}MB)"
+                "[%s] File too large from %s (max %.0fMB)",
+                request_id,
+                client_ip,
+                MAX_FILE_SIZE / 1024 / 1024,
             )
             raise HTTPException(
                 status_code=413,
@@ -120,7 +136,9 @@ async def analyze(
         # Create in-memory ZIP file (no disk I/O)
         zip_buffer = io.BytesIO(content)
 
-        logger.debug(f"Validating ZIP file: {len(content) / 1024:.1f}KB")
+        logger.debug(
+            "[%s] Validating ZIP file: %.1fKB", request_id, len(content) / 1024
+        )
 
         # Validate ZIP file (security checks: compression ratio, size)
         validate_zip_file(zip_buffer, len(content))
@@ -154,8 +172,11 @@ async def analyze(
     )
 
     logger.info(
-        f"Configuration from {client_ip}: "
-        f"checkers={enabled_checkers}, filters={enabled_filters}"
+        "[%s] Configuration from %s: checkers=%s, filters=%s",
+        request_id,
+        client_ip,
+        enabled_checkers,
+        enabled_filters,
     )
 
     try:
@@ -171,7 +192,9 @@ async def analyze(
                             status_code=400, detail="No ZIP file content provided"
                         )
 
-                    logger.debug("Extracting .tex and .bib files to memory")
+                    logger.debug(
+                        "[%s] Extracting .tex and .bib files to memory", request_id
+                    )
                     file_dict = await asyncio.to_thread(
                         extract_latex_files_to_dict, zip_buffer
                     )
@@ -179,19 +202,29 @@ async def analyze(
                     # Find main .tex file in dictionary
                     main_tex_filename = find_main_tex_in_dict(file_dict)
                     if not main_tex_filename:
-                        logger.warning(f"No .tex file found in ZIP from {client_ip}")
+                        logger.warning(
+                            "[%s] No .tex file found in ZIP from %s",
+                            request_id,
+                            client_ip,
+                        )
                         raise HTTPException(
                             status_code=400, detail="No .tex file found in ZIP"
                         )
 
                     logger.info(
-                        f"Found main .tex file in ZIP: {main_tex_filename} "
-                        f"({len(file_dict)} files total)"
+                        "[%s] Found main .tex file in ZIP: %s (%d files total)",
+                        request_id,
+                        main_tex_filename,
+                        len(file_dict),
                     )
                 else:
                     file_dict = preloaded_file_dict
                     main_tex_filename = preloaded_main_tex
-                    logger.info(f"Using pasted LaTeX input ({pasted_line_count} lines)")
+                    logger.info(
+                        "[%s] Using pasted LaTeX input (%d lines)",
+                        request_id,
+                        pasted_line_count,
+                    )
 
                 if not file_dict or not main_tex_filename:
                     raise HTTPException(
@@ -212,21 +245,37 @@ async def analyze(
                 analyzed_document = await asyncio.to_thread(run_analysis)
 
         except TimeoutError:
-            logger.error(f"Analysis timeout from {client_ip} after {ANALYSIS_TIMEOUT}s")
+            logger.error(
+                "[%s] Analysis timeout from %s after %ds",
+                request_id,
+                client_ip,
+                ANALYSIS_TIMEOUT,
+            )
             raise HTTPException(
                 status_code=504,
                 detail=f"Analysis took too long (timeout: {ANALYSIS_TIMEOUT}s)",
             ) from None
 
-        # Generate HTML report in memory
-        printer = TerminalHtmlPrinter(analyzed_document, shorten=5)
-        html_content = printer.render()
+        # Generate HTML report in memory with extensions
+        extensions = [
+            BasicMessageExtension(),  # Always include the basic message
+            ChatGptLinkExtension(model="gpt-4o"),  # Add ChatGPT help links
+            LookupUrlExtension(),  # Add documentation links if available
+        ]
+
+        report = HtmlReportGenerator(
+            analyzed_document, extensions=extensions, shorten=5
+        )
+        html_content = report.render()
 
         # Log success
         duration = (datetime.now() - start_time).total_seconds()
         logger.info(
-            f"Analysis completed for {client_ip} in {duration:.1f}s "
-            f"({len(analyzed_document.get_problems())} problems found)"
+            "[%s] Analysis completed for %s in %.1fs (%d problems found)",
+            request_id,
+            client_ip,
+            duration,
+            len(analyzed_document.get_problems()),
         )
 
         # Return the terminal-styled HTML
@@ -237,7 +286,12 @@ async def analyze(
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
         logger.error(
-            f"Analysis failed for {client_ip} after {duration:.1f}s: {type(e).__name__}: {e!s}",
+            "[%s] Analysis failed for %s after %.1fs: %s: %s",
+            request_id,
+            client_ip,
+            duration,
+            type(e).__name__,
+            str(e),
             exc_info=True,
         )
         raise HTTPException(
