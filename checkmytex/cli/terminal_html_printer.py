@@ -27,10 +27,15 @@ class TerminalHtmlPrinter:
 
     def to_html(self, path: str) -> None:
         """Generate and save HTML report to file."""
+        html_content = self.render()
+        with Path(path).open("w", encoding="utf-8") as f:
+            f.write(html_content)
+
+    def render(self) -> str:
+        """Generate the report and return it as an HTML string."""
         self.html_parts = []
         self._generate_html()
-        with Path(path).open("w", encoding="utf-8") as f:
-            f.write("\n".join(self.html_parts))
+        return "\n".join(self.html_parts)
 
     def _generate_html(self) -> None:
         """Generate the complete HTML document."""

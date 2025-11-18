@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # CheckMyTex FastAPI Application
   checkmytex:
@@ -22,7 +20,7 @@ services:
 
   # Nginx Reverse Proxy
   nginx:
-    image: nginx:1.25-alpine  # Small, secure base image
+    image: nginx:stable-alpine  # Small, secure base image (currently 1.28)
     container_name: checkmytex-nginx
     restart: unless-stopped
     ports:
