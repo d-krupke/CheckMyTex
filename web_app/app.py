@@ -8,6 +8,7 @@ import logging
 import uuid
 from datetime import datetime
 
+import checkmytex
 import flachtex
 from analyzer_factory import create_analyzer
 from checkmytex.latex_document.parser import LatexParser
@@ -78,7 +79,9 @@ def enforce_project_length_limit(
 @app.get("/")
 async def index(request: Request):
     """Show upload form."""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "version": checkmytex.__version__}
+    )
 
 
 @app.get("/licenses")
