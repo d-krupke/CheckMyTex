@@ -19,7 +19,9 @@ class Checker(abc.ABC):
     def is_available(self) -> bool:
         pass
 
-    def _run(self, cmd: str, input: str | None = None) -> tuple[str, str, int]:
+    def _run(
+        self, cmd: str, input: str | None = None, timeout: float = 300
+    ) -> tuple[str, str, int]:
         """
         Execute a shell command.
 
@@ -52,11 +54,11 @@ class Checker(abc.ABC):
                     input_bytes = str(input).replace("\t", " ").encode("utf-8")
 
                 try:
-                    out, err = proc.communicate(input=input_bytes, timeout=300)
+                    out, err = proc.communicate(input=input_bytes, timeout=timeout)
                 except subprocess.TimeoutExpired:
                     proc.kill()
                     out, err = proc.communicate()
-                    msg = f"Command timed out after 300 seconds: {cmd}"
+                    msg = f"Command timed out after {timeout} seconds: {cmd}"
                     raise subprocess.SubprocessError(msg) from None
 
                 return (

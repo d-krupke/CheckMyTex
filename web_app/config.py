@@ -16,6 +16,10 @@ PASTED_MAIN_FILENAME = "pasted_document.tex"
 
 # Runtime settings
 ANALYSIS_TIMEOUT = 120  # 2 minutes
+LANGUAGETOOL_MAX_CHARACTERS = int(
+    os.environ.get("LANGUAGETOOL_MAX_CHARACTERS", "80000")
+)
+LANGUAGETOOL_TIMEOUT = int(os.environ.get("LANGUAGETOOL_TIMEOUT", "120"))
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 DEFAULT_IMPRINT_TEMPLATE = "imprint_placeholder.html"
 IMPRINT_TEMPLATE = os.environ.get("IMPRINT_TEMPLATE", DEFAULT_IMPRINT_TEMPLATE)
@@ -46,3 +50,6 @@ DEFAULT_FILTERS = [
 
 ALLOWED_CHECKERS = set(DEFAULT_CHECKERS)
 ALLOWED_FILTERS = set(DEFAULT_FILTERS)
+
+# Approximate global LaTeX length limit (~300 pages worth of content)
+MAX_TOTAL_LATEX_CHARACTERS = int(os.environ.get("MAX_TOTAL_LATEX_CHARACTERS", "800000"))

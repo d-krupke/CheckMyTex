@@ -27,6 +27,7 @@ from checkmytex.finding import (
     TodoChecker,
     UniformNpHard,
 )
+from config import LANGUAGETOOL_MAX_CHARACTERS, LANGUAGETOOL_TIMEOUT
 
 
 def create_analyzer(
@@ -48,7 +49,12 @@ def create_analyzer(
 
     if "languagetool" in enabled_checkers:
         with suppress(Exception):
-            analyzer.add_checker(Languagetool())
+            analyzer.add_checker(
+                Languagetool(
+                    max_characters=LANGUAGETOOL_MAX_CHARACTERS,
+                    timeout_seconds=LANGUAGETOOL_TIMEOUT,
+                )
+            )
 
     if "chktex" in enabled_checkers:
         with suppress(Exception):

@@ -26,6 +26,7 @@ from config import (
     IMPRINT_TEMPLATE,
     MAX_FILE_SIZE,
     MAX_TEXT_CHARACTERS,
+    MAX_TOTAL_LATEX_CHARACTERS,
     PASTED_MAIN_FILENAME,
     TEMPLATE_DIR,
 )
@@ -44,6 +45,32 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="CheckMyTex Web Interface")
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
+
+# Helpers
+
+
+def enforce_project_length_limit(
+    file_dict: dict[str, str], request_id: str, client_ip: str
+) -> None:
+    """Raise if combined LaTeX sources exceed configured character limit."""
+    total_chars = sum(len(content or "") for content in file_dict.values())
+    if total_chars > MAX_TOTAL_LATEX_CHARACTERS:
+        approx_pages = max(1, total_chars // 2600)
+        logger.warning(
+            "[%s] Project too large from %s (%d chars ~%d pages)",
+            request_id,
+            client_ip,
+            total_chars,
+            approx_pages,
+        )
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                "Project appears to exceed roughly 300 pages. "
+                "Please trim the submission or run CheckMyTex locally."
+            ),
+        )
+
 
 # API Endpoints
 
@@ -176,6 +203,24 @@ async def analyze(
                 detail=f"Pasted content too large (max {MAX_TEXT_CHARACTERS:,} characters)",
             )
 
+        file_size_total = len(latex_text)
+        if file_size_total > MAX_TOTAL_LATEX_CHARACTERS:
+            approx_pages = max(1, file_size_total // 2600)
+            logger.warning(
+                "[%s] Pasted LaTeX too large from %s (%d chars ~%d pages)",
+                request_id,
+                client_ip,
+                file_size_total,
+                approx_pages,
+            )
+            raise HTTPException(
+                status_code=413,
+                detail=(
+                    "Pasted LaTeX exceeds the supported size (~300 pages). "
+                    "Please run CheckMyTex locally for very large documents."
+                ),
+            )
+
         preloaded_file_dict = {PASTED_MAIN_FILENAME: latex_text}
         preloaded_main_tex = PASTED_MAIN_FILENAME
         pasted_line_count = latex_text.count("\n") + 1
@@ -234,6 +279,7 @@ async def analyze(
                         main_tex_filename,
                         len(file_dict),
                     )
+                    enforce_project_length_limit(file_dict, request_id, client_ip)
                 else:
                     file_dict = preloaded_file_dict
                     main_tex_filename = preloaded_main_tex
@@ -242,6 +288,7 @@ async def analyze(
                         request_id,
                         pasted_line_count,
                     )
+                    enforce_project_length_limit(file_dict, request_id, client_ip)
 
                 if not file_dict or not main_tex_filename:
                     raise HTTPException(

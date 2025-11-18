@@ -215,6 +215,11 @@ class HtmlReportGenerator:
             border-radius: 2px;
         }
 
+        /* Syntax highlighting within problem highlights */
+        .highlight .command { color: #dcdcaa; }
+        .highlight .bracket { color: #ffd700; }
+        .highlight .comment { color: #6a9955; }
+
         .problem-box {
             margin: 12px 0 12px 62px;
             padding: 12px;
@@ -513,8 +518,9 @@ class HtmlReportGenerator:
                 before = html.escape(line_content[pos:start])
                 result.append(self._apply_latex_highlighting(before))
 
-            # Add highlighted text (no LaTeX highlighting to keep it clear)
+            # Add highlighted text with LaTeX syntax highlighting
             highlight_text = html.escape(line_content[start:end])
+            highlight_text = self._apply_latex_highlighting(highlight_text)
             result.append(f'<span class="highlight">{highlight_text}</span>')
             pos = end
 
@@ -527,16 +533,43 @@ class HtmlReportGenerator:
 
     def _apply_latex_highlighting(self, content: str) -> str:
         """Apply basic LaTeX syntax highlighting."""
-        # This is a simple highlighter - could be enhanced
+        # Split content into comment and non-comment parts to avoid
+        # highlighting commands inside comments
 
-        # Highlight comments
-        content = re.sub(r"(%.*)", r'<span class="comment">\1</span>', content)
+        comment_pattern = r"%.*"
+        parts = []
+        last_end = 0
 
-        # Highlight commands
-        content = re.sub(r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', content)
+        for match in re.finditer(comment_pattern, content):
+            # Add non-comment part before this comment
+            if match.start() > last_end:
+                non_comment = content[last_end : match.start()]
+                # Apply command and bracket highlighting to non-comment part
+                non_comment = re.sub(
+                    r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', non_comment
+                )
+                non_comment = re.sub(
+                    r"([{}[\]])", r'<span class="bracket">\1</span>', non_comment
+                )
+                parts.append(non_comment)
 
-        # Highlight brackets
-        return re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
+            # Add comment part (wrapped in comment span)
+            comment = match.group(0)
+            parts.append(f'<span class="comment">{comment}</span>')
+            last_end = match.end()
+
+        # Add any remaining non-comment part
+        if last_end < len(content):
+            non_comment = content[last_end:]
+            non_comment = re.sub(
+                r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', non_comment
+            )
+            non_comment = re.sub(
+                r"([{}[\]])", r'<span class="bracket">\1</span>', non_comment
+            )
+            parts.append(non_comment)
+
+        return "".join(parts)
 
     def _add_orphaned_problems(self) -> None:
         """Add orphaned problems section with extension support."""
