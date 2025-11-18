@@ -11,7 +11,7 @@ cd web_app
 ```
 Visit http://localhost → See [DOCKER.md](DOCKER.md)
 
-**Local development:**
+**Local development (Python 3.11+):**
 ```bash
 pip install -e .. -r requirements.txt
 python app.py
@@ -23,6 +23,7 @@ Visit http://localhost:5000
 ## Features
 
 - **10 Checkers**: Aspell, LanguageTool, ChkTeX, Proselint, SiUnitx, Cleveref, NP-Hard, LineLengthChecker, TodoChecker, CheckSpell
+- **Flexible Input**: Upload a ZIP project or paste a single LaTeX file directly
 - **8 Filters**: Configurable false positive reduction
 - **Security**: Rate limiting, file validation, resource limits
 - **Output**: Terminal-styled HTML with syntax highlighting

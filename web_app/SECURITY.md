@@ -2,6 +2,65 @@
 
 This document explains the security features implemented in the CheckMyTex web interface and provides guidance on additional protections.
 
+## Recent Security Enhancements (2025-11)
+
+### Enhanced Path Traversal Protection ✅ (Critical)
+**Location**: `zip_handler.py:22-75`
+
+**Improvements**:
+- **Unicode normalization (NFKC)**: Prevents Unicode homograph attacks
+- **Comprehensive path validation**: Rejects absolute paths, `..`, backslashes
+- **Symlink detection**: Blocks symbolic links in ZIP archives
+- **Directory filtering**: Skips directory entries
+- **PurePosixPath validation**: Safe cross-platform path parsing
+
+**What it protects against**:
+- `../../etc/passwd` - Parent directory traversal
+- `/etc/passwd` - Absolute path access
+- `C:\Windows\System32` - Windows absolute paths
+- `\\server\share` - UNC paths
+- `%2e%2e/file` - URL-encoded traversal
+- Unicode tricks (e.g., fullwidth dots)
+- Symlinks pointing outside extraction directory
+
+### Request Correlation IDs ✅ (Important)
+**Location**: `app.py:77`
+
+**Implementation**:
+```python
+request_id = str(uuid.uuid4())[:8]  # e.g., "a3f2b1c9"
+logger.info("[%s] Analysis request from %s...", request_id, client_ip)
+```
+
+**Benefits**:
+- Track individual requests across log entries
+- Correlate errors with specific uploads
+- Identify abuse patterns from specific IPs
+- Debug issues with unique identifiers
+
+**Example logs**:
+```
+[a3f2b1c9] Analysis request from 192.168.1.100 using zip input
+[a3f2b1c9] Validating ZIP file: 156.3KB
+[a3f2b1c9] Found main .tex file: thesis/main.tex
+[a3f2b1c9] Analysis completed for 192.168.1.100 in 26.3s
+```
+
+### Proper Logging Practices ✅
+**All logging now uses lazy evaluation** instead of f-strings:
+```python
+# ❌ BAD (eager evaluation)
+logger.info(f"Request from {ip} for {file}")
+
+# ✅ GOOD (lazy evaluation - only formats if logged)
+logger.info("Request from %s for %s", ip, file)
+```
+
+**Why it matters**:
+- More efficient (no string formatting if log level disabled)
+- Better performance under load
+- Prevents side effects in format strings
+
 ## Implemented Security Features
 
 ### 1. File Size Limits ✅ (Critical)

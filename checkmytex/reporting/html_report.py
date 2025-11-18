@@ -1,4 +1,4 @@
-"""Terminal-styled HTML printer for CheckMyTex analysis results."""
+"""HTML report generator for CheckMyTex analysis results."""
 
 from __future__ import annotations
 
@@ -10,27 +10,48 @@ from pathlib import Path
 
 from checkmytex import AnalyzedDocument
 from checkmytex.finding import Problem
+from checkmytex.reporting.extension_base import ExtensionContext, ProblemExtension
 
 
-class TerminalHtmlPrinter:
-    """Generate terminal-styled HTML output for CheckMyTex analysis."""
+class HtmlReportGenerator:
+    """Generate HTML reports for CheckMyTex analysis with extension support."""
 
     def __init__(
         self,
         analysis: AnalyzedDocument,
+        extensions: list[ProblemExtension] | None = None,
         shorten: int | None = 5,
     ):
+        """
+        Args:
+            analysis: The analyzed document
+            extensions: List of problem extensions to apply
+            shorten: Number of context lines around problems (None = all)
+        """
         self.analysis = analysis
+        self.extensions = self._sort_extensions(extensions or [])
         self.shorten = shorten
         self.file_prefix = os.path.commonpath(list(self.analysis.list_files()))
         self.html_parts: list[str] = []
 
+    def _sort_extensions(
+        self,
+        extensions: list[ProblemExtension],
+    ) -> list[ProblemExtension]:
+        """Sort extensions by priority."""
+        return sorted(extensions, key=lambda e: e.priority())
+
     def to_html(self, path: str) -> None:
         """Generate and save HTML report to file."""
+        html_content = self.render()
+        with Path(path).open("w", encoding="utf-8") as f:
+            f.write(html_content)
+
+    def render(self) -> str:
+        """Generate the report and return it as an HTML string."""
         self.html_parts = []
         self._generate_html()
-        with Path(path).open("w", encoding="utf-8") as f:
-            f.write("\n".join(self.html_parts))
+        return "\n".join(self.html_parts)
 
     def _generate_html(self) -> None:
         """Generate the complete HTML document."""
@@ -46,14 +67,32 @@ class TerminalHtmlPrinter:
         self._add_footer()
 
     def _add_header(self) -> None:
-        """Add HTML header with styles."""
-        self.html_parts.append("""<!DOCTYPE html>
+        """Add HTML header with base styles + extension styles."""
+        # Collect CSS from all extensions
+        css_parts = [self._get_base_css()]
+        for extension in self.extensions:
+            ext_css = extension.get_css()
+            if ext_css:
+                css_parts.append(ext_css)
+
+        combined_css = "\n".join(css_parts)
+
+        self.html_parts.append(f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CheckMyTex Report</title>
     <style>
+{combined_css}
+    </style>
+</head>
+<body>
+    <div class="container">""")
+
+    def _get_base_css(self) -> str:
+        """Base CSS for report structure."""
+        return """
         * {
             margin: 0;
             padding: 0;
@@ -176,14 +215,25 @@ class TerminalHtmlPrinter:
             border-radius: 2px;
         }
 
-        .problem {
-            color: #f48771;
-            font-weight: bold;
-            margin: 8px 0 8px 62px;
-            padding: 8px 12px;
+        /* Syntax highlighting within problem highlights */
+        .highlight .command { color: #dcdcaa; }
+        .highlight .bracket { color: #ffd700; }
+        .highlight .comment { color: #6a9955; }
+
+        .problem-box {
+            margin: 12px 0 12px 62px;
+            padding: 12px;
             background-color: #2a2a2a;
             border-left: 4px solid #f48771;
-            border-radius: 2px;
+            border-radius: 4px;
+        }
+
+        .problem-line {
+            padding: 4px 0;
+        }
+
+        .problem-line:not(:last-child) {
+            margin-bottom: 8px;
         }
 
         .ellipsis {
@@ -199,16 +249,27 @@ class TerminalHtmlPrinter:
         .command { color: #dcdcaa; }
         .bracket { color: #ffd700; }
         .parameter { color: #9cdcfe; }
-    </style>
-</head>
-<body>
-    <div class="container">""")
+        """
 
     def _add_footer(self) -> None:
         """Add HTML footer."""
-        self.html_parts.append("""    </div>
+        extension_js = self._get_extension_js()
+        script_block = ""
+        if extension_js:
+            script_block = f"\n    <script>\n{extension_js}\n    </script>"
+
+        self.html_parts.append(f"""    </div>{script_block}
 </body>
 </html>""")
+
+    def _get_extension_js(self) -> str:
+        """Collect JavaScript snippets from extensions."""
+        scripts: list[str] = []
+        for extension in self.extensions:
+            script = extension.get_js()
+            if script:
+                scripts.append(script)
+        return "\n".join(scripts)
 
     def _add_title(self) -> None:
         """Add report title."""
@@ -321,9 +382,10 @@ class TerminalHtmlPrinter:
         highlights: list[tuple[int, int]],
         problems: list[Problem],
     ) -> None:
-        """Add a code block with line numbers."""
+        """Add a code block with line numbers and extension-based problem boxes."""
         self.html_parts.append('        <div class="code-block">')
 
+        # Render code lines
         for line_idx in range(start_line, end_line):
             line_content = self.analysis.document.get_file_content(filename, line_idx)
             if line_content and line_content.endswith("\n"):
@@ -346,12 +408,86 @@ class TerminalHtmlPrinter:
             )
             self.html_parts.append("            </div>")
 
-        # Add problems
+        # Render EACH problem as a separate box (multiple problems per line!)
         for prob in problems:
-            msg = html.escape(f">>> [{prob.tool}] {prob.message}")
-            self.html_parts.append(f'        <div class="problem">{msg}</div>')
+            problem_html = self._render_problem_box(
+                problem=prob,
+                filename=filename,
+                line_number=highlight_line,
+            )
+            if problem_html:  # Extensions might skip rendering
+                self.html_parts.append(problem_html)
 
         self.html_parts.append("        </div>")
+
+    def _render_problem_box(
+        self,
+        problem: Problem,
+        filename: str | None = None,
+        line_number: int | None = None,
+    ) -> str:
+        """
+        Render ONE problem as a box with stacked extension lines.
+
+        Called multiple times within _add_code_block() - once per problem.
+        """
+        # Build context for this specific problem
+        code_snippet = (
+            self._get_code_snippet(filename, line_number)
+            if filename and line_number is not None
+            else None
+        )
+        context = ExtensionContext(
+            problem=problem,
+            filename=filename,
+            line_number=line_number,
+            code_snippet=code_snippet,
+            document=self.analysis.document,
+        )
+
+        # Collect lines from ALL extensions
+        lines = []
+        for extension in self.extensions:
+            line_html = extension.render_line(context)
+            if line_html:  # Extension can return None to skip
+                lines.append(line_html)
+
+        # If no extensions rendered anything, skip this problem box entirely
+        if not lines:
+            return ""
+
+        # Wrap each line in a div and assemble the box
+        lines_html = "\n".join(
+            f'            <div class="problem-line">{line}</div>' for line in lines
+        )
+
+        return f'        <div class="problem-box">\n{lines_html}\n        </div>'
+
+    def _get_code_snippet(
+        self,
+        filename: str,
+        line_number: int,
+        lines_before: int = 3,
+        lines_after: int = 3,
+    ) -> str:
+        """Get code snippet around a line."""
+        snippet_lines = []
+        for offset in range(-lines_before, lines_after + 1):
+            line_idx = line_number + offset
+
+            # Skip negative line numbers
+            if line_idx < 0:
+                continue
+
+            try:
+                content = self.analysis.document.get_file_content(filename, line_idx)
+                if content:
+                    snippet_lines.append(f"{line_idx}: {content.rstrip()}")
+            except (IndexError, KeyError):
+                # Line doesn't exist (beyond file end or invalid file)
+                continue
+
+        return "\n".join(snippet_lines)
 
     def _highlight_ranges(
         self, line_content: str, highlights: list[tuple[int, int]]
@@ -382,8 +518,9 @@ class TerminalHtmlPrinter:
                 before = html.escape(line_content[pos:start])
                 result.append(self._apply_latex_highlighting(before))
 
-            # Add highlighted text (no LaTeX highlighting to keep it clear)
+            # Add highlighted text with LaTeX syntax highlighting
             highlight_text = html.escape(line_content[start:end])
+            highlight_text = self._apply_latex_highlighting(highlight_text)
             result.append(f'<span class="highlight">{highlight_text}</span>')
             pos = end
 
@@ -396,19 +533,46 @@ class TerminalHtmlPrinter:
 
     def _apply_latex_highlighting(self, content: str) -> str:
         """Apply basic LaTeX syntax highlighting."""
-        # This is a simple highlighter - could be enhanced
+        # Split content into comment and non-comment parts to avoid
+        # highlighting commands inside comments
 
-        # Highlight comments
-        content = re.sub(r"(%.*)", r'<span class="comment">\1</span>', content)
+        comment_pattern = r"%.*"
+        parts = []
+        last_end = 0
 
-        # Highlight commands
-        content = re.sub(r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', content)
+        for match in re.finditer(comment_pattern, content):
+            # Add non-comment part before this comment
+            if match.start() > last_end:
+                non_comment = content[last_end : match.start()]
+                # Apply command and bracket highlighting to non-comment part
+                non_comment = re.sub(
+                    r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', non_comment
+                )
+                non_comment = re.sub(
+                    r"([{}[\]])", r'<span class="bracket">\1</span>', non_comment
+                )
+                parts.append(non_comment)
 
-        # Highlight brackets
-        return re.sub(r"([{}[\]])", r'<span class="bracket">\1</span>', content)
+            # Add comment part (wrapped in comment span)
+            comment = match.group(0)
+            parts.append(f'<span class="comment">{comment}</span>')
+            last_end = match.end()
+
+        # Add any remaining non-comment part
+        if last_end < len(content):
+            non_comment = content[last_end:]
+            non_comment = re.sub(
+                r"(\\[a-zA-Z@]+)", r'<span class="command">\1</span>', non_comment
+            )
+            non_comment = re.sub(
+                r"([{}[\]])", r'<span class="bracket">\1</span>', non_comment
+            )
+            parts.append(non_comment)
+
+        return "".join(parts)
 
     def _add_orphaned_problems(self) -> None:
-        """Add orphaned problems section."""
+        """Add orphaned problems section with extension support."""
         problems = self.analysis.get_orphaned_problems()
         if not problems:
             return
@@ -416,6 +580,8 @@ class TerminalHtmlPrinter:
         self.html_parts.append(
             '        <div class="separator">─────── Other problems ───────</div>'
         )
+
         for prob in problems:
-            msg = html.escape(f">>> [{prob.tool}] {prob.message}")
-            self.html_parts.append(f'        <div class="problem">{msg}</div>')
+            problem_html = self._render_problem_box(problem=prob)
+            if problem_html:
+                self.html_parts.append(problem_html)

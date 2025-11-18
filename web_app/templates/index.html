@@ -42,6 +42,70 @@
             font-size: 16px;
         }
 
+        .input-mode {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mode-option {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .mode-option input {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .mode-option.active {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+            color: #333;
+        }
+
+        .text-input-section {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-family: "Fira Code", Consolas, "Courier New", monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .text-helper {
+            color: #777;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .upload-area {
             border: 2px dashed #667eea;
             border-radius: 8px;
@@ -131,8 +195,32 @@
 
         .loading {
             display: none;
+            margin-top: 24px;
+            padding: 24px;
+            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.3);
             text-align: center;
-            margin-top: 20px;
+            color: #444;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2.5s infinite;
+        }
+
+        .loading-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
         .loading.active {
@@ -140,18 +228,47 @@
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
+            border: 3px solid rgba(255, 255, 255, 0.6);
             border-top: 3px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+            width: 46px;
+            height: 46px;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loading-message {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-subtext {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: fadeSlide 2.5s ease-in-out infinite;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0.6; transform: translateY(4px); }
+            50% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0.6; transform: translateY(4px); }
         }
 
         .error {
@@ -312,17 +429,35 @@
 <body>
     <div class="container">
         <h1>📝 CheckMyTex</h1>
-        <p class="subtitle">Upload your LaTeX project for analysis</p>
+        <p class="subtitle">Upload or paste your LaTeX project for analysis</p>
 
         <form id="uploadForm">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📦</div>
-                <div class="upload-text">
-                    <strong>Click to upload</strong> or drag and drop
+            <div class="input-mode" id="inputModeToggle">
+                <label class="mode-option active">
+                    <input type="radio" name="inputMode" value="zip" checked>
+                    <span>Upload ZIP Project</span>
+                </label>
+                <label class="mode-option">
+                    <input type="radio" name="inputMode" value="text">
+                    <span>Paste LaTeX Source</span>
+                </label>
+            </div>
+
+            <div id="zipInputSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📦</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag and drop
+                    </div>
+                    <div style="color: #999; font-size: 14px;">ZIP file (max 10MB)</div>
+                    <input type="file" name="file" id="fileInput" accept=".zip">
+                    <div class="file-name" id="fileName"></div>
                 </div>
-                <div style="color: #999; font-size: 14px;">ZIP file (max 10MB)</div>
-                <input type="file" name="file" id="fileInput" accept=".zip">
-                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <div id="textInputSection" class="text-input-section hidden">
+                <textarea id="latexInput" name="latex_text" placeholder="Paste your LaTeX source (main .tex file) here..."></textarea>
+                <div class="text-helper">Max ~200k characters. This mode treats the pasted text as the main .tex file.</div>
             </div>
 
             <div class="config-section">
@@ -505,8 +640,17 @@
         </form>
 
         <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #666;">Analyzing your document...</p>
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p class="loading-message">Analyzing your document…</p>
+                <p class="loading-subtext">
+                    This can take up to a minute, especially for large projects. Uploads that hog too many resources may get gently
+                    terminated—this is a free demo running on a tiny server with delusions of grandeur.
+                </p>
+                <p class="loading-subtext">
+                    Got a thesis from here to Alpha Centauri? Fire up your own local CheckMyTex instance for the best experience (and fewer dramatic exits).
+                </p>
+            </div>
         </div>
 
         <div class="error" id="error"></div>
@@ -535,11 +679,12 @@
 
         <div class="footer">
             <div>
-                ⭐ <a href="https://github.com/d-krupke/CheckMyTex" target="_blank">CheckMyTex on GitHub</a> -
+                ⭐ <a href="https://github.com/d-krupke/CheckMyTex" target="_blank">CheckMyTex</a> v{{ version }} -
                 An open-source LaTeX checker by Dominik Krupke
             </div>
             <div style="margin-top: 8px;">
-                <a href="/licenses">📜 View Open Source Licenses</a>
+                <a href="/licenses">📜 Open Source Licenses</a> ·
+                <a href="/imprint">⚖️ Imprint / Legal Notice</a>
             </div>
             <div class="footer-disclaimer">
                 This tool provides automated suggestions. Always review results carefully and use your judgment.
@@ -556,17 +701,62 @@
         const uploadForm = document.getElementById('uploadForm');
         const loading = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
+        const latexInput = document.getElementById('latexInput');
+        const zipInputSection = document.getElementById('zipInputSection');
+        const textInputSection = document.getElementById('textInputSection');
+        const inputModeRadios = document.querySelectorAll('input[name="inputMode"]');
+        const modeOptionLabels = document.querySelectorAll('.mode-option');
+        let currentMode = 'zip';
 
         // Click to upload
         uploadArea.addEventListener('click', () => fileInput.click());
+
+        function updateModeLabels() {
+            modeOptionLabels.forEach((label) => {
+                const radio = label.querySelector('input');
+                if (radio && radio.value === currentMode) {
+                    label.classList.add('active');
+                } else {
+                    label.classList.remove('active');
+                }
+            });
+        }
+
+        function updateSubmitState() {
+            if (currentMode === 'zip') {
+                submitBtn.disabled = !fileInput.files[0];
+            } else {
+                submitBtn.disabled = latexInput.value.trim().length === 0;
+            }
+        }
+
+        function setInputMode(mode) {
+            currentMode = mode;
+            if (mode === 'text') {
+                zipInputSection.classList.add('hidden');
+                textInputSection.classList.remove('hidden');
+            } else {
+                zipInputSection.classList.remove('hidden');
+                textInputSection.classList.add('hidden');
+            }
+            errorDiv.classList.remove('active');
+            updateModeLabels();
+            updateSubmitState();
+        }
+
+        inputModeRadios.forEach((radio) => {
+            radio.addEventListener('change', (event) => setInputMode(event.target.value));
+        });
 
         // File selection
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 fileName.textContent = `Selected: ${file.name}`;
-                submitBtn.disabled = false;
+            } else {
+                fileName.textContent = '';
             }
+            updateSubmitState();
         });
 
         // Drag and drop
@@ -584,26 +774,126 @@
             uploadArea.classList.remove('dragover');
 
             const file = e.dataTransfer.files[0];
-            if (file && file.name.endsWith('.zip')) {
+            if (file && file.name.toLowerCase().endsWith('.zip')) {
                 fileInput.files = e.dataTransfer.files;
                 fileName.textContent = `Selected: ${file.name}`;
-                submitBtn.disabled = false;
+            } else {
+                fileName.textContent = '';
             }
+            updateSubmitState();
         });
+
+        latexInput.addEventListener('input', () => {
+            updateSubmitState();
+        });
+
+        function openResultWindow() {
+            const win = window.open('', '_blank');
+            if (win) {
+                const loadingHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Preparing report…</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: radial-gradient(circle at top, #1f2937, #0d1117 70%);
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .loading-card {
+            width: min(480px, 90vw);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 36px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            border-top-color: #a78bfa;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        h2 {
+            margin: 0 0 0.6rem 0;
+            font-size: 1.6rem;
+        }
+        p {
+            margin: 0.2rem 0;
+            color: #cbd5f5;
+            line-height: 1.5;
+        }
+        .subtle {
+            font-size: 0.95rem;
+            color: #a5b4fc;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-card">
+        <div class="spinner"></div>
+        <h2>Preparing your report…</h2>
+        <p>This can take up to a minute depending on project size. If your document tries to eat all the CPU, the tiny demo server might yeet it into the void.</p>
+        <p class="subtle">Working on a thesis the size of a galaxy? Consider running CheckMyTex locally for unlimited cosmic power (and fewer timeouts).</p>
+    </div>
+</body>
+</html>`;
+                win.document.open();
+                win.document.write(loadingHtml);
+                win.document.close();
+            }
+            return win;
+        }
 
         // Form submission
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const selectedMode = currentMode;
             const file = fileInput.files[0];
-            if (!file) return;
+            const latexValue = latexInput.value.trim();
+
+            if (selectedMode === 'zip' && (!file || !file.name.toLowerCase().endsWith('.zip'))) {
+                errorDiv.textContent = 'Please select a ZIP file first.';
+                errorDiv.classList.add('active');
+                return;
+            }
+
+            if (selectedMode === 'text' && !latexValue) {
+                errorDiv.textContent = 'Please paste LaTeX content first.';
+                errorDiv.classList.add('active');
+                return;
+            }
 
             loading.classList.add('active');
             errorDiv.classList.remove('active');
             submitBtn.disabled = true;
 
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('input_mode', selectedMode);
+
+            if (selectedMode === 'zip' && file) {
+                formData.append('file', file);
+            } else if (selectedMode === 'text') {
+                formData.append('latex_text', latexValue);
+            }
 
             // Collect selected checkers
             const checkers = Array.from(document.querySelectorAll('input[name="checker"]:checked'))
@@ -615,30 +905,52 @@
                 .map(cb => cb.value);
             formData.append('filters', JSON.stringify(filters));
 
+            const resultWindow = openResultWindow();
+
             try {
                 const response = await fetch('/analyze', {
                     method: 'POST',
                     body: formData
                 });
 
+                const body = await response.text();
+
                 if (!response.ok) {
-                    const error = await response.text();
-                    throw new Error(error);
+                    let message = body || 'Analysis failed';
+                    try {
+                        const parsed = JSON.parse(body);
+                        if (parsed && typeof parsed.detail === 'string') {
+                            message = parsed.detail;
+                        }
+                    } catch (err) {
+                        // ignore JSON parse failure
+                    }
+                    throw new Error(message);
                 }
 
-                // Open result in new window
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
+                if (resultWindow) {
+                    resultWindow.document.open();
+                    resultWindow.document.write(body);
+                    resultWindow.document.close();
+                } else {
+                    const blob = new Blob([body], { type: 'text/html' });
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                }
 
             } catch (error) {
+                if (resultWindow && !resultWindow.closed) {
+                    resultWindow.close();
+                }
                 errorDiv.textContent = `Error: ${error.message}`;
                 errorDiv.classList.add('active');
             } finally {
                 loading.classList.remove('active');
-                submitBtn.disabled = false;
+                updateSubmitState();
             }
         });
+
+        setInputMode('zip');
     </script>
 </body>
 </html>

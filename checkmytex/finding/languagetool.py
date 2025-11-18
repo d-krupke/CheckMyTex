@@ -9,7 +9,12 @@ from .problem import Problem
 
 
 class Languagetool(Checker):
-    def __init__(self, lang="en-US"):
+    def __init__(
+        self,
+        lang: str = "en-US",
+        max_characters: int | None = None,
+        timeout_seconds: int = 300,
+    ):
         """
         If you modify the language, you may also have to modify the
         `disable_rules`. These can be modified any time before running `check`.
@@ -18,6 +23,8 @@ class Languagetool(Checker):
         """
         super().__init__()
         self._lang = lang
+        self.max_characters = max_characters
+        self.timeout_seconds = timeout_seconds
         self.disable_rules = [
             f"MORFOLOGIK_RULE_{lang.upper().replace('-', '_').strip()}",
             # disable spell checking because it is very slow.
@@ -30,11 +37,12 @@ class Languagetool(Checker):
             "CONSECUTIVE_SPACES",
         ]
 
-    def _get_languagetool_json(self, document: LatexDocument) -> dict:
+    def _get_languagetool_json(self, text: str) -> dict:
         result, err, _ex = self._run(
             f"{shutil.which('languagetool')} --json -l {self._lang} "
             f"--disable {','.join(self.disable_rules)}",
-            input=document.get_text(),
+            input=text,
+            timeout=self.timeout_seconds,
         )
         if err:
             self.log(err)
@@ -51,7 +59,27 @@ class Languagetool(Checker):
 
     def check(self, document: LatexDocument) -> typing.Iterable[Problem]:
         self.log("Running Languagetool...")
-        data = self._get_languagetool_json(document=document)
+        text = document.get_text()
+        if self.max_characters and len(text) > self.max_characters:
+            warning_message = (
+                "LanguageTool skipped: detexed text is very large "
+                f"({len(text):,} characters, limit {self.max_characters:,}). "
+                "Please run CheckMyTex locally for full grammar coverage."
+            )
+            self.log(warning_message)
+            origin = document.get_simplified_origin_of_source(0, 1)
+            yield Problem(
+                origin=origin,
+                context=document.get_source_context(origin, 80),
+                message=warning_message,
+                long_id=f"languagetool-skipped-size-{origin.get_file()}",
+                tool="checkmytex",
+                rule="LANGUAGETOOL_SKIPPED_SIZE",
+                look_up_url=None,
+            )
+            return
+
+        data = self._get_languagetool_json(text=text)
         for problem in data["matches"]:
             try:
                 look_up_url = problem["rule"]["urls"][0]["value"]
