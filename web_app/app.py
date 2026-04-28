@@ -80,14 +80,14 @@ def enforce_project_length_limit(
 async def index(request: Request):
     """Show upload form."""
     return templates.TemplateResponse(
-        "index.html", {"request": request, "version": checkmytex.__version__}
+        request, "index.html", {"version": checkmytex.__version__}
     )
 
 
 @app.get("/licenses")
 async def licenses(request: Request):
     """Show licenses page."""
-    return templates.TemplateResponse("licenses.html", {"request": request})
+    return templates.TemplateResponse(request, "licenses.html")
 
 
 @app.get("/imprint")
@@ -95,14 +95,12 @@ async def imprint(request: Request):
     """Show imprint/legal notice."""
     template_name = IMPRINT_TEMPLATE
     try:
-        return templates.TemplateResponse(template_name, {"request": request})
+        return templates.TemplateResponse(request, template_name)
     except TemplateNotFound:
         logger.warning(
             "Imprint template '%s' not found; falling back to default", template_name
         )
-        return templates.TemplateResponse(
-            DEFAULT_IMPRINT_TEMPLATE, {"request": request}
-        )
+        return templates.TemplateResponse(request, DEFAULT_IMPRINT_TEMPLATE)
 
 
 @app.get("/health")
